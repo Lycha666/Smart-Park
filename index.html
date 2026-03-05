@@ -40,27 +40,30 @@ const ADMIN_PASS  = 'admin123';
 // Konto admina tworzone ręcznie w Firebase Console
 // Admin rozpoznawany po emailu: admin@parkingi.local
 
-// Utwórz konto admina tylko raz (przy pierwszym uruchomieniu)
+// Utwórz konto admina tylko raz
 async function setupAdminAccount() {
   if (localStorage.getItem('adminSetupDone')) return;
   try {
-    // Sprawdź czy konto już istnieje próbując się zalogować
+    let uid = null;
+
+    // Sprawdź czy konto już istnieje
     try {
       const cred = await signInWithEmailAndPassword(auth, ADMIN_EMAIL, ADMIN_PASS);
-      await signOut(auth);
-      localStorage.setItem('adminSetupDone', '1');
-      console.log('✅ Admin już istnieje');
-      return;
-    } catch(e) { /* konto nie istnieje – tworzymy */ }
+      uid = cred.user.uid;
+    } catch(e) {
+      // Konto nie istnieje — utwórz
+      const c = await createUserWithEmailAndPassword(auth, ADMIN_EMAIL, ADMIN_PASS);
+      await updateProfile(c.user, { displayName: 'Administrator' });
+      uid = c.user.uid;
+    }
 
-    const c = await createUserWithEmailAndPassword(auth, ADMIN_EMAIL, ADMIN_PASS);
-    await updateProfile(c.user, { displayName: 'Administrator' });
-    // Zapisz w Firestore
-    await setDoc(doc(db, 'admins', c.user.uid), { email: ADMIN_EMAIL, createdAt: Date.now(), role: 'superadmin' });
-    await setDoc(doc(db, 'userProfiles', c.user.uid), { displayName: 'Administrator', email: ADMIN_EMAIL, createdAt: Date.now(), uid: c.user.uid });
+    // Teraz jesteśmy zalogowani jako admin — możemy pisać do Firestore
+    await setDoc(doc(db, 'admins', uid), { email: ADMIN_EMAIL, createdAt: Date.now(), role: 'superadmin' });
+    await setDoc(doc(db, 'userProfiles', uid), { displayName: 'Administrator', email: ADMIN_EMAIL, createdAt: Date.now(), uid });
+
     await signOut(auth);
     localStorage.setItem('adminSetupDone', '1');
-    console.log('✅ Konto admina utworzone:', ADMIN_EMAIL);
+    console.log('✅ Konto admina gotowe');
   } catch(e) {
     console.warn('Admin setup:', e.code, e.message);
     try { await signOut(auth); } catch(_) {}
