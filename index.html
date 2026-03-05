@@ -13,13 +13,13 @@ import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, si
 import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where, updateDoc, getDoc, setDoc, increment, orderBy, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBNv_WLV8D-TBv2FLWTPYdPyfga3BLZUkI",
-  authDomain: "parkingi-wroclaw-aa089.firebaseapp.com",
-  projectId: "parkingi-wroclaw-aa089",
-  storageBucket: "parkingi-wroclaw-aa089.firebasestorage.app",
-  messagingSenderId: "159475925835",
-  appId: "1:159475925835:web:03b70cbc2a0733fb661ece",
-  measurementId: "G-N5C88HNN5B"
+  apiKey: "AIzaSyCJcZyEPsT30fLzDx-To2lpoSCccM_GOCo",
+  authDomain: "smart-park-9c5a6.firebaseapp.com",
+  projectId: "smart-park-9c5a6",
+  storageBucket: "smart-park-9c5a6.firebasestorage.app",
+  messagingSenderId: "1076422948672",
+  appId: "1:1076422948672:web:99985852a96b76fd7b6ca5",
+  measurementId: "G-QYT4DLBL6T"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -37,37 +37,33 @@ window._fbFns = { createUserWithEmailAndPassword, signInWithEmailAndPassword, si
 const ADMIN_EMAIL = 'admin@parkingi.local';
 const ADMIN_PASS  = 'admin123';
 
+// Konto admina tworzone ręcznie w Firebase Console
+// Admin rozpoznawany po emailu: admin@parkingi.local
+
+// Utwórz konto admina tylko raz (przy pierwszym uruchomieniu)
 async function setupAdminAccount() {
+  if (localStorage.getItem('adminSetupDone')) return;
   try {
-    // Próbuj zalogować admina żeby sprawdzić czy istnieje
-    const cred = await signInWithEmailAndPassword(auth, ADMIN_EMAIL, ADMIN_PASS)
-      .catch(async e => {
-        if (e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential') {
-          // Utwórz konto admina
-          const c = await createUserWithEmailAndPassword(auth, ADMIN_EMAIL, ADMIN_PASS);
-          await updateProfile(c.user, { displayName: 'Administrator' });
-          return c;
-        }
-        throw e;
-      });
-    // Upewnij się że ma wpis w admins
-    const adminRef = doc(db, 'admins', cred.user.uid);
-    const adminSnap = await getDoc(adminRef);
-    if (!adminSnap.exists()) {
-      await setDoc(adminRef, { email: ADMIN_EMAIL, createdAt: Date.now(), role: 'superadmin' });
-    }
-    // Upewnij się że ma profil
-    const profileRef = doc(db, 'userProfiles', cred.user.uid);
-    const profileSnap = await getDoc(profileRef);
-    if (!profileSnap.exists()) {
-      await setDoc(profileRef, { displayName: 'Administrator', email: ADMIN_EMAIL, createdAt: Date.now(), uid: cred.user.uid });
-    }
-    // Wyloguj jeśli nikt nie był zalogowany
+    // Sprawdź czy konto już istnieje próbując się zalogować
+    try {
+      const cred = await signInWithEmailAndPassword(auth, ADMIN_EMAIL, ADMIN_PASS);
+      await signOut(auth);
+      localStorage.setItem('adminSetupDone', '1');
+      console.log('✅ Admin już istnieje');
+      return;
+    } catch(e) { /* konto nie istnieje – tworzymy */ }
+
+    const c = await createUserWithEmailAndPassword(auth, ADMIN_EMAIL, ADMIN_PASS);
+    await updateProfile(c.user, { displayName: 'Administrator' });
+    // Zapisz w Firestore
+    await setDoc(doc(db, 'admins', c.user.uid), { email: ADMIN_EMAIL, createdAt: Date.now(), role: 'superadmin' });
+    await setDoc(doc(db, 'userProfiles', c.user.uid), { displayName: 'Administrator', email: ADMIN_EMAIL, createdAt: Date.now(), uid: c.user.uid });
     await signOut(auth);
-    console.log('✅ Konto admina gotowe');
+    localStorage.setItem('adminSetupDone', '1');
+    console.log('✅ Konto admina utworzone:', ADMIN_EMAIL);
   } catch(e) {
-    console.warn('Admin setup:', e.message);
-    try { await signOut(auth); } catch(_){}
+    console.warn('Admin setup:', e.code, e.message);
+    try { await signOut(auth); } catch(_) {}
   }
 }
 
@@ -1601,6 +1597,9 @@ let isAdmin = false;
 let currentAdminTab = 'stats';
 
 async function checkAdminStatus(uid) {
+  // Sprawdź najpierw po emailu — niezawodne, bez reguł Firestore
+  if (currentUser && currentUser.email === 'admin@parkingi.local') return true;
+  // Próbuj też Firestore (dla adminów nadanych ręcznie)
   if (!window._fbDb || !window._fbFns) return false;
   try {
     const { doc, getDoc } = window._fbFns;
