@@ -194,12 +194,11 @@ header{height:52px;flex-shrink:0;background:var(--panel);border-bottom:1px solid
 .pick-hint{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--a6);color:#fff;padding:10px 20px;border-radius:30px;font-weight:700;font-size:.8rem;z-index:4000;display:none;box-shadow:0 4px 20px rgba(255,79,123,.4);animation:boun .6s ease infinite alternate}
 @keyframes boun{from{transform:translateX(-50%) translateY(0)}to{transform:translateX(-50%) translateY(-5px)}}
 
-/* PHOTO GALLERY */
+.photo-slide{display:none}
+.photo-slide.active{display:block}
 .photo-gallery{width:100%;background:#0a0c12}
-.photo-main{width:100%;height:160px;overflow:hidden;position:relative}
-.photo-main img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .3s}
-.photo-thumbs{display:flex;gap:3px;padding:3px;background:#0a0c12}
-.photo-thumb{width:56px;height:38px;border-radius:4px;overflow:hidden;cursor:pointer;opacity:.55;transition:opacity .15s;border:1px solid transparent;flex-shrink:0}
+.photo-thumbs{display:flex;gap:3px;padding:4px;background:#0a0c12;overflow-x:auto}
+.photo-thumb{width:50px;height:34px;border-radius:4px;overflow:hidden;cursor:pointer;opacity:.55;transition:opacity .15s;border:1px solid transparent;flex-shrink:0;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:1rem}
 .photo-thumb.active,.photo-thumb:hover{opacity:1;border-color:var(--accent)}
 .photo-thumb img{width:100%;height:100%;object-fit:cover}
 
@@ -774,20 +773,83 @@ const ZONE_SPP_COORDS = [
 // DANE PARKINGÓW
 // ══════════════════════════════════════════════════════════════
 // Zdjęcia: Google Street View static API (bezklucz = losowe z coords)
-function gsv(lat,lng,h=0){return`https://maps.googleapis.com/maps/api/streetview?size=400x220&location=${lat},${lng}&heading=${h}&pitch=10&key=AIzaSyD-9tSrke72PouQMnMX-a7eZSW0jkFMBWY`;}
-// Fallback zdjęcia dla typów (Unsplash)
+function gsv(lat,lng,h=0){
+  // Używamy OpenStreetMap Static Map jako zdjęcie lokalizacji (bez klucza API)
+  // Zoom 18 = poziom ulicy, format PNG
+  const z=18, x=Math.floor((lng+180)/360*Math.pow(2,z));
+  const latR=lat*Math.PI/180, y=Math.floor((1-Math.log(Math.tan(latR)+1/Math.cos(latR))/Math.PI)/2*Math.pow(2,z));
+  // Używamy kafelka OSM jako placeholder + dodajemy overlay z pinezką przez Staticmap API
+  return `https://staticmap.openstreetmap.de/staticmap.php?center=${lat},${lng}&zoom=17&size=400x200&maptype=mapnik&markers=${lat},${lng},lightblue`;
+}
+// Prawdziwe zdjęcia parkingów z Wikimedia Commons / tematyczne
 const TYPE_IMGS = {
-  garage:['https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=400&h=220&fit=crop','https://images.unsplash.com/photo-1611348586804-61bf6c080437?w=400&h=220&fit=crop','https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&h=220&fit=crop'],
-  open:['https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=400&h=220&fit=crop','https://images.unsplash.com/photo-1555361138-838843b37eed?w=400&h=220&fit=crop'],
-  mall:['https://images.unsplash.com/photo-1555529771-7888783a18d3?w=400&h=220&fit=crop','https://images.unsplash.com/photo-1604014237800-1c9102c219da?w=400&h=220&fit=crop'],
-  pr:['https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=400&h=220&fit=crop'],
-  private:['https://images.unsplash.com/photo-1486006920555-c77dcf18193c?w=400&h=220&fit=crop'],
+  garage:[
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Parking_structure_2_crop.jpg/400px-Parking_structure_2_crop.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Multi-storey_car_park_in_Bristol%2C_England.jpg/400px-Multi-storey_car_park_in_Bristol%2C_England.jpg',
+  ],
+  open:[
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Parking_lot_at_Valley_Forge.jpg/400px-Parking_lot_at_Valley_Forge.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Parking_lot_2.jpg/400px-Parking_lot_2.jpg',
+  ],
+  mall:[
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Magnolia_Wroclaw_2014.jpg/400px-Magnolia_Wroclaw_2014.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Galeria_Dominikanska_Wroclaw.jpg/400px-Galeria_Dominikanska_Wroclaw.jpg',
+  ],
+  pr:[
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Park_and_ride_sign.jpg/400px-Park_and_ride_sign.jpg',
+  ],
+  private:[
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Secure_parking_lot.jpg/400px-Secure_parking_lot.jpg',
+  ],
   custom:[]
 };
+function getMapThumb(lat,lng){
+  // Używamy tile OpenStreetMap z centrum na parkingu
+  const z=17;
+  const x=Math.floor((lng+180)/360*Math.pow(2,z));
+  const latR=lat*Math.PI/180;
+  const y=Math.floor((1-Math.log(Math.tan(latR)+1/Math.cos(latR))/Math.PI)/2*Math.pow(2,z));
+  // tile.openstreetmap.org
+  return `https://tile.openstreetmap.org/${z}/${x}/${y}.png`;
+}
 function getParkingPhotos(p){
-  const sv=[gsv(p.lat,p.lng,0),gsv(p.lat,p.lng,90),gsv(p.lat,p.lng,180)];
-  const fb=TYPE_IMGS[p.t]||[];
-  return [...sv,...fb];
+  const typeImgs = TYPE_IMGS[p.t]||TYPE_IMGS['open'];
+  return typeImgs;
+}
+
+// Buduje HTML mapy jako pierwszy "slajd" galerii
+function buildGalleryHTML(p, parkingId) {
+  const photos = getParkingPhotos(p);
+  const mapThumbId = 'mapThumb_' + parkingId;
+  // Pierwsza zakładka: mini-mapa OpenStreetMap (iframe)
+  const mapSlide = `<div class="photo-slide active" id="slide_map_${parkingId}">
+    <div style="width:100%;height:160px;background:#0d1117;position:relative;overflow:hidden">
+      <iframe 
+        src="https://www.openstreetmap.org/export/embed.html?bbox=${p.lng-0.003},${p.lat-0.002},${p.lng+0.003},${p.lat+0.002}&layer=mapnik&marker=${p.lat},${p.lng}"
+        style="width:100%;height:100%;border:none;filter:brightness(.85) saturate(.7) hue-rotate(195deg)"
+        loading="lazy"
+        title="Mapa parkingu"
+      ></iframe>
+      <div style="position:absolute;bottom:5px;left:6px;background:rgba(0,0,0,.65);border-radius:4px;padding:2px 6px;font-size:.6rem;color:#aaa">🗺 Mapa lokalizacji</div>
+    </div>
+  </div>`;
+
+  // Kolejne zakładki: zdjęcia tematyczne
+  const photoSlides = photos.map((ph, idx) => `
+    <div class="photo-slide" id="slide_img${idx}_${parkingId}" style="display:none">
+      <div style="width:100%;height:160px;overflow:hidden;background:#0a0c12">
+        <img src="${ph}" loading="lazy" style="width:100%;height:100%;object-fit:cover" 
+          onerror="this.closest('.photo-slide').style.display='none'" alt="Zdjęcie parkingu"/>
+      </div>
+    </div>`).join('');
+
+  const allSlides = ['map', ...photos.map((_,i)=>`img${i}`)];
+  const thumbs = [
+    `<div class="photo-thumb active" onclick="switchPhotoSlide('${parkingId}','map',this)">🗺</div>`,
+    ...photos.map((ph,idx)=>`<div class="photo-thumb" onclick="switchPhotoSlide('${parkingId}','img${idx}',this)"><img src="${ph}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentNode.style.display='none'"/></div>`)
+  ].join('');
+
+  return `<div class="photo-gallery">${mapSlide}${photoSlides}<div class="photo-thumbs">${thumbs}</div></div>`;
 }
 
 const BUILT_IN = [
@@ -977,7 +1039,6 @@ function mkPopup(p, i, isCustom) {
   const parkingId = p._docId || ('builtin_' + i);
   const paidNow = isPaidNow(p);
   const occ = getOccupancy(p, parkingId);
-  const photos = getParkingPhotos(p);
 
   // ZONE WARNING
   const zoneWarn = (p.zone==='sspp_a'||p.zone==='sspp_b') ?
@@ -1031,15 +1092,8 @@ function mkPopup(p, i, isCustom) {
     <div class="occ-meta">${occ.pct}% zajęte • aktualizacja co wizytę</div>
   </div>`;
 
-  // PHOTOS
-  const photoHtml = `<div class="photo-gallery" id="gallery_${parkingId}">
-    <div class="photo-main" id="photoMain_${parkingId}">
-      <img src="${photos[0]}" onerror="this.src='${photos[3]||photos[0]}'" loading="lazy" alt="Zdjęcie parkingu"/>
-    </div>
-    <div class="photo-thumbs" id="photoThumbs_${parkingId}">
-      ${photos.slice(0,4).map((ph,idx)=>`<div class="photo-thumb ${idx===0?'active':''}" onclick="switchPhoto('${parkingId}','${ph}',this)"><img src="${ph}" onerror="this.parentNode.style.display='none'" loading="lazy"/></div>`).join('')}
-    </div>
-  </div>`;
+  // PHOTO GALLERY - mini-mapa OSM + zdjęcia tematyczne
+  const photoHtml = buildGalleryHTML(p, parkingId);
 
   // COMPARE BUTTON
   const compareHtml = `<button class="compare-btn" id="cmpBtn_${parkingId}" onclick="toggleCompare(${i})">⚖️ Porównaj</button>`;
@@ -1775,8 +1829,13 @@ async function loadReviews(parkingId) {
       </div>
     `).join('');
   } catch(e) {
-    console.error('Błąd ładowania opinii:', e);
-    if (listEl) listEl.innerHTML = '<div class="no-reviews">Błąd ładowania opinii.</div>';
+    if (e.code === 'permission-denied' || (e.message && e.message.includes('permission'))) {
+      console.warn('Firestore permissions – opinie niedostępne:', e.code);
+      if (listEl) listEl.innerHTML = '<div class="no-reviews">⚠️ Brak uprawnień do odczytu opinii.<br><small style="color:var(--muted)">Zaktualizuj reguły Firestore.</small></div>';
+    } else {
+      console.error('Błąd ładowania opinii:', e);
+      if (listEl) listEl.innerHTML = '<div class="no-reviews">Błąd ładowania opinii.</div>';
+    }
   }
 }
 
@@ -1801,19 +1860,54 @@ async function submitReview(parkingId, lat, lng, name) {
     const textEl = document.getElementById('reviewText_' + parkingId);
     if (textEl) textEl.value = '';
     await loadReviews(parkingId);
-  } catch(e) { alert('Błąd zapisu opinii: ' + e.message); }
+  } catch(e) {
+    if (e.code === 'permission-denied' || (e.message && e.message.includes('permission'))) {
+      showFirestoreRulesAlert();
+    } else {
+      alert('Błąd zapisu opinii: ' + e.message);
+    }
+  }
   finally { if (btn) { btn.textContent = 'Dodaj opinię'; btn.disabled = false; } }
 }
 
+function showFirestoreRulesAlert() {
+  const existing = document.getElementById('rulesAlert');
+  if (existing) { existing.classList.add('show'); return; }
+  const div = document.createElement('div');
+  div.id = 'rulesAlert';
+  div.style.cssText = `position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:9000;background:#1a1225;border:1px solid var(--a4);border-radius:12px;padding:14px 18px;max-width:460px;width:95vw;font-size:.73rem;line-height:1.65;box-shadow:0 8px 30px rgba(0,0,0,.6)`;
+  div.innerHTML = `
+    <div style="font-weight:800;font-size:.85rem;color:var(--a4);margin-bottom:8px">🛡 Wymagana zmiana reguł Firestore</div>
+    <div style="color:var(--muted);margin-bottom:10px">Baza danych blokuje zapis opinii. Otwórz <b style="color:var(--text)">Firebase Console → Firestore → Reguły</b> i wklej:</div>
+    <div style="background:rgba(0,0,0,.4);border-radius:7px;padding:9px 11px;font-family:monospace;font-size:.66rem;color:#b3ffb0;word-break:break-all;margin-bottom:10px;user-select:all">
+rules_version = '2';<br>service cloud.firestore {<br>
+&nbsp;match /databases/{db}/documents {<br>
+&nbsp;&nbsp;match /reviews/{r} { allow read:if true; allow create:if request.auth!=null; allow delete,update:if request.auth.uid==resource.data.authorUid; }<br>
+&nbsp;&nbsp;match /parkings/{p} { allow read:if true; allow create:if request.auth!=null; allow update,delete:if request.auth.uid==resource.data.uid; }<br>
+&nbsp;&nbsp;match /admins/{uid} { allow read:if request.auth!=null; allow write:if false; }<br>
+&nbsp;&nbsp;match /userProfiles/{uid} { allow read,write:if request.auth.uid==uid; }<br>
+&nbsp;}}<br>}
+    </div>
+    <div style="display:flex;gap:8px">
+      <a href="https://console.firebase.google.com/project/smart-park-9c5a6/firestore/rules" target="_blank" style="flex:1;background:var(--a4);color:#000;font-weight:700;border-radius:7px;padding:7px 0;text-align:center;text-decoration:none;font-size:.73rem">Otwórz Firebase Console →</a>
+      <button onclick="this.closest('#rulesAlert').remove()" style="background:var(--card);border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:7px 12px;cursor:pointer;font-family:inherit;font-size:.73rem">✕ Zamknij</button>
+    </div>`;
+  document.body.appendChild(div);
+}
+
 // ══════════════════════════════════════════════════════
-// ZDJĘCIA – GALERIA
+// ZDJĘCIA – GALERIA (mapa + zdjęcia tematyczne)
 // ══════════════════════════════════════════════════════
-window.switchPhoto = function(parkingId, src, thumbEl) {
-  const main = document.getElementById('photoMain_' + parkingId);
-  if (!main) return;
-  const img = main.querySelector('img');
-  if (img) { img.style.opacity = 0; setTimeout(() => { img.src = src; img.style.opacity = 1; }, 150); }
-  document.querySelectorAll(`#photoThumbs_${parkingId} .photo-thumb`).forEach(t => t.classList.remove('active'));
+window.switchPhotoSlide = function(parkingId, slideKey, thumbEl) {
+  // Ukryj wszystkie slajdy
+  const gallery = thumbEl?.closest?.('.photo-gallery');
+  if (!gallery) return;
+  gallery.querySelectorAll('.photo-slide').forEach(s => s.style.display = 'none');
+  // Pokaż wybrany
+  const target = document.getElementById(`slide_${slideKey}_${parkingId}`);
+  if (target) target.style.display = 'block';
+  // Zaktualizuj aktywną miniaturę
+  gallery.querySelectorAll('.photo-thumb').forEach(t => t.classList.remove('active'));
   if (thumbEl) thumbEl.classList.add('active');
 };
 
@@ -1938,15 +2032,19 @@ let isAdmin = false;
 let currentAdminTab = 'stats';
 
 async function checkAdminStatus(uid) {
-  // Sprawdź najpierw po emailu — niezawodne, bez reguł Firestore
-  if (currentUser && currentUser.email === 'admin@parkingi.local') return true;
-  // Próbuj też Firestore (dla adminów nadanych ręcznie)
+  // Sprawdzaj po emailu — nie wymaga żadnych reguł Firestore
+  const ADMIN_EMAILS = ['admin@parkingi.local'];
+  if (currentUser && ADMIN_EMAILS.includes(currentUser.email)) return true;
+  // Próbuj Firestore (może być zablokowane przez reguły — wtedy cicho ignoruj)
   if (!window._fbDb || !window._fbFns) return false;
   try {
     const { doc, getDoc } = window._fbFns;
     const snap = await getDoc(doc(window._fbDb, 'admins', uid));
     return snap.exists();
-  } catch(e) { return false; }
+  } catch(e) {
+    // Reguły Firestore blokują odczyt — nie ma dostępu, ale email-check już był wyżej
+    return false;
+  }
 }
 
 async function openAdmin() {
