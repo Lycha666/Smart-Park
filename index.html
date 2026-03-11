@@ -194,7 +194,77 @@ header{height:52px;flex-shrink:0;background:var(--panel);border-bottom:1px solid
 .pick-hint{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--a6);color:#fff;padding:10px 20px;border-radius:30px;font-weight:700;font-size:.8rem;z-index:4000;display:none;box-shadow:0 4px 20px rgba(255,79,123,.4);animation:boun .6s ease infinite alternate}
 @keyframes boun{from{transform:translateX(-50%) translateY(0)}to{transform:translateX(-50%) translateY(-5px)}}
 
-/* LEAFLET */
+/* PHOTO GALLERY */
+.photo-gallery{width:100%;background:#0a0c12}
+.photo-main{width:100%;height:160px;overflow:hidden;position:relative}
+.photo-main img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .3s}
+.photo-thumbs{display:flex;gap:3px;padding:3px;background:#0a0c12}
+.photo-thumb{width:56px;height:38px;border-radius:4px;overflow:hidden;cursor:pointer;opacity:.55;transition:opacity .15s;border:1px solid transparent;flex-shrink:0}
+.photo-thumb.active,.photo-thumb:hover{opacity:1;border-color:var(--accent)}
+.photo-thumb img{width:100%;height:100%;object-fit:cover}
+
+/* PAY STATUS */
+.pay-status{padding:6px 10px;border-radius:7px;font-size:.73rem;font-weight:700;margin-bottom:7px;text-align:center;letter-spacing:.02em}
+.pay-free{background:rgba(71,255,176,.1);color:#47ffb0;border:1px solid rgba(71,255,176,.25)}
+.pay-now{background:rgba(255,79,123,.1);color:#ff6b8a;border:1px solid rgba(255,79,123,.25)}
+.pay-conditional{background:rgba(232,255,71,.08);color:var(--accent);border:1px solid rgba(232,255,71,.2)}
+
+/* OCCUPANCY */
+.occ-wrap{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:7px 9px;margin-bottom:7px}
+.occ-label{display:flex;justify-content:space-between;font-size:.67rem;margin-bottom:5px}
+.occ-bar{height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
+.occ-fill{height:100%;border-radius:3px;transition:width 1s ease}
+.occ-meta{font-size:.59rem;color:var(--muted);margin-top:4px}
+
+/* PRICE CALCULATOR */
+.price-calc{background:rgba(232,255,71,.04);border:1px solid rgba(232,255,71,.18);border-radius:8px;padding:8px 10px;margin-bottom:8px}
+.calc-title{font-size:.67rem;color:var(--accent);font-weight:700;margin-bottom:6px}
+.calc-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.calc-row span{font-size:.72rem;color:var(--muted)}
+.calc-stepper{display:flex;align-items:center;gap:6px}
+.calc-stepper button{width:24px;height:24px;background:var(--border);border:none;color:var(--text);border-radius:5px;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;font-family:inherit;transition:background .12s}
+.calc-stepper button:hover{background:var(--accent);color:#000}
+.calc-stepper span{font-size:.82rem;font-weight:700;min-width:20px;text-align:center}
+.calc-result{font-size:.75rem;color:var(--text);background:rgba(0,0,0,.2);border-radius:5px;padding:4px 7px}
+.calc-result b{color:var(--accent);font-size:.85rem}
+
+/* COMPARE */
+.compare-btn{background:rgba(180,124,255,.1);color:var(--a4);border:1px solid rgba(180,124,255,.3);border-radius:8px;padding:7px 10px;font-size:.73rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.compare-btn:hover,.compare-btn.active{background:var(--a4);color:#000}
+
+/* COMPARE PANEL */
+.compare-panel{position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index:3000;background:var(--panel);border:1px solid var(--a4);border-bottom:none;border-radius:12px 12px 0 0;padding:12px 16px;min-width:340px;max-width:96vw;box-shadow:0 -6px 30px rgba(180,124,255,.2);transition:transform .3s;display:none}
+.compare-panel.show{display:block}
+.cp-title{font-size:.72rem;color:var(--a4);font-weight:700;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.cp-items{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.cp-item{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:5px 9px;font-size:.67rem;display:flex;align-items:center;gap:5px}
+.cp-item button{background:none;border:none;color:var(--a6);cursor:pointer;font-size:.8rem;padding:0}
+.cp-btn{background:var(--a4);color:#000;border:none;border-radius:7px;padding:7px 14px;font-weight:700;font-size:.73rem;cursor:pointer;font-family:inherit;transition:opacity .15s}
+.cp-btn:hover{opacity:.85}
+.cp-clear{background:none;border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:7px 10px;font-size:.73rem;cursor:pointer;font-family:inherit}
+
+/* COMPARE MODAL */
+.cmp-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:6000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.cmp-overlay.hidden{display:none}
+.cmp-modal{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px;max-width:95vw;width:700px;max-height:88vh;overflow-y:auto}
+.cmp-grid{display:grid;gap:10px}
+.cmp-header{font-weight:800;font-size:.95rem;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.cmp-col{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px}
+.cmp-col-name{font-weight:700;font-size:.82rem;margin-bottom:8px;color:var(--accent)}
+.cmp-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:.72rem}
+.cmp-row:last-child{border-bottom:none}
+.cmp-row span:first-child{color:var(--muted)}
+.cmp-row span:last-child{font-weight:600}
+.cmp-best{color:#47ffb0!important}
+.cmp-worst{color:#ff6b8a!important}
+
+.pu-price .row{display:flex;justify-content:space-between;gap:8px;font-size:.69rem;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.pu-price .row:last-child{border-bottom:none}
+.pu-price .row span:last-child{color:var(--accent);font-weight:600;white-space:nowrap}
+.pu-price .note{margin-top:5px;color:var(--muted);font-size:.64rem;line-height:1.5}
+.pu-nav-btn{display:block;background:var(--accent);color:#000;font-weight:700;font-size:.73rem;text-align:center;padding:7px;border-radius:8px;border:none;cursor:pointer;font-family:inherit;width:100%;margin-bottom:5px}
+.pu-nav-btn:hover{opacity:.82}
+
 .leaflet-tile-pane{filter:brightness(.82) saturate(.6) hue-rotate(195deg)}
 .leaflet-control-zoom{border:1px solid var(--border)!important;border-radius:8px!important;overflow:hidden}
 .leaflet-control-zoom-in,.leaflet-control-zoom-out{background:var(--panel)!important;color:var(--text)!important;border:none!important;border-bottom:1px solid var(--border)!important}
@@ -408,6 +478,7 @@ header{height:52px;flex-shrink:0;background:var(--panel);border-bottom:1px solid
       <button class="fbtn" data-f="private">🔒 Strzeżone</button>
       <button class="fbtn" data-f="custom">⭐ Moje</button>
       <button class="fbtn" data-f="free">💚 Darmowe</button>
+      <button class="fbtn" data-f="freenow">🟢 Teraz darmowe</button>
       <button class="fbtn" data-f="sspp_a">🔴 ŚSPP-A</button>
       <button class="fbtn" data-f="sspp_b">🟠 ŚSPP-B</button>
       <button class="fbtn" data-f="spp">🔵 SPP</button>
@@ -598,6 +669,29 @@ header{height:52px;flex-shrink:0;background:var(--panel);border-bottom:1px solid
   </div>
 </div>
 
+<!-- COMPARE PANEL -->
+<div class="compare-panel" id="comparePanel">
+  <div class="cp-title">
+    <span>⚖️ Porównywarka parkingów</span>
+    <button onclick="clearCompare()" class="cp-clear">✕ Wyczyść</button>
+  </div>
+  <div class="cp-items" id="compareItems"></div>
+  <div style="display:flex;gap:7px">
+    <button class="cp-btn" onclick="openCompareModal()">📊 Porównaj teraz</button>
+  </div>
+</div>
+
+<!-- COMPARE MODAL -->
+<div class="cmp-overlay hidden" id="cmpOverlay">
+  <div class="cmp-modal">
+    <div class="cmp-header">
+      <span>📊 Porównanie parkingów</span>
+      <button onclick="document.getElementById('cmpOverlay').classList.add('hidden')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.2rem">✕</button>
+    </div>
+    <div class="cmp-grid" id="cmpGrid"></div>
+  </div>
+</div>
+
 <!-- ADMIN PANEL MODAL -->
 <div class="admin-overlay hidden" id="adminOverlay">
   <div class="admin-modal">
@@ -679,100 +773,117 @@ const ZONE_SPP_COORDS = [
 // ══════════════════════════════════════════════════════════════
 // DANE PARKINGÓW
 // ══════════════════════════════════════════════════════════════
+// Zdjęcia: Google Street View static API (bezklucz = losowe z coords)
+function gsv(lat,lng,h=0){return`https://maps.googleapis.com/maps/api/streetview?size=400x220&location=${lat},${lng}&heading=${h}&pitch=10&key=AIzaSyD-9tSrke72PouQMnMX-a7eZSW0jkFMBWY`;}
+// Fallback zdjęcia dla typów (Unsplash)
+const TYPE_IMGS = {
+  garage:['https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=400&h=220&fit=crop','https://images.unsplash.com/photo-1611348586804-61bf6c080437?w=400&h=220&fit=crop','https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&h=220&fit=crop'],
+  open:['https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=400&h=220&fit=crop','https://images.unsplash.com/photo-1555361138-838843b37eed?w=400&h=220&fit=crop'],
+  mall:['https://images.unsplash.com/photo-1555529771-7888783a18d3?w=400&h=220&fit=crop','https://images.unsplash.com/photo-1604014237800-1c9102c219da?w=400&h=220&fit=crop'],
+  pr:['https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=400&h=220&fit=crop'],
+  private:['https://images.unsplash.com/photo-1486006920555-c77dcf18193c?w=400&h=220&fit=crop'],
+  custom:[]
+};
+function getParkingPhotos(p){
+  const sv=[gsv(p.lat,p.lng,0),gsv(p.lat,p.lng,90),gsv(p.lat,p.lng,180)];
+  const fb=TYPE_IMGS[p.t]||[];
+  return [...sv,...fb];
+}
+
 const BUILT_IN = [
   // GARAŻE I PODZIEMNE
-  {n:"Interparking NFM",                a:"pl. Wolności 1",                     lat:51.10718,lng:17.02696,r:4.5,open:1,t:"garage",zone:"sspp_b",free:0,price:{h1:"9 zł",h24:"30–40 zł",note:"Rezerwacja online – taniej"}},
-  {n:"Parking Nowy Targ",               a:"pl. Nowy Targ 29",                   lat:51.11085,lng:17.03839,r:4.1,open:1,t:"garage",zone:"sspp_b",free:0,price:{h1:"9 zł",h24:"—",note:"Każda godz. droższa od poprzedniej"}},
-  {n:"Parking NFM Krupnicza",           a:"ul. Kazimierza Wlk. 35",             lat:51.10693,lng:17.02921,r:4.5,open:1,t:"garage",zone:"sspp_b",free:0,price:{h1:"5 zł",h24:"30 zł",note:"Rezerwacja QR"}},
-  {n:"Parking PEGAZ",                   a:"ul. Grabarska 1",                    lat:51.11074,lng:17.02630,r:4.2,open:1,t:"garage",zone:"sspp_b",free:0,price:{h1:"8 zł",h24:"70–90 zł",note:"Wąskie miejsca"}},
-  {n:"Parking podziemny Grabarska",     a:"ul. Grabarska 2",                    lat:51.11107,lng:17.02513,r:4.2,open:1,t:"garage",zone:"sspp_b",free:0,price:{h1:"7 zł",h24:"—",note:"15 min gratis"}},
-  {n:"Parking Wratislavia Tower",       a:"ul. Świętego Antoniego 7",           lat:51.10915,lng:17.02562,r:3.9,open:1,t:"garage",zone:"sspp_b",free:0,price:{h1:"7 zł",h24:"—",note:"Ciasne miejsca"}},
-  {n:"Parking Wratislavia Center",      a:"ul. Rzeźnicza 5",                    lat:51.11099,lng:17.02835,r:3.0,open:1,t:"garage",zone:"sspp_b",free:0,price:{h1:"12–20 zł",h24:"—",note:"Bardzo drogie, strome rampy"}},
-  {n:"Parking Łaciarska",               a:"ul. Łaciarska 4",                    lat:51.10762,lng:17.03473,r:2.8,open:1,t:"garage",zone:"sspp_a",free:0,price:{h1:"15 zł",h24:"—",note:"Najdroższy – centrum Rynku"}},
-  {n:"Parking Bulvary",                 a:"ul. Księcia Witolda 11",             lat:51.11420,lng:17.04150,r:4.0,open:1,t:"garage",zone:"sspp_b",free:0,price:{h1:"5 zł",h24:"40 zł",note:"Dobra lokalizacja przy Odrze"}},
-  {n:"Parking Helios",                  a:"ul. Kazimierza Wlk. 19",            lat:51.10980,lng:17.02980,r:3.8,open:0,t:"garage",zone:"sspp_b",free:0,price:{h1:"5 zł",h24:"—",note:"Czynny w godz. kina"}},
-  {n:"Parking pl. Solny (podz.)",       a:"pl. Solny",                          lat:51.10990,lng:17.03180,r:3.7,open:1,t:"garage",zone:"sspp_a",free:0,price:{h1:"6 zł",h24:"—",note:"Blisko Rynku"}},
-  {n:"Parking Szczepińska (podz.)",     a:"ul. Szczepińska",                    lat:51.11163,lng:17.01841,r:4.5,open:1,t:"garage",zone:"sspp_b",free:0,price:{h1:"8 zł",h24:"—",note:"Centrum zachodnie"}},
-  {n:"Parking Justin Center",           a:"ul. Krawiecka 1",                    lat:51.10650,lng:17.02450,r:3.8,open:1,t:"garage",zone:"sspp_b",free:0,price:{h1:"7 zł",h24:"—",note:"Blisko pl. Wolności"}},
-  {n:"Parking Forum Musicum",           a:"pl. Wolności – biurowiec",           lat:51.10830,lng:17.02550,r:3.8,open:1,t:"garage",zone:"sspp_b",free:0,price:{h1:"7 zł",h24:"—",note:"Podziemny biurowca"}},
-  {n:"Parking Retro Office House",      a:"ul. Piłsudskiego / Komandorska",     lat:51.09950,lng:17.02950,r:3.7,open:1,t:"garage",zone:"spp",free:0,price:{h1:"6 zł",h24:"—",note:"Podziemny biurowca"}},
-  {n:"Parking Infinity (JP II)",        a:"pl. Jana Pawła II – biurowiec",      lat:51.09720,lng:17.02150,r:3.8,open:1,t:"garage",zone:"spp",free:0,price:{h1:"6 zł",h24:"—",note:"Podziemny Infinity"}},
-  {n:"Parking Kościuszki 109A",         a:"ul. T. Kościuszki 109A",             lat:51.09980,lng:17.04340,r:3.5,open:1,t:"garage",zone:"spp",free:0,price:{h1:"5 zł",h24:"—",note:"Blisko PKP"}},
-  {n:"Parking Kazimierza Wlk. 46",      a:"ul. Kazimierza Wlk. 46",            lat:51.10782,lng:17.03101,r:4.0,open:1,t:"garage",zone:"sspp_a",free:0,price:{h1:"7 zł",h24:"—",note:"Centrum"}},
-  {n:"Parking Wszystkich Świętych",     a:"ul. Wszystkich Świętych",            lat:51.11050,lng:17.03450,r:3.8,open:1,t:"garage",zone:"sspp_b",free:0,price:{h1:"6 zł",h24:"—",note:"Blisko Rynku"}},
-  {n:"Parking ul. Jagiełły",            a:"ul. Władysława Jagiełły",            lat:51.10400,lng:17.03700,r:3.6,open:1,t:"garage",zone:"sspp_b",free:0,price:{h1:"5 zł",h24:"—",note:"Centrum południowe"}},
-  {n:"Parking pod Mostem Univ.",        a:"przy Moście Uniwersyteckim",         lat:51.11350,lng:17.04000,r:3.5,open:1,t:"open",  zone:"sspp_b",free:0,price:{h1:"5 zł",h24:"—",note:"Przy Odrze, strefa B"}},
-  {n:"Parking Ostrów Tumski",           a:"ul. Świętego Marcina",               lat:51.11450,lng:17.04500,r:3.6,open:1,t:"open",  zone:"sspp_b",free:0,price:{h1:"5 zł",h24:"—",note:"Blisko katedry"}},
-  {n:"Parking Centrum Zielińskiego",    a:"ul. T. Zielińskiego 6",             lat:51.10147,lng:17.02468,r:4.3,open:1,t:"open",  zone:"spp",free:0,price:{h1:"3 zł",h24:"39 zł",note:"Od 2. doby 19 zł/doba"}},
-  {n:"Parking ul. Purkyniego / ASP",   a:"ul. Purkyniego / Styki",            lat:51.10480,lng:17.03960,r:3.6,open:1,t:"open",  zone:"sspp_b",free:0,price:{h1:"5 zł",h24:"—",note:"Przy ASP"}},
-  {n:"Parking pl. Solidarności",        a:"pl. Solidarności",                   lat:51.11550,lng:17.03850,r:3.5,open:1,t:"open",  zone:"spp",free:0,price:{h1:"3 zł",h24:"—",note:"Strefa SPP"}},
-  {n:"Parking ul. Ładna",               a:"ul. Ładna",                          lat:51.10700,lng:17.05200,r:3.6,open:1,t:"open",  zone:"spp",free:0,price:{h1:"3 zł",h24:"—",note:"Strefa SPP"}},
-  {n:"Parking Urząd Wojewódzki",        a:"pl. Powstańców Warszawy",            lat:51.10180,lng:17.03500,r:3.6,open:1,t:"open",  zone:"sspp_b",free:0,price:{h1:"5 zł",h24:"—",note:"Strefa B"}},
-  {n:"Parking pl. Społeczny (Nadodrze)",a:"pl. Społeczny",                      lat:51.11800,lng:17.04100,r:3.5,open:1,t:"open",  zone:"spp",free:0,price:{h1:"3 zł",h24:"—",note:"Strefa SPP, Nadodrze"}},
-  {n:"Parking ul. Ołbińska",            a:"ul. Ołbińska",                       lat:51.12100,lng:17.04000,r:3.6,open:1,t:"open",  zone:"spp",free:0,price:{h1:"3 zł",h24:"—",note:"Strefa SPP"}},
-  {n:"Parking ul. Długa (Nadodrze)",    a:"ul. Długa",                          lat:51.11900,lng:17.03900,r:3.5,open:1,t:"open",  zone:"spp",free:1,price:{h1:"0 zł",h24:"0 zł",note:"Darmowe po 18:00 i weekendy"}},
-  {n:"Parking Piłsudskiego 74",         a:"ul. Piłsudskiego 74",                lat:51.10550,lng:17.02100,r:3.9,open:1,t:"open",  zone:"sspp_b",free:0,price:{h1:"5 zł",h24:"—",note:"Strefa B"}},
-  {n:"Parking Komuny Paryskiej",        a:"ul. Komuny Paryskiej",               lat:51.10850,lng:17.02100,r:3.6,open:1,t:"open",  zone:"sspp_b",free:0,price:{h1:"5 zł",h24:"—",note:"Blisko pl. Wolności"}},
-  {n:"Parking ul. Biskupa Nankera",     a:"ul. Biskupa Nankera",                lat:51.11300,lng:17.03100,r:3.6,open:1,t:"open",  zone:"sspp_b",free:0,price:{h1:"5 zł",h24:"—",note:"Przy Odrze"}},
-  {n:"Parking ul. Ofiar Oświęcimskich", a:"ul. Ofiar Oświęcimskich",            lat:51.11200,lng:17.03700,r:3.4,open:1,t:"open",  zone:"sspp_b",free:0,price:{h1:"5 zł",h24:"—",note:"Strefa B"}},
-  {n:"Parking ul. Ruska",               a:"ul. Ruska",                          lat:51.11000,lng:17.03500,r:3.5,open:1,t:"open",  zone:"sspp_a",free:0,price:{h1:"7 zł",h24:"—",note:"Strefa A – progresywna"}},
-  {n:"Parking ul. Grunwaldzka",         a:"ul. Grunwaldzka (centrum)",          lat:51.10650,lng:17.05100,r:3.5,open:1,t:"open",  zone:"sspp_b",free:0,price:{h1:"5 zł",h24:"—",note:"Strefa B"}},
-  {n:"Parking ul. Traugutta",           a:"ul. Romualda Traugutta",             lat:51.10650,lng:17.05600,r:3.5,open:1,t:"open",  zone:"spp",free:0,price:{h1:"3 zł",h24:"—",note:"SPP – Nadodrze"}},
-  {n:"Parking ul. Dobrzyńska",          a:"ul. Dobrzyńska",                     lat:51.09650,lng:17.01850,r:3.5,open:1,t:"open",  zone:"spp",free:0,price:{h1:"3 zł",h24:"—",note:"SPP"}},
-  {n:"Parking ul. Śląska",              a:"ul. Śląska",                         lat:51.12500,lng:17.04200,r:3.6,open:1,t:"open",  zone:"spp",free:0,price:{h1:"3 zł",h24:"—",note:"SPP"}},
-  {n:"Parking ul. Bolesława Prusa",     a:"ul. Bolesława Prusa",                lat:51.10100,lng:17.04500,r:3.6,open:1,t:"open",  zone:"sspp_b",free:0,price:{h1:"5 zł",h24:"—",note:"Strefa B"}},
-  {n:"Parking ul. Na Niskich Łąkach",   a:"ul. Na Niskich Łąkach",              lat:51.09800,lng:17.05200,r:3.7,open:1,t:"open",  zone:"spp",free:0,price:{h1:"3 zł",h24:"—",note:"SPP – południe"}},
-  {n:"Parking ul. Strzegomska",         a:"ul. Strzegomska",                    lat:51.09800,lng:16.99200,r:3.5,open:1,t:"open",  zone:null,free:1,price:{h1:"0 zł",h24:"0 zł",note:"Bezpłatne – poza strefą"}},
-  {n:"Parking ul. Zemska",              a:"ul. Zemska",                         lat:51.09600,lng:16.99800,r:3.5,open:1,t:"open",  zone:null,free:1,price:{h1:"0 zł",h24:"0 zł",note:"Bezpłatne"}},
-  {n:"Parking Promenada Południe",      a:"al. gen. Hallera",                   lat:51.08500,lng:17.05500,r:3.8,open:1,t:"open",  zone:null,free:1,price:{h1:"0 zł",h24:"0 zł",note:"Bezpłatne – park i rekreacja"}},
-  {n:"Parking Słowackiego/Krasińskiego",a:"al. Słowackiego / Krasińskiego",     lat:51.11020,lng:17.04800,r:3.6,open:1,t:"open",  zone:"sspp_b",free:0,price:{h1:"5 zł",h24:"—",note:"Strefa B"}},
+  {n:"Interparking NFM",                a:"pl. Wolności 1",                     lat:51.10718,lng:17.02696,r:4.5,open:1,t:"garage",zone:"sspp_b",free:0,spots:320,price:{h1v:9,h1:"9 zł",h24:"30–40 zł",note:"Rezerwacja online – taniej. Stawki progresywne: 1h=9zł, 2h=19zł, 3h=30zł"},payHours:"Pn–nd 9:00–20:00"},
+  {n:"Parking Nowy Targ",               a:"pl. Nowy Targ 29",                   lat:51.11085,lng:17.03839,r:4.1,open:1,t:"garage",zone:"sspp_b",free:0,spots:180,price:{h1v:9,h1:"9 zł",h24:"—",note:"Stawki progresywne – każda kolejna godzina droższa"},payHours:"Pn–nd 9:00–20:00"},
+  {n:"Parking NFM Krupnicza",           a:"ul. Kazimierza Wlk. 35",             lat:51.10693,lng:17.02921,r:4.5,open:1,t:"garage",zone:"sspp_b",free:0,spots:200,price:{h1v:5,h1:"5 zł",h24:"30 zł",note:"Rezerwacja przez kod QR. Przy dłuższym pobycie – warto!"},payHours:"Pn–nd 9:00–20:00"},
+  {n:"Parking PEGAZ",                   a:"ul. Grabarska 1",                    lat:51.11074,lng:17.02630,r:4.2,open:1,t:"garage",zone:"sspp_b",free:0,spots:140,price:{h1v:8,h1:"8 zł",h24:"70–90 zł",note:"Uwaga: wąskie miejsca, niska belka 1,9m"},payHours:"Pn–nd 9:00–20:00"},
+  {n:"Parking podziemny Grabarska",     a:"ul. Grabarska 2",                    lat:51.11107,lng:17.02513,r:4.2,open:1,t:"garage",zone:"sspp_b",free:0,spots:90,price:{h1v:7,h1:"7 zł",h24:"—",note:"15 minut BEZPŁATNIE. Potem 7 zł/h"},payHours:"Pn–nd 9:00–20:00"},
+  {n:"Parking Wratislavia Tower",       a:"ul. Świętego Antoniego 7",           lat:51.10915,lng:17.02562,r:3.9,open:1,t:"garage",zone:"sspp_b",free:0,spots:80,price:{h1v:7,h1:"7 zł",h24:"—",note:"Ciasne miejsca. Wjazd od ul. Antoniego"},payHours:"Pn–nd 9:00–20:00"},
+  {n:"Parking Wratislavia Center",      a:"ul. Rzeźnicza 5",                    lat:51.11099,lng:17.02835,r:3.0,open:1,t:"garage",zone:"sspp_b",free:0,spots:60,price:{h1v:12,h1:"12–20 zł",h24:"—",note:"⚠️ Bardzo drogie, strome rampy – słabo oceniany"},payHours:"Pn–nd 9:00–20:00"},
+  {n:"Parking Łaciarska",               a:"ul. Łaciarska 4",                    lat:51.10762,lng:17.03473,r:2.8,open:1,t:"garage",zone:"sspp_a",free:0,spots:40,price:{h1v:15,h1:"15 zł",h24:"—",note:"⚠️ Najdroższy w centrum. Bezpośrednio przy Rynku"},payHours:"Pn–nd 9:00–20:00"},
+  {n:"Parking Bulvary",                 a:"ul. Księcia Witolda 11",             lat:51.11420,lng:17.04150,r:4.0,open:1,t:"garage",zone:"sspp_b",free:0,spots:200,price:{h1v:5,h1:"5 zł",h24:"40 zł",note:"Dobra lokalizacja przy Odrze, przyjazna cena"},payHours:"Pn–nd 9:00–20:00"},
+  {n:"Parking Helios",                  a:"ul. Kazimierza Wlk. 19",            lat:51.10980,lng:17.02980,r:3.8,open:0,t:"garage",zone:"sspp_b",free:0,spots:120,price:{h1v:5,h1:"5 zł",h24:"—",note:"Czynny wyłącznie w godzinach pracy kina Helios"},payHours:"Pn–nd 9:00–20:00"},
+  {n:"Parking pl. Solny (podz.)",       a:"pl. Solny",                          lat:51.10990,lng:17.03180,r:3.7,open:1,t:"garage",zone:"sspp_a",free:0,spots:70,price:{h1v:6,h1:"6 zł",h24:"—",note:"Blisko Rynku – centrum handlowe i restauracje"},payHours:"Pn–nd 9:00–20:00"},
+  {n:"Parking Szczepińska (podz.)",     a:"ul. Szczepińska",                    lat:51.11163,lng:17.01841,r:4.5,open:1,t:"garage",zone:"sspp_b",free:0,spots:250,price:{h1v:8,h1:"8 zł",h24:"—",note:"Centrum zachodnie – duży, nowoczesny"},payHours:"Pn–nd 9:00–20:00"},
+  {n:"Parking Justin Center",           a:"ul. Krawiecka 1",                    lat:51.10650,lng:17.02450,r:3.8,open:1,t:"garage",zone:"sspp_b",free:0,spots:100,price:{h1v:7,h1:"7 zł",h24:"—",note:"Blisko pl. Wolności i centrum"},payHours:"Pn–nd 9:00–20:00"},
+  {n:"Parking Forum Musicum",           a:"pl. Wolności – biurowiec",           lat:51.10830,lng:17.02550,r:3.8,open:1,t:"garage",zone:"sspp_b",free:0,spots:80,price:{h1v:7,h1:"7 zł",h24:"—",note:"Podziemny biurowca Forum Musicum"},payHours:"Pn–nd 9:00–20:00"},
+  {n:"Parking Retro Office House",      a:"ul. Piłsudskiego / Komandorska",     lat:51.09950,lng:17.02950,r:3.7,open:1,t:"garage",zone:"spp",free:0,spots:90,price:{h1v:6,h1:"6 zł",h24:"—",note:"Podziemny biurowca. Weekendy BEZPŁATNE"},payHours:"Pn–pt 9:00–18:00 (weekendy bezpłatne)"},
+  {n:"Parking Infinity (JP II)",        a:"pl. Jana Pawła II – biurowiec",      lat:51.09720,lng:17.02150,r:3.8,open:1,t:"garage",zone:"spp",free:0,spots:150,price:{h1v:6,h1:"6 zł",h24:"—",note:"Podziemny Infinity. Weekendy BEZPŁATNE"},payHours:"Pn–pt 9:00–18:00 (weekendy bezpłatne)"},
+  {n:"Parking Kościuszki 109A",         a:"ul. T. Kościuszki 109A",             lat:51.09980,lng:17.04340,r:3.5,open:1,t:"garage",zone:"spp",free:0,spots:60,price:{h1v:5,h1:"5 zł",h24:"—",note:"Blisko PKP. Weekendy BEZPŁATNE"},payHours:"Pn–pt 9:00–18:00 (weekendy bezpłatne)"},
+  {n:"Parking Kazimierza Wlk. 46",      a:"ul. Kazimierza Wlk. 46",            lat:51.10782,lng:17.03101,r:4.0,open:1,t:"garage",zone:"sspp_a",free:0,spots:80,price:{h1v:7,h1:"7 zł",h24:"—",note:"Centrum. Płatny 7 dni w tygodniu"},payHours:"Pn–nd 9:00–20:00"},
+  {n:"Parking Wszystkich Świętych",     a:"ul. Wszystkich Świętych",            lat:51.11050,lng:17.03450,r:3.8,open:1,t:"garage",zone:"sspp_b",free:0,spots:70,price:{h1v:6,h1:"6 zł",h24:"—",note:"Blisko Rynku i Ostrowa Tumskiego"},payHours:"Pn–nd 9:00–20:00"},
+  {n:"Parking ul. Jagiełły",            a:"ul. Władysława Jagiełły",            lat:51.10400,lng:17.03700,r:3.6,open:1,t:"garage",zone:"sspp_b",free:0,spots:50,price:{h1v:5,h1:"5 zł",h24:"—",note:"Centrum południowe"},payHours:"Pn–nd 9:00–20:00"},
+  {n:"Parking pod Mostem Univ.",        a:"przy Moście Uniwersyteckim",         lat:51.11350,lng:17.04000,r:3.5,open:1,t:"open",  zone:"sspp_b",free:0,spots:30,price:{h1v:5,h1:"5 zł",h24:"—",note:"Przy Odrze – piękna lokalizacja. Strefa B"},payHours:"Pn–nd 9:00–20:00"},
+  {n:"Parking Ostrów Tumski",           a:"ul. Świętego Marcina",               lat:51.11450,lng:17.04500,r:3.6,open:1,t:"open",  zone:"sspp_b",free:0,spots:40,price:{h1v:5,h1:"5 zł",h24:"—",note:"Blisko Katedry i Ostrowa Tumskiego"},payHours:"Pn–nd 9:00–20:00"},
+  {n:"Parking Centrum Zielińskiego",    a:"ul. T. Zielińskiego 6",             lat:51.10147,lng:17.02468,r:4.3,open:1,t:"open",  zone:"spp",free:0,spots:80,price:{h1v:3,h1:"3 zł",h24:"39 zł",note:"SPP: płatny pn–pt. Od 2. doby 19 zł/doba. Weekendy BEZPŁATNE"},payHours:"Pn–pt 9:00–18:00 (weekendy bezpłatne)"},
+  {n:"Parking ul. Purkyniego / ASP",   a:"ul. Purkyniego / Styki",            lat:51.10480,lng:17.03960,r:3.6,open:1,t:"open",  zone:"sspp_b",free:0,spots:35,price:{h1v:5,h1:"5 zł",h24:"—",note:"Przy Akademii Sztuk Pięknych. Strefa B"},payHours:"Pn–nd 9:00–20:00"},
+  {n:"Parking pl. Solidarności",        a:"pl. Solidarności",                   lat:51.11550,lng:17.03850,r:3.5,open:1,t:"open",  zone:"spp",free:0,spots:50,price:{h1v:3,h1:"3 zł",h24:"—",note:"Strefa SPP – weekendy i święta BEZPŁATNE"},payHours:"Pn–pt 9:00–18:00 (weekendy bezpłatne)"},
+  {n:"Parking ul. Ładna",               a:"ul. Ładna",                          lat:51.10700,lng:17.05200,r:3.6,open:1,t:"open",  zone:"spp",free:0,spots:25,price:{h1v:3,h1:"3 zł",h24:"—",note:"Strefa SPP – weekendy BEZPŁATNE"},payHours:"Pn–pt 9:00–18:00 (weekendy bezpłatne)"},
+  {n:"Parking Urząd Wojewódzki",        a:"pl. Powstańców Warszawy",            lat:51.10180,lng:17.03500,r:3.6,open:1,t:"open",  zone:"sspp_b",free:0,spots:45,price:{h1v:5,h1:"5 zł",h24:"—",note:"Strefa B – płatny 7 dni"},payHours:"Pn–nd 9:00–20:00"},
+  {n:"Parking pl. Społeczny (Nadodrze)",a:"pl. Społeczny",                      lat:51.11800,lng:17.04100,r:3.5,open:1,t:"open",  zone:"spp",free:0,spots:30,price:{h1v:3,h1:"3 zł",h24:"—",note:"Strefa SPP Nadodrze. Weekendy BEZPŁATNE"},payHours:"Pn–pt 9:00–18:00 (weekendy bezpłatne)"},
+  {n:"Parking ul. Ołbińska",            a:"ul. Ołbińska",                       lat:51.12100,lng:17.04000,r:3.6,open:1,t:"open",  zone:"spp",free:0,spots:40,price:{h1v:3,h1:"3 zł",h24:"—",note:"Strefa SPP. Weekendy BEZPŁATNE"},payHours:"Pn–pt 9:00–18:00 (weekendy bezpłatne)"},
+  {n:"Parking ul. Długa (Nadodrze)",    a:"ul. Długa",                          lat:51.11900,lng:17.03900,r:3.5,open:1,t:"open",  zone:"spp",free:1,spots:35,price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNE po 18:00 i w weekendy. W tygodniu 9–18: 3 zł/h"},payHours:"Pn–pt 9:00–18:00 (poza tymi godzinami BEZPŁATNE)"},
+  {n:"Parking Piłsudskiego 74",         a:"ul. Piłsudskiego 74",                lat:51.10550,lng:17.02100,r:3.9,open:1,t:"open",  zone:"sspp_b",free:0,spots:55,price:{h1v:5,h1:"5 zł",h24:"—",note:"Strefa B – płatny 7 dni"},payHours:"Pn–nd 9:00–20:00"},
+  {n:"Parking Komuny Paryskiej",        a:"ul. Komuny Paryskiej",               lat:51.10850,lng:17.02100,r:3.6,open:1,t:"open",  zone:"sspp_b",free:0,spots:30,price:{h1v:5,h1:"5 zł",h24:"—",note:"Blisko pl. Wolności. Strefa B"},payHours:"Pn–nd 9:00–20:00"},
+  {n:"Parking ul. Biskupa Nankera",     a:"ul. Biskupa Nankera",                lat:51.11300,lng:17.03100,r:3.6,open:1,t:"open",  zone:"sspp_b",free:0,spots:40,price:{h1v:5,h1:"5 zł",h24:"—",note:"Przy Odrze i Wyspie Słodowej"},payHours:"Pn–nd 9:00–20:00"},
+  {n:"Parking ul. Ofiar Oświęcimskich", a:"ul. Ofiar Oświęcimskich",            lat:51.11200,lng:17.03700,r:3.4,open:1,t:"open",  zone:"sspp_b",free:0,spots:25,price:{h1v:5,h1:"5 zł",h24:"—",note:"Strefa B"},payHours:"Pn–nd 9:00–20:00"},
+  {n:"Parking ul. Ruska",               a:"ul. Ruska",                          lat:51.11000,lng:17.03500,r:3.5,open:1,t:"open",  zone:"sspp_a",free:0,spots:20,price:{h1v:7,h1:"7 zł",h24:"—",note:"Strefa A – stawki progresywne, płatny 7 dni"},payHours:"Pn–nd 9:00–20:00"},
+  {n:"Parking ul. Grunwaldzka",         a:"ul. Grunwaldzka (centrum)",          lat:51.10650,lng:17.05100,r:3.5,open:1,t:"open",  zone:"sspp_b",free:0,spots:30,price:{h1v:5,h1:"5 zł",h24:"—",note:"Strefa B – płatny 7 dni"},payHours:"Pn–nd 9:00–20:00"},
+  {n:"Parking ul. Traugutta",           a:"ul. Romualda Traugutta",             lat:51.10650,lng:17.05600,r:3.5,open:1,t:"open",  zone:"spp",free:0,spots:35,price:{h1v:3,h1:"3 zł",h24:"—",note:"SPP – weekendy i święta BEZPŁATNE"},payHours:"Pn–pt 9:00–18:00 (weekendy bezpłatne)"},
+  {n:"Parking ul. Dobrzyńska",          a:"ul. Dobrzyńska",                     lat:51.09650,lng:17.01850,r:3.5,open:1,t:"open",  zone:"spp",free:0,spots:25,price:{h1v:3,h1:"3 zł",h24:"—",note:"SPP – weekendy BEZPŁATNE"},payHours:"Pn–pt 9:00–18:00 (weekendy bezpłatne)"},
+  {n:"Parking ul. Śląska",              a:"ul. Śląska",                         lat:51.12500,lng:17.04200,r:3.6,open:1,t:"open",  zone:"spp",free:0,spots:40,price:{h1v:3,h1:"3 zł",h24:"—",note:"SPP – weekendy BEZPŁATNE"},payHours:"Pn–pt 9:00–18:00 (weekendy bezpłatne)"},
+  {n:"Parking ul. Bolesława Prusa",     a:"ul. Bolesława Prusa",                lat:51.10100,lng:17.04500,r:3.6,open:1,t:"open",  zone:"sspp_b",free:0,spots:30,price:{h1v:5,h1:"5 zł",h24:"—",note:"Strefa B – płatny 7 dni w tygodniu"},payHours:"Pn–nd 9:00–20:00"},
+  {n:"Parking ul. Na Niskich Łąkach",   a:"ul. Na Niskich Łąkach",              lat:51.09800,lng:17.05200,r:3.7,open:1,t:"open",  zone:"spp",free:0,spots:50,price:{h1v:3,h1:"3 zł",h24:"—",note:"SPP – weekendy BEZPŁATNE"},payHours:"Pn–pt 9:00–18:00 (weekendy bezpłatne)"},
+  {n:"Parking ul. Strzegomska",         a:"ul. Strzegomska",                    lat:51.09800,lng:16.99200,r:3.5,open:1,t:"open",  zone:null,free:1,spots:60,price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ CAŁKOWICIE BEZPŁATNE – poza strefą SPP"},payHours:"Bezpłatne zawsze"},
+  {n:"Parking ul. Zemska",              a:"ul. Zemska",                         lat:51.09600,lng:16.99800,r:3.5,open:1,t:"open",  zone:null,free:1,spots:45,price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ CAŁKOWICIE BEZPŁATNE"},payHours:"Bezpłatne zawsze"},
+  {n:"Parking Promenada Południe",      a:"al. gen. Hallera",                   lat:51.08500,lng:17.05500,r:3.8,open:1,t:"open",  zone:null,free:1,spots:80,price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNE – park rekreacyjny, dużo miejsca"},payHours:"Bezpłatne zawsze"},
+  {n:"Parking Słowackiego/Krasińskiego",a:"al. Słowackiego / Krasińskiego",     lat:51.11020,lng:17.04800,r:3.6,open:1,t:"open",  zone:"sspp_b",free:0,spots:35,price:{h1v:5,h1:"5 zł",h24:"—",note:"Strefa B – płatny 7 dni"},payHours:"Pn–nd 9:00–20:00"},
 
   // GALERIE I ATRAKCJE
-  {n:"Parking Wroclavia",               a:"ul. Sucha 1",                        lat:51.09643,lng:17.03484,r:4.0,open:0,t:"mall",  zone:null,free:0,price:{h1:"—",h24:"—",note:"Bezpłatny przy walidacji zakupów"}},
-  {n:"Parking Galeria Dominikańska",    a:"pl. Dominikański 3",                 lat:51.10847,lng:17.03916,r:3.6,open:0,t:"mall",  zone:null,free:0,price:{h1:"4 zł",h24:"—",note:"1h gratis przy zakupach 50 zł+"}},
-  {n:"Parking Renoma",                  a:"ul. Świdnicka 40",                   lat:51.10343,lng:17.03294,r:4.2,open:0,t:"mall",  zone:null,free:0,price:{h1:"5 zł",h24:"—",note:"1h gratis przy zakupach"}},
-  {n:"Parking Arkady Wrocławskie",      a:"ul. Powstańców Śląskich 2–4",        lat:51.09350,lng:16.98450,r:3.8,open:0,t:"mall",  zone:null,free:0,price:{h1:"—",h24:"—",note:"Bezpłatny przy zakupach"}},
-  {n:"Parking Magnolia Park",           a:"ul. Legnicka 58",                    lat:51.11380,lng:16.99420,r:4.1,open:0,t:"mall",  zone:null,free:0,price:{h1:"—",h24:"—",note:"Bezpłatny przy zakupach"}},
-  {n:"Parking Pasaż Grunwaldzki",       a:"pl. Grunwaldzki 22",                 lat:51.10840,lng:17.05840,r:4.0,open:0,t:"mall",  zone:null,free:0,price:{h1:"—",h24:"—",note:"Bezpłatny przy zakupach"}},
-  {n:"Parking Sky Tower",               a:"ul. Gwiaździsta 66",                 lat:51.09180,lng:17.00520,r:3.9,open:0,t:"mall",  zone:null,free:0,price:{h1:"4 zł",h24:"—",note:"Częściowo darmowy przy zakupach"}},
-  {n:"Parking Galeria Joy",             a:"ul. Małachowskiego",                 lat:51.09200,lng:17.04100,r:3.7,open:0,t:"mall",  zone:null,free:0,price:{h1:"—",h24:"—",note:"Bezpłatny przy zakupach"}},
-  {n:"Parking Ferio Gaj",               a:"ul. Świeradowska 51",                lat:51.07200,lng:17.05100,r:3.8,open:0,t:"mall",  zone:null,free:0,price:{h1:"—",h24:"—",note:"Bezpłatny przy zakupach"}},
-  {n:"Parking ZOO Wrocław",             a:"ul. Wróblewskiego 9",                lat:51.10650,lng:17.07150,r:3.9,open:1,t:"mall",  zone:null,free:0,price:{h1:"5 zł",h24:"—",note:"Płatny przy zwiedzaniu"}},
-  {n:"Parking ZOO/Hala Stulecia podz.", a:"ul. Wystawowa 1 (podz.)",            lat:51.10580,lng:17.07869,r:3.7,open:1,t:"mall",  zone:null,free:0,price:{h1:"9,50 zł",h24:"—",note:"Drogi – lepiej dalej"}},
-  {n:"Parking Hala Stulecia naziemny",  a:"ul. Wystawowa 1 (naz.)",             lat:51.10752,lng:17.07714,r:3.7,open:1,t:"mall",  zone:null,free:0,price:{h1:"5 zł",h24:"—",note:"Przy imprezach drożej"}},
-  {n:"Parking Panorama Racławicka",     a:"al. Słowackiego 5",                  lat:51.10855,lng:17.04582,r:4.0,open:1,t:"mall",  zone:null,free:1,price:{h1:"0 zł",h24:"0 zł",note:"Darmowy"}},
-  {n:"Parking Dworzec Świebodzki",      a:"pl. Orląt Lwowskich",                lat:51.10300,lng:17.01800,r:3.5,open:1,t:"open",  zone:"sspp_b",free:0,price:{h1:"5 zł",h24:"—",note:"Przy dawnym dworcu"}},
+  {n:"Parking Wroclavia",               a:"ul. Sucha 1",                        lat:51.09643,lng:17.03484,r:4.0,open:0,t:"mall",  zone:null,free:0,spots:600,price:{h1v:0,h1:"0 zł*",h24:"—",note:"✅ BEZPŁATNY przy zakupach (walidacja paragonu). Bez zakupów: 4 zł/h"},payHours:"Czynny w godz. galerii"},
+  {n:"Parking Galeria Dominikańska",    a:"pl. Dominikański 3",                 lat:51.10847,lng:17.03916,r:3.6,open:0,t:"mall",  zone:null,free:0,spots:350,price:{h1v:4,h1:"4 zł",h24:"—",note:"1 godzina BEZPŁATNA przy zakupach powyżej 50 zł. Bez zakupów: 4 zł/h"},payHours:"Czynny w godz. galerii"},
+  {n:"Parking Renoma",                  a:"ul. Świdnicka 40",                   lat:51.10343,lng:17.03294,r:4.2,open:0,t:"mall",  zone:null,free:0,spots:250,price:{h1v:5,h1:"5 zł",h24:"—",note:"1 godzina BEZPŁATNA przy zakupach. Potem 5 zł/h"},payHours:"Czynny w godz. galerii"},
+  {n:"Parking Arkady Wrocławskie",      a:"ul. Powstańców Śląskich 2–4",        lat:51.09350,lng:16.98450,r:3.8,open:0,t:"mall",  zone:null,free:0,spots:800,price:{h1v:0,h1:"0 zł*",h24:"—",note:"✅ BEZPŁATNY przy zakupach. Jeden z największych we Wrocławiu"},payHours:"Czynny w godz. galerii"},
+  {n:"Parking Magnolia Park",           a:"ul. Legnicka 58",                    lat:51.11380,lng:16.99420,r:4.1,open:0,t:"mall",  zone:null,free:0,spots:1200,price:{h1v:0,h1:"0 zł*",h24:"—",note:"✅ BEZPŁATNY przy zakupach. Ogromny parking"},payHours:"Czynny w godz. galerii"},
+  {n:"Parking Pasaż Grunwaldzki",       a:"pl. Grunwaldzki 22",                 lat:51.10840,lng:17.05840,r:4.0,open:0,t:"mall",  zone:null,free:0,spots:700,price:{h1v:0,h1:"0 zł*",h24:"—",note:"✅ BEZPŁATNY przy zakupach"},payHours:"Czynny w godz. galerii"},
+  {n:"Parking Sky Tower",               a:"ul. Gwiaździsta 66",                 lat:51.09180,lng:17.00520,r:3.9,open:0,t:"mall",  zone:null,free:0,spots:400,price:{h1v:4,h1:"4 zł",h24:"—",note:"Częściowo BEZPŁATNY przy zakupach (1h). Potem 4 zł/h"},payHours:"Czynny w godz. galerii"},
+  {n:"Parking Galeria Joy",             a:"ul. Małachowskiego",                 lat:51.09200,lng:17.04100,r:3.7,open:0,t:"mall",  zone:null,free:0,spots:300,price:{h1v:0,h1:"0 zł*",h24:"—",note:"✅ BEZPŁATNY przy zakupach"},payHours:"Czynny w godz. galerii"},
+  {n:"Parking Ferio Gaj",               a:"ul. Świeradowska 51",                lat:51.07200,lng:17.05100,r:3.8,open:0,t:"mall",  zone:null,free:0,spots:500,price:{h1v:0,h1:"0 zł*",h24:"—",note:"✅ BEZPŁATNY przy zakupach"},payHours:"Czynny w godz. galerii"},
+  {n:"Parking ZOO Wrocław",             a:"ul. Wróblewskiego 9",                lat:51.10650,lng:17.07150,r:3.9,open:1,t:"mall",  zone:null,free:0,spots:200,price:{h1v:5,h1:"5 zł",h24:"—",note:"PŁATNY – wymagane przy zwiedzaniu ZOO"},payHours:"Czynny całą dobę"},
+  {n:"Parking ZOO/Hala Stulecia podz.", a:"ul. Wystawowa 1 (podz.)",            lat:51.10580,lng:17.07869,r:3.7,open:1,t:"mall",  zone:null,free:0,spots:150,price:{h1v:9.5,h1:"9,50 zł",h24:"—",note:"⚠️ Drogi – lepiej parkować dalej na naziemnym"},payHours:"Czynny całą dobę"},
+  {n:"Parking Hala Stulecia naziemny",  a:"ul. Wystawowa 1 (naz.)",             lat:51.10752,lng:17.07714,r:3.7,open:1,t:"mall",  zone:null,free:0,spots:300,price:{h1v:5,h1:"5 zł",h24:"—",note:"Przy wydarzeniach stawka może być wyższa"},payHours:"Czynny całą dobę"},
+  {n:"Parking Panorama Racławicka",     a:"al. Słowackiego 5",                  lat:51.10855,lng:17.04582,r:4.0,open:1,t:"mall",  zone:null,free:1,spots:80,price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ CAŁKOWICIE BEZPŁATNY"},payHours:"Bezpłatne zawsze"},
+  {n:"Parking Dworzec Świebodzki",      a:"pl. Orląt Lwowskich",                lat:51.10300,lng:17.01800,r:3.5,open:1,t:"open",  zone:"sspp_b",free:0,spots:60,price:{h1v:5,h1:"5 zł",h24:"—",note:"Przy dawnym dworcu Świebodzkim. Strefa B"},payHours:"Pn–nd 9:00–20:00"},
 
   // DWORZEC PKP
-  {n:"Parking Dworzec PKP (podz.)",     a:"ul. Piłsudskiego 105",               lat:51.09820,lng:17.03620,r:3.2,open:1,t:"garage",zone:"spp",free:0,price:{h1:"5 zł",h24:"—",note:"Tylko płatność QR – problematyczny"}},
-  {n:"Parking Dworzec PKP (zewn.)",     a:"ul. Powstańców Śląskich",            lat:51.09887,lng:17.03838,r:3.4,open:1,t:"open",  zone:"spp",free:0,price:{h1:"5 zł",h24:"—",note:"Często przepełniony"}},
-  {n:"Parking Kiss & Ride Wroclavia",   a:"ul. Joannitów 13",                   lat:51.09674,lng:17.03687,r:4.3,open:1,t:"open",  zone:null,free:0,price:{h1:"—",h24:"—",note:"10 min gratis – tylko krótki postój"}},
-  {n:"Parking Dąbrowskiego (darmowy)", a:"ul. Dąbrowskiego",                   lat:51.09924,lng:17.04036,r:4.7,open:1,t:"open",  zone:null,free:1,price:{h1:"0 zł",h24:"0 zł",note:"Darmowy – blisko PKP i centrum"}},
+  {n:"Parking Dworzec PKP (podz.)",     a:"ul. Piłsudskiego 105",               lat:51.09820,lng:17.03620,r:3.2,open:1,t:"garage",zone:"spp",free:0,spots:100,price:{h1v:5,h1:"5 zł",h24:"—",note:"⚠️ Wyłącznie płatność przez QR kod – brak gotówki. Weekendy BEZPŁATNE"},payHours:"Pn–pt 9:00–18:00 (weekendy bezpłatne)"},
+  {n:"Parking Dworzec PKP (zewn.)",     a:"ul. Powstańców Śląskich",            lat:51.09887,lng:17.03838,r:3.4,open:1,t:"open",  zone:"spp",free:0,spots:80,price:{h1v:5,h1:"5 zł",h24:"—",note:"⚠️ Często przepełniony – przyjedź wcześniej. Weekendy BEZPŁATNE"},payHours:"Pn–pt 9:00–18:00 (weekendy bezpłatne)"},
+  {n:"Parking Kiss & Ride Wroclavia",   a:"ul. Joannitów 13",                   lat:51.09674,lng:17.03687,r:4.3,open:1,t:"open",  zone:null,free:0,spots:20,price:{h1v:0,h1:"0 zł",h24:"—",note:"10 minut BEZPŁATNIE – wyłącznie do szybkiego podjazdu/odbioru"},payHours:"Bezpłatne (max 10 min)"},
+  {n:"Parking Dąbrowskiego (darmowy)", a:"ul. Dąbrowskiego",                   lat:51.09924,lng:17.04036,r:4.7,open:1,t:"open",  zone:null,free:1,spots:120,price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ CAŁKOWICIE BEZPŁATNY – blisko PKP i centrum, mało znany"},payHours:"Bezpłatne zawsze"},
 
   // PRYWATNE / LOTNISKO
-  {n:"Parking Dudzis (strzeżony)",      a:"Wrocław – centrum",                  lat:51.10500,lng:17.01600,r:4.2,open:1,t:"private",zone:null,free:0,price:{h1:"6 zł",h24:"50 zł",note:"Strzeżony 24/7, ochrona"}},
-  {n:"Parking ul. Ślężna 110",          a:"ul. Ślężna 110",                     lat:51.08800,lng:17.01400,r:3.9,open:1,t:"private",zone:null,free:0,price:{h1:"4 zł",h24:"35 zł",note:"Strzeżony, monitoring"}},
-  {n:"Parking ul. Kamienna 7",          a:"ul. Kamienna 7",                     lat:51.10200,lng:17.05800,r:3.8,open:1,t:"private",zone:null,free:0,price:{h1:"5 zł",h24:"40 zł",note:"Prywatny strzeżony"}},
-  {n:"Parking Lotnisko Long Term D",    a:"ul. Graniczna 190",                  lat:51.11339,lng:16.86779,r:3.6,open:1,t:"open",  zone:null,free:0,price:{h1:"—",h24:"27 zł",note:"Rezerwacja online – od 109 zł/4 dni"}},
-  {n:"Parking Cargo Lotnisko",          a:"ul. Zarembowicza 36a",               lat:51.10812,lng:16.88878,r:4.9,open:1,t:"private",zone:null,free:0,price:{h1:"—",h24:"~35 zł",note:"Transfer do lotniska gratis"}},
+  {n:"Parking Dudzis (strzeżony)",      a:"Wrocław – centrum",                  lat:51.10500,lng:17.01600,r:4.2,open:1,t:"private",zone:null,free:0,spots:80,price:{h1v:6,h1:"6 zł",h24:"50 zł",note:"Strzeżony całą dobę, ochroniarz na miejscu"},payHours:"Czynny 24/7"},
+  {n:"Parking ul. Ślężna 110",          a:"ul. Ślężna 110",                     lat:51.08800,lng:17.01400,r:3.9,open:1,t:"private",zone:null,free:0,spots:60,price:{h1v:4,h1:"4 zł",h24:"35 zł",note:"Strzeżony, monitoring CCTV"},payHours:"Czynny 24/7"},
+  {n:"Parking ul. Kamienna 7",          a:"ul. Kamienna 7",                     lat:51.10200,lng:17.05800,r:3.8,open:1,t:"private",zone:null,free:0,spots:50,price:{h1v:5,h1:"5 zł",h24:"40 zł",note:"Prywatny strzeżony parking"},payHours:"Czynny 24/7"},
+  {n:"Parking Lotnisko Long Term D",    a:"ul. Graniczna 190",                  lat:51.11339,lng:16.86779,r:3.6,open:1,t:"open",  zone:null,free:0,spots:400,price:{h1v:0,h1:"—",h24:"27 zł",note:"Rezerwacja online od 109 zł/4 dni. Shuttle bus do terminalu"},payHours:"Czynny 24/7"},
+  {n:"Parking Cargo Lotnisko",          a:"ul. Zarembowicza 36a",               lat:51.10812,lng:16.88878,r:4.9,open:1,t:"private",zone:null,free:0,spots:200,price:{h1v:0,h1:"—",h24:"~35 zł",note:"✅ Transfer do lotniska gratis! Najlepiej oceniany przy lotnisku"},payHours:"Czynny 24/7"},
 
   // PARK & RIDE
-  {n:"P+R Stadion Wrocław",             a:"al. Śląska",                         lat:51.13657,lng:16.94184,r:4.1,open:1,t:"pr",  zone:null,free:1,price:{h1:"0 zł",h24:"0 zł",note:"Bezpłatny z biletem MPK"}},
-  {n:"P+R Grabiszyńska / Oporów",       a:"pętla Wzgórze Oporowskie",           lat:51.08387,lng:16.97169,r:4.6,open:1,t:"pr",  zone:null,free:1,price:{h1:"0 zł",h24:"0 zł",note:"Bezpłatny – dużo miejsca"}},
-  {n:"P+R Ślężna (Wzgórze Andersa)",    a:"ul. Wzgórze Andersa",                lat:51.09001,lng:17.02922,r:4.2,open:1,t:"pr",  zone:null,free:1,price:{h1:"0 zł",h24:"0 zł",note:"Z biletem MPK – bezpłatny"}},
-  {n:"P+R Rogowska",                    a:"ul. Komorowska",                     lat:51.11029,lng:16.95431,r:4.7,open:1,t:"pr",  zone:null,free:1,price:{h1:"0 zł",h24:"0 zł",note:"Bezpłatny, duży węzeł"}},
-  {n:"P+R Kromera",                     a:"ul. Kromera",                        lat:51.10200,lng:16.97800,r:3.9,open:1,t:"pr",  zone:null,free:1,price:{h1:"0 zł",h24:"0 zł",note:"Z Urban Card – bezpłatny"}},
-  {n:"P+R Bierutowska (Psie Pole)",     a:"ul. Bierutowska",                    lat:51.14965,lng:17.11914,r:3.6,open:1,t:"pr",  zone:null,free:0,price:{h1:"2 zł",h24:"—",note:"Przy stacji SKM"}},
-  {n:"P+R Kamieńskiego",                a:"pętla autobusowa",                   lat:51.07380,lng:16.99210,r:3.7,open:1,t:"pr",  zone:null,free:1,price:{h1:"0 zł",h24:"0 zł",note:"Bezpłatny z biletem MPK"}},
-  {n:"P+R Bardzka / Świeradowska",      a:"ul. Bardzka",                        lat:51.07100,lng:17.05200,r:3.8,open:1,t:"pr",  zone:null,free:1,price:{h1:"0 zł",h24:"0 zł",note:"Przy pętli tramwajowej"}},
-  {n:"P+R Kosmonautów / Leśnica",       a:"pętla Leśnica",                      lat:51.11500,lng:16.87800,r:4.0,open:1,t:"pr",  zone:null,free:1,price:{h1:"0 zł",h24:"0 zł",note:"Zachód Wrocławia"}},
-  {n:"P+R Opolska (Głubczycka)",        a:"ul. Opolska 32",                     lat:51.07958,lng:17.08159,r:4.8,open:1,t:"pr",  zone:null,free:1,price:{h1:"0 zł",h24:"0 zł",note:"Najlepiej oceniany P+R"}},
-  {n:"P+R Lotnicza (Wrocław Kuźniki)",  a:"stacja kol. Wrocław Kuźniki",        lat:51.14238,lng:16.90012,r:4.0,open:1,t:"pr",  zone:null,free:0,price:{h1:"2 zł",h24:"—",note:"Wymaga Urban Card lub biletu"}},
-  {n:"P+R Buforowa (Kajdasiewicza)",    a:"ul. Kajdasiewicza",                  lat:51.06567,lng:16.98675,r:3.9,open:1,t:"pr",  zone:null,free:0,price:{h1:"2 zł",h24:"—",note:"Wymaga Urban Card"}},
-  {n:"P+R Cmentarz Grabiszyński",       a:"ul. Grabiszyńska",                   lat:51.08800,lng:16.97500,r:3.8,open:1,t:"pr",  zone:null,free:1,price:{h1:"0 zł",h24:"0 zł",note:"Bezpłatny"}},
-  {n:"P+R Klecina (Jutrzenki)",         a:"ul. Jutrzenki",                      lat:51.06400,lng:16.99000,r:3.9,open:1,t:"pr",  zone:null,free:0,price:{h1:"2 zł",h24:"—",note:"Wymaga Urban Card"}},
-  {n:"P+R Pętla Rogowska / Żerniki",   a:"ul. Żernicka / Rumiankowa",          lat:51.11989,lng:16.95131,r:4.2,open:1,t:"pr",  zone:null,free:1,price:{h1:"0 zł",h24:"0 zł",note:"Bezpłatny"}},
-  {n:"P+R Majchra",                     a:"ul. Alojzego Majchra",               lat:51.14386,lng:16.87271,r:3.8,open:1,t:"pr",  zone:null,free:0,price:{h1:"2 zł",h24:"—",note:"Wymaga Urban Card"}},
+  {n:"P+R Stadion Wrocław",             a:"al. Śląska",                         lat:51.13657,lng:16.94184,r:4.1,open:1,t:"pr",  zone:null,free:1,spots:1500,price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNY z biletem MPK (Urban Card lub bilet). Bez biletu: 5 zł"},payHours:"Bezpłatne z biletem MPK"},
+  {n:"P+R Grabiszyńska / Oporów",       a:"pętla Wzgórze Oporowskie",           lat:51.08387,lng:16.97169,r:4.6,open:1,t:"pr",  zone:null,free:1,spots:800,price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNY – duży parking, dużo miejsca. Z biletem MPK"},payHours:"Bezpłatne z biletem MPK"},
+  {n:"P+R Ślężna (Wzgórze Andersa)",    a:"ul. Wzgórze Andersa",                lat:51.09001,lng:17.02922,r:4.2,open:1,t:"pr",  zone:null,free:1,spots:300,price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNY z biletem MPK. Tramwaj do centrum 10 min"},payHours:"Bezpłatne z biletem MPK"},
+  {n:"P+R Rogowska",                    a:"ul. Komorowska",                     lat:51.11029,lng:16.95431,r:4.7,open:1,t:"pr",  zone:null,free:1,spots:600,price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNY – duży węzeł komunikacyjny"},payHours:"Bezpłatne z biletem MPK"},
+  {n:"P+R Kromera",                     a:"ul. Kromera",                        lat:51.10200,lng:16.97800,r:3.9,open:1,t:"pr",  zone:null,free:1,spots:250,price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNY z Urban Card lub biletem MPK"},payHours:"Bezpłatne z biletem MPK"},
+  {n:"P+R Bierutowska (Psie Pole)",     a:"ul. Bierutowska",                    lat:51.14965,lng:17.11914,r:3.6,open:1,t:"pr",  zone:null,free:0,spots:200,price:{h1v:2,h1:"2 zł",h24:"—",note:"Przy stacji SKM Psie Pole. Tani parking + pociąg do centrum"},payHours:"Czynny całą dobę"},
+  {n:"P+R Kamieńskiego",                a:"pętla autobusowa",                   lat:51.07380,lng:16.99210,r:3.7,open:1,t:"pr",  zone:null,free:1,spots:300,price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNY z biletem MPK"},payHours:"Bezpłatne z biletem MPK"},
+  {n:"P+R Bardzka / Świeradowska",      a:"ul. Bardzka",                        lat:51.07100,lng:17.05200,r:3.8,open:1,t:"pr",  zone:null,free:1,spots:200,price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNY – przy pętli tramwajowej"},payHours:"Bezpłatne z biletem MPK"},
+  {n:"P+R Kosmonautów / Leśnica",       a:"pętla Leśnica",                      lat:51.11500,lng:16.87800,r:4.0,open:1,t:"pr",  zone:null,free:1,spots:400,price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNY – zachód Wrocławia, tramwaj do centrum"},payHours:"Bezpłatne z biletem MPK"},
+  {n:"P+R Opolska (Głubczycka)",        a:"ul. Opolska 32",                     lat:51.07958,lng:17.08159,r:4.8,open:1,t:"pr",  zone:null,free:1,spots:500,price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNY – najlepiej oceniany P+R we Wrocławiu!"},payHours:"Bezpłatne z biletem MPK"},
+  {n:"P+R Lotnicza (Wrocław Kuźniki)",  a:"stacja kol. Wrocław Kuźniki",        lat:51.14238,lng:16.90012,r:4.0,open:1,t:"pr",  zone:null,free:0,spots:150,price:{h1v:2,h1:"2 zł",h24:"—",note:"Wymaga Urban Card lub biletu SKM"},payHours:"Czynny całą dobę"},
+  {n:"P+R Buforowa (Kajdasiewicza)",    a:"ul. Kajdasiewicza",                  lat:51.06567,lng:16.98675,r:3.9,open:1,t:"pr",  zone:null,free:0,spots:180,price:{h1v:2,h1:"2 zł",h24:"—",note:"Wymaga Urban Card. Duży parking na południu"},payHours:"Czynny całą dobę"},
+  {n:"P+R Cmentarz Grabiszyński",       a:"ul. Grabiszyńska",                   lat:51.08800,lng:16.97500,r:3.8,open:1,t:"pr",  zone:null,free:1,spots:250,price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNY"},payHours:"Bezpłatne z biletem MPK"},
+  {n:"P+R Klecina (Jutrzenki)",         a:"ul. Jutrzenki",                      lat:51.06400,lng:16.99000,r:3.9,open:1,t:"pr",  zone:null,free:0,spots:200,price:{h1v:2,h1:"2 zł",h24:"—",note:"Wymaga Urban Card"},payHours:"Czynny całą dobę"},
+  {n:"P+R Pętla Rogowska / Żerniki",   a:"ul. Żernicka / Rumiankowa",          lat:51.11989,lng:16.95131,r:4.2,open:1,t:"pr",  zone:null,free:1,spots:350,price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNY"},payHours:"Bezpłatne z biletem MPK"},
+  {n:"P+R Majchra",                     a:"ul. Alojzego Majchra",               lat:51.14386,lng:16.87271,r:3.8,open:1,t:"pr",  zone:null,free:0,spots:120,price:{h1v:2,h1:"2 zł",h24:"—",note:"Wymaga Urban Card"},payHours:"Czynny całą dobę"},
 ];
 
 // Kolory, ikony, etykiety
@@ -827,31 +938,135 @@ function mkZoneTag(zone) {
   return `<span style="background:${bg};color:${fc};border:1px solid ${bc};border-radius:20px;font-size:.62rem;padding:1px 7px">${label}</span>`;
 }
 
+// ── AVAILABILITY SIMULATION ──
+// Symuluje zajętość na bazie hash ID + pory dnia
+function getOccupancy(p, parkingId) {
+  if (p.t === 'pr' || p.free) return { pct: Math.floor(20 + (hashStr(parkingId) % 35)), label: 'Dużo wolnych', color: '#47ffb0' };
+  const h = new Date().getHours();
+  const base = hashStr(parkingId) % 30; // 0-29
+  let pct;
+  // Szczyty: 8-10 i 16-18
+  if ((h>=8&&h<=10)||(h>=16&&h<=18)) pct = 60 + base;
+  else if (h>=11&&h<=15) pct = 45 + base;
+  else if (h>=19||h<=7) pct = 10 + (base/2)|0;
+  else pct = 35 + base;
+  pct = Math.min(98, pct);
+  const label = pct < 40 ? 'Dużo wolnych' : pct < 70 ? 'Miejsca dostępne' : pct < 90 ? 'Prawie pełny' : 'Prawdopodobnie pełny';
+  const color = pct < 40 ? '#47ffb0' : pct < 70 ? '#e8ff47' : pct < 90 ? '#ff8c47' : '#ff4f7b';
+  return { pct, label, color };
+}
+function hashStr(s){ let h=0; for(let i=0;i<s.length;i++) h=(h<<5)-h+s.charCodeAt(i)|0; return Math.abs(h); }
+
+// ── IS PAID NOW ──
+function isPaidNow(p) {
+  if (p.free) return false;
+  if (!p.zone) return false; // galerie – depends on purchases
+  const now = new Date();
+  const day = now.getDay(); // 0=Sun,6=Sat
+  const h = now.getHours() + now.getMinutes()/60;
+  if (p.zone === 'sspp_a' || p.zone === 'sspp_b') {
+    return h >= 9 && h < 20; // Mon-Sun 9-20
+  }
+  if (p.zone === 'spp') {
+    return day >= 1 && day <= 5 && h >= 9 && h < 18; // Mon-Fri 9-18
+  }
+  return false;
+}
+
 function mkPopup(p, i, isCustom) {
-  const zoneWarn = (p.zone==='sspp_a'||p.zone==='sspp_b') ?
-    `<div class="pu-warn"><b>⚠️ Strefa płatna 7 dni w tygodniu!</b><br>Płatność: parkomat, SkyCash, AnyPark lub moBILET. Brak parkometru NIE zwalnia z opłaty. Mandat: <b>360 zł</b>.</div>` :
-    p.zone==='spp' ? `<div class="pu-warn" style="background:rgba(34,136,255,.07);border-color:rgba(34,136,255,.25);color:#88bbff"><b>ℹ️ Strefa SPP</b> – płatna pn–pt 9–18.<br>Weekendy i święta: <b style="color:#47ffb0">bezpłatnie!</b></div>` : '';
-  const hours = p.zone ? `<div class="row"><span>Godziny płatności</span><span>${ZH[p.zone]||'—'}</span></div>` : '';
-  const priceRows = [];
-  if (p.price?.h1 && p.price.h1!=='—') priceRows.push(`<div class="row"><span>Za godzinę</span><span>${p.price.h1}</span></div>`);
-  if (p.price?.h24 && p.price.h24!=='—') priceRows.push(`<div class="row"><span>Za dobę</span><span>${p.price.h24}</span></div>`);
-  const priceBlock = (priceRows.length||hours||p.price?.note) ? `<div class="pu-price">${hours}${priceRows.join('')}${p.price?.note?`<div class="note">ℹ️ ${p.price.note}</div>`:''}</div>` : '';
-  const delBtn = isCustom ? `<button onclick="delCustom(${i})" style="margin-top:7px;width:100%;background:rgba(255,79,123,.1);border:1px solid rgba(255,79,123,.25);color:#ff4f7b;border-radius:7px;padding:6px;font-size:.71rem;cursor:pointer;font-family:inherit">🗑 Usuń ten parking</button>` : '';
   const parkingId = p._docId || ('builtin_' + i);
-  return `<div class="pu">
+  const paidNow = isPaidNow(p);
+  const occ = getOccupancy(p, parkingId);
+  const photos = getParkingPhotos(p);
+
+  // ZONE WARNING
+  const zoneWarn = (p.zone==='sspp_a'||p.zone==='sspp_b') ?
+    `<div class="pu-warn"><b>⚠️ Strefa płatna 7 dni w tygodniu, 9:00–20:00!</b><br>Płatność: parkomat, SkyCash, AnyPark lub moBILET.<br>Brak parkometru NIE zwalnia z opłaty. Mandat: <b>360 zł</b>.</div>` :
+    p.zone==='spp' ? `<div class="pu-warn" style="background:rgba(34,136,255,.07);border-color:rgba(34,136,255,.25);color:#88bbff"><b>ℹ️ Strefa SPP</b> – płatna pn–pt 9:00–18:00.<br>Weekendy i święta: <b style="color:#47ffb0">BEZPŁATNIE!</b></div>` : '';
+
+  // PAY STATUS BADGE
+  let payStatusHtml = '';
+  if (p.free) {
+    payStatusHtml = `<div class="pay-status pay-free">✅ BEZPŁATNY</div>`;
+  } else if (p.t === 'mall') {
+    payStatusHtml = `<div class="pay-status pay-conditional">🛒 Bezpłatny przy zakupach</div>`;
+  } else if (p.zone) {
+    payStatusHtml = paidNow
+      ? `<div class="pay-status pay-now">💳 TERAZ PŁATNY – ${p.price?.h1||'—'}/h</div>`
+      : `<div class="pay-status pay-free">✅ TERAZ BEZPŁATNY</div>`;
+  } else {
+    payStatusHtml = `<div class="pay-status pay-now">💳 PŁATNY – ${p.price?.h1||p.price?.h24||'—'}</div>`;
+  }
+
+  // PRICE BLOCK
+  const priceRows = [];
+  if (p.payHours) priceRows.push(`<div class="row"><span>📅 Kiedy płatny</span><span style="color:#aaa;font-size:.66rem">${p.payHours}</span></div>`);
+  if (p.price?.h1 && p.price.h1!=='—') priceRows.push(`<div class="row"><span>💳 Za godzinę</span><span>${p.price.h1}</span></div>`);
+  if (p.price?.h24 && p.price.h24!=='—') priceRows.push(`<div class="row"><span>🌙 Za dobę</span><span>${p.price.h24}</span></div>`);
+  if (p.spots) priceRows.push(`<div class="row"><span>🚗 Liczba miejsc</span><span>~${p.spots}</span></div>`);
+  const priceBlock = priceRows.length ? `<div class="pu-price">${priceRows.join('')}${p.price?.note?`<div class="note">ℹ️ ${escHtml(p.price.note)}</div>`:''}</div>` : '';
+
+  // PRICE CALCULATOR
+  const calcHtml = (p.price?.h1v && p.price.h1v > 0) ? `
+  <div class="price-calc" id="calc_${parkingId}">
+    <div class="calc-title">🧮 Kalkulator kosztów</div>
+    <div class="calc-row">
+      <span>Ile godzin?</span>
+      <div class="calc-stepper">
+        <button onclick="calcStep('${parkingId}',-1)">−</button>
+        <span id="calcH_${parkingId}">1</span>h
+        <button onclick="calcStep('${parkingId}',1)">+</button>
+      </div>
+    </div>
+    <div class="calc-result" id="calcR_${parkingId}">Koszt: <b>${p.price.h1v} zł</b></div>
+  </div>` : '';
+
+  // OCCUPANCY BAR
+  const occHtml = `<div class="occ-wrap">
+    <div class="occ-label">
+      <span>🅿 Zajętość (szacowana)</span>
+      <span style="color:${occ.color};font-weight:700">${occ.label}</span>
+    </div>
+    <div class="occ-bar"><div class="occ-fill" style="width:${occ.pct}%;background:${occ.color}"></div></div>
+    <div class="occ-meta">${occ.pct}% zajęte • aktualizacja co wizytę</div>
+  </div>`;
+
+  // PHOTOS
+  const photoHtml = `<div class="photo-gallery" id="gallery_${parkingId}">
+    <div class="photo-main" id="photoMain_${parkingId}">
+      <img src="${photos[0]}" onerror="this.src='${photos[3]||photos[0]}'" loading="lazy" alt="Zdjęcie parkingu"/>
+    </div>
+    <div class="photo-thumbs" id="photoThumbs_${parkingId}">
+      ${photos.slice(0,4).map((ph,idx)=>`<div class="photo-thumb ${idx===0?'active':''}" onclick="switchPhoto('${parkingId}','${ph}',this)"><img src="${ph}" onerror="this.parentNode.style.display='none'" loading="lazy"/></div>`).join('')}
+    </div>
+  </div>`;
+
+  // COMPARE BUTTON
+  const compareHtml = `<button class="compare-btn" id="cmpBtn_${parkingId}" onclick="toggleCompare(${i})">⚖️ Porównaj</button>`;
+
+  const delBtn = isCustom ? `<button onclick="delCustom(${i})" style="margin-top:4px;width:100%;background:rgba(255,79,123,.1);border:1px solid rgba(255,79,123,.25);color:#ff4f7b;border-radius:7px;padding:6px;font-size:.71rem;cursor:pointer;font-family:inherit">🗑 Usuń ten parking</button>` : '';
+
+  return `
+  ${photoHtml}
+  <div class="pu">
     <div class="pu-cat">${TL[p.t]||''}</div>
-    <div class="pu-name">${p.n}</div>
-    <div class="pu-addr">📍 ${p.a}</div>
+    <div class="pu-name">${escHtml(p.n)}</div>
+    <div class="pu-addr">📍 ${escHtml(p.a)}</div>
     <div class="pu-tags">
       ${p.r?`<span class="tag ty" id="avgRating_${parkingId}">★ ${p.r}</span>`:`<span class="tag ty" id="avgRating_${parkingId}">★ —</span>`}
       <span class="tag tb">${p.open?'🕐 Całą dobę':'⏰ Wybrane godz.'}</span>
-      ${p.free?'<span class="tag tg">💚 Bezpłatny</span>':''}
       ${mkZoneTag(p.zone)}
     </div>
-    ${zoneWarn}${priceBlock}
-    <button class="pu-nav-btn" onclick="startNavigation(${p.lat}, ${p.lng}, '${p.n.replace(/'/g,"\\'")}')">🧭 Nawiguj do celu</button>
-    <a class="pu-btn" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}&travelmode=driving" target="_blank" style="background:rgba(71,200,255,.12);color:var(--a2);border:1px solid rgba(71,200,255,.3);margin-bottom:6px">🗺 Otwórz w Google Maps →</a>
-    <a class="pu-btn" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}" target="_blank">Otwórz w Google Maps →</a>
+    ${payStatusHtml}
+    ${zoneWarn}
+    ${occHtml}
+    ${priceBlock}
+    ${calcHtml}
+    <div style="display:flex;gap:5px;margin-bottom:5px">
+      <button class="pu-nav-btn" style="flex:1" onclick="startNavigation(${p.lat}, ${p.lng}, '${p.n.replace(/'/g,"\\'")}')">🧭 Nawiguj</button>
+      ${compareHtml}
+    </div>
+    <a class="pu-btn" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}&travelmode=driving" target="_blank" style="background:rgba(71,200,255,.12);color:var(--a2);border:1px solid rgba(71,200,255,.3);margin-bottom:5px;display:block;text-align:center;padding:7px;border-radius:8px;text-decoration:none;font-weight:700;font-size:.73rem">🗺 Google Maps →</a>
     ${delBtn}
   </div>
   <div class="reviews-section" id="reviews_${parkingId}">
@@ -921,6 +1136,7 @@ function matchF(p){
   if(activeF==='all')return true;
   if(['garage','mall','pr','open','private','custom'].includes(activeF))return p.t===activeF;
   if(activeF==='free')return!!p.free;
+  if(activeF==='freenow')return p.free||(!isPaidNow(p)&&p.zone!==undefined);
   if(activeF==='sspp_a')return p.zone==='sspp_a';
   if(activeF==='sspp_b')return p.zone==='sspp_b';
   if(activeF==='spp')return p.zone==='spp';
@@ -945,11 +1161,11 @@ function render(search){
       const ztag = p.zone ? {sspp_a:'🔴 Str.A',sspp_b:'🟠 Str.B',spp:'🔵 SPP',free:'💚'}[p.zone]||'' : '';
       const c=document.createElement('div'); c.className=`card t-${p.t}`; c.dataset.i=i;
       c.innerHTML=`${isCustom?`<button class="del-btn" onclick="event.stopPropagation();delCustom(${i})">✕</button>`:''}
-        <div class="cn">${p.n}</div><div class="ca">📍 ${p.a}</div>
+        <div class="cn">${escHtml(p.n)}</div><div class="ca">📍 ${escHtml(p.a)}</div>
         <div class="cm">
           ${p.r?`<span class="tag ty">★ ${p.r}</span>`:''}
           <span class="tag tb">${p.open?'24/7':'Wybrane godz.'}</span>
-          ${p.free?'<span class="tag tg">💚</span>':''}
+          ${p.free?'<span class="tag tg">💚 Bezpłatny</span>':isPaidNow(p)?`<span class="tag tr">💳 Płatny teraz</span>`:`<span class="tag tg">✅ Teraz bezpłatny</span>`}
           ${ztag?`<span class="tag">${ztag}</span>`:''}
           ${pinfo?`<span class="ptag">💳 ${pinfo}</span>`:''}
         </div>`;
@@ -1589,7 +1805,129 @@ async function submitReview(parkingId, lat, lng, name) {
   finally { if (btn) { btn.textContent = 'Dodaj opinię'; btn.disabled = false; } }
 }
 
-function escHtml(str) {
+// ══════════════════════════════════════════════════════
+// ZDJĘCIA – GALERIA
+// ══════════════════════════════════════════════════════
+window.switchPhoto = function(parkingId, src, thumbEl) {
+  const main = document.getElementById('photoMain_' + parkingId);
+  if (!main) return;
+  const img = main.querySelector('img');
+  if (img) { img.style.opacity = 0; setTimeout(() => { img.src = src; img.style.opacity = 1; }, 150); }
+  document.querySelectorAll(`#photoThumbs_${parkingId} .photo-thumb`).forEach(t => t.classList.remove('active'));
+  if (thumbEl) thumbEl.classList.add('active');
+};
+
+// ══════════════════════════════════════════════════════
+// KALKULATOR KOSZTÓW
+// ══════════════════════════════════════════════════════
+const calcHours = {};
+window.calcStep = function(parkingId, delta) {
+  if (!calcHours[parkingId]) calcHours[parkingId] = 1;
+  calcHours[parkingId] = Math.max(1, Math.min(24, calcHours[parkingId] + delta));
+  const h = calcHours[parkingId];
+  document.getElementById('calcH_' + parkingId).textContent = h;
+  // Find parking
+  const idx = ALL.findIndex(p => (p._docId || ('builtin_'+ALL.indexOf(p))) === parkingId || ('builtin_'+ALL.indexOf(p)) === parkingId);
+  const p = idx >= 0 ? ALL[idx] : null;
+  if (!p || !p.price?.h1v) return;
+  // Progressive pricing for ŚSPP zones
+  let cost = 0;
+  if (p.zone === 'sspp_a') {
+    const rates = [7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22];
+    for (let i=0;i<h;i++) cost += rates[Math.min(i,rates.length-1)];
+  } else if (p.zone === 'sspp_b') {
+    const rates = [5,6,7,8,9,10,11,12,13,14,15,16];
+    for (let i=0;i<h;i++) cost += rates[Math.min(i,rates.length-1)];
+  } else {
+    cost = p.price.h1v * h;
+  }
+  // Check 24h cap
+  if (p.price.h24 && p.price.h24 !== '—') {
+    const cap = parseFloat(p.price.h24);
+    if (!isNaN(cap)) cost = Math.min(cost, cap);
+  }
+  const el = document.getElementById('calcR_' + parkingId);
+  if (el) el.innerHTML = `Koszt za ${h}h: <b>${cost} zł</b>${(p.zone==='sspp_a'||p.zone==='sspp_b')?'<span style="font-size:.6rem;color:var(--muted)"> (stawka progresywna)</span>':''}`;
+};
+
+// ══════════════════════════════════════════════════════
+// PORÓWNYWARKA
+// ══════════════════════════════════════════════════════
+let compareSet = new Set();
+window.toggleCompare = function(i) {
+  const parkingId = ALL[i]._docId || ('builtin_' + i);
+  if (compareSet.has(i)) {
+    compareSet.delete(i);
+  } else {
+    if (compareSet.size >= 3) { alert('Możesz porównać maksymalnie 3 parkingi.'); return; }
+    compareSet.add(i);
+  }
+  updateComparePanel();
+  // Update button state in open popup
+  const btn = document.getElementById('cmpBtn_' + parkingId);
+  if (btn) btn.classList.toggle('active', compareSet.has(i));
+};
+
+function updateComparePanel() {
+  const panel = document.getElementById('comparePanel');
+  const items = document.getElementById('compareItems');
+  if (compareSet.size === 0) { panel.classList.remove('show'); return; }
+  panel.classList.add('show');
+  items.innerHTML = [...compareSet].map(i => {
+    const p = ALL[i];
+    return `<div class="cp-item">${escHtml(p.n.substring(0,22))} <button onclick="toggleCompare(${i})">✕</button></div>`;
+  }).join('');
+}
+
+function clearCompare() {
+  compareSet.clear();
+  updateComparePanel();
+  document.querySelectorAll('.compare-btn').forEach(b => b.classList.remove('active'));
+}
+
+window.openCompareModal = function() {
+  if (compareSet.size < 2) { alert('Wybierz co najmniej 2 parkingi do porównania.'); return; }
+  const items = [...compareSet].map(i => ALL[i]);
+  const now = new Date();
+  const grid = document.getElementById('cmpGrid');
+  // Find bests
+  const prices = items.map(p => p.price?.h1v || 999);
+  const minPrice = Math.min(...prices.filter(x=>x<999));
+  const maxPrice = Math.max(...prices.filter(x=>x<999));
+  const ratings = items.map(p => p.r || 0);
+  const maxRating = Math.max(...ratings);
+  const spots = items.map(p => p.spots || 0);
+  const maxSpots = Math.max(...spots);
+
+  const cols = items.map((p,idx) => {
+    const occ = getOccupancy(p, p._docId||('builtin_'+[...compareSet][idx]));
+    const paidNow = isPaidNow(p);
+    const priceClass = prices[idx] === minPrice && prices[idx]<999 ? 'cmp-best' : prices[idx]===maxPrice&&prices[idx]<999&&prices.length>1?'cmp-worst':'';
+    const ratingClass = ratings[idx] === maxRating && maxRating>0 ? 'cmp-best' : '';
+    const spotsClass = spots[idx] === maxSpots && maxSpots>0 ? 'cmp-best' : '';
+    return `<div class="cmp-col">
+      <div class="cmp-col-name">${escHtml(p.n)}</div>
+      <div class="cmp-row"><span>💳 Cena za h</span><span class="${priceClass}">${p.price?.h1||'—'}</span></div>
+      <div class="cmp-row"><span>🌙 Cena za dobę</span><span>${p.price?.h24||'—'}</span></div>
+      <div class="cmp-row"><span>⭐ Ocena</span><span class="${ratingClass}">${p.r?'★ '+p.r:'—'}</span></div>
+      <div class="cmp-row"><span>🅿 Zajętość</span><span style="color:${occ.color}">${occ.label}</span></div>
+      <div class="cmp-row"><span>🚗 Miejsc</span><span class="${spotsClass}">${p.spots?'~'+p.spots:'—'}</span></div>
+      <div class="cmp-row"><span>💰 Teraz</span><span style="color:${paidNow?'#ff6b8a':'#47ffb0'}">${p.free?'Bezpłatny':paidNow?'Płatny':'Bezpłatny'}</span></div>
+      <div class="cmp-row"><span>📅 Godziny płatności</span><span style="font-size:.62rem;color:var(--muted)">${p.payHours||'—'}</span></div>
+      <div class="cmp-row"><span>🕐 24/7</span><span>${p.open?'✅':'❌'}</span></div>
+    </div>`;
+  });
+
+  const colCount = items.length;
+  grid.style.gridTemplateColumns = `repeat(${colCount}, 1fr)`;
+  grid.innerHTML = cols.join('');
+  document.getElementById('cmpOverlay').classList.remove('hidden');
+};
+document.getElementById('cmpOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('cmpOverlay')) document.getElementById('cmpOverlay').classList.add('hidden');
+});
+
+
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
