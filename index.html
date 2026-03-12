@@ -537,6 +537,30 @@ header{height:52px;flex-shrink:0;background:var(--panel);border-bottom:1px solid
       <div class="lr"><div class="ld" style="background:#ff4f7b"></div> Mój parking</div>
     </div>
 
+    <!-- PANEL SKRĘTÓW (turn-by-turn) — jak Google Maps -->
+    <div id="sp-turn-panel" style="
+      position:absolute;bottom:0;left:0;right:0;z-index:999;
+      background:rgba(13,15,20,.97);border-top:2px solid var(--a5);
+      padding:12px 16px 10px;display:none;align-items:center;gap:14px;
+      backdrop-filter:blur(12px);transform:translateY(0);
+      transition:transform .3s;
+    ">
+      <div id="sp-turn-arrow" style="
+        font-size:2.8rem;min-width:50px;text-align:center;
+        filter:drop-shadow(0 0 10px rgba(232,255,71,.8));
+        animation:sp-arrow-pulse 1.5s ease-in-out infinite;
+      ">⬆️</div>
+      <div style="flex:1;min-width:0">
+        <div id="sp-turn-text" style="font-weight:800;font-size:.92rem;color:var(--text);line-height:1.25;margin-bottom:3px">Wyznaczam trasę…</div>
+        <div id="sp-turn-dist" style="font-size:.73rem;color:var(--accent);font-weight:700"></div>
+      </div>
+      <div id="sp-turn-eta" style="text-align:right;font-size:.68rem;color:var(--muted);white-space:nowrap;line-height:1.6"></div>
+    </div>
+    <style>
+      @keyframes sp-arrow-pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+      #sp-turn-panel.visible { display:flex !important; }
+    </style>
+
     <!-- PASEK NAWIGACJI -->
     <div class="nav-bar" id="navBar">
       <div class="nav-dot"></div>
@@ -1643,10 +1667,54 @@ function startNavigation(destLat, destLng, destName) {
       }).addTo(map).bindTooltip('📍 Twoja lokalizacja', {permanent: false});
       _buildRoute(lat, lng, destLat, destLng, destName);
       if (watchId) navigator.geolocation.clearWatch(watchId);
+
+      // ── KAMERA JAK GOOGLE MAPS ──
+      // Marker kierunkowy (strzałka)
+      if (userLocationMarker) map.removeLayer(userLocationMarker);
+      userLocationMarker = _makeNavArrowMarker(lat, lng, 0);
+
+      let _lastBearing = 0;
+      let _lastLat = lat, _lastLng = lng;
+      let _cameraLocked = true; // kamera podąża za użytkownikiem
+
+      // Przycisk blokady kamery
+      _injectCameraLockBtn(() => _cameraLocked = true);
+
+      map.on('dragstart', () => { _cameraLocked = false; _updateLockBtnUI(false); });
+
       watchId = navigator.geolocation.watchPosition(p2 => {
-        userLocation = [p2.coords.latitude, p2.coords.longitude];
-        if (userLocationMarker) userLocationMarker.setLatLng(userLocation);
-      }, null, { enableHighAccuracy: true });
+        const newLat = p2.coords.latitude;
+        const newLng = p2.coords.longitude;
+        userLocation = [newLat, newLng];
+
+        // Oblicz kierunek jazdy
+        const bearing = p2.coords.heading != null && !isNaN(p2.coords.heading)
+          ? p2.coords.heading
+          : _calcBearing(_lastLat, _lastLng, newLat, newLng);
+
+        _lastLat = newLat; _lastLng = newLng;
+        if (!isNaN(bearing)) _lastBearing = bearing;
+
+        // Obróć marker (strzałka kierunku)
+        if (userLocationMarker) {
+          userLocationMarker.setLatLng([newLat, newLng]);
+          _setMarkerRotation(userLocationMarker, _lastBearing);
+        }
+
+        // Obróć mapę po kompasie + przesuń kamerę
+        if (_cameraLocked) {
+          map.setBearing ? map.setBearing(_lastBearing) : null; // wymaga leaflet-rotate plugin
+          map.setView([newLat, newLng], Math.max(map.getZoom(), 17), { animate: true, duration: 0.5, noMoveStart: true });
+        }
+
+      }, null, { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 });
+
+      // Kompas przez DeviceOrientationEvent (mobilny)
+      _startCompass(heading => {
+        _lastBearing = heading;
+        if (userLocationMarker) _setMarkerRotation(userLocationMarker, heading);
+        if (_cameraLocked && map.setBearing) map.setBearing(heading);
+      });
     },
     err => {
       btn.classList.remove('locating');
@@ -1737,6 +1805,12 @@ async function _buildRoute(fromLat, fromLng, toLat, toLng, name) {
         document.getElementById('navDist').textContent = (d.routes[0].distance/1000).toFixed(1);
         document.getElementById('navTime').textContent = Math.round(d.routes[0].duration/60);
         document.getElementById('navDestMeta').textContent = 'Trasa po drogach • samochodem';
+        // Zapisz kroki nawigacji i uruchom TBT
+        _navStepsData = _extractOSRMSteps(d.routes[0]);
+        _navStepIdx = 0;
+        _announcedSet.clear();
+        _showTurnStep(0);
+        _speakNav('Rozpoczynam nawigację');
         return;
       }
     }
@@ -1759,6 +1833,11 @@ async function _buildRoute(fromLat, fromLng, toLat, toLng, name) {
         document.getElementById('navDist').textContent = d.trip.summary.length.toFixed(1);
         document.getElementById('navTime').textContent = Math.round(d.trip.summary.time/60);
         document.getElementById('navDestMeta').textContent = 'Trasa po drogach • samochodem';
+        _navStepsData = _extractValhallaSteps(d.trip);
+        _navStepIdx = 0;
+        _announcedSet.clear();
+        _showTurnStep(0);
+        _speakNav('Rozpoczynam nawigację');
         return;
       }
     }
@@ -1798,98 +1877,139 @@ function setReviewStar(parkingId, val) {
   });
 }
 
+// Kolory awatarów — hash z nicku
+function _nickColor(nick) {
+  let h = 0;
+  for (let i = 0; i < nick.length; i++) h = nick.charCodeAt(i) + (h << 5) - h;
+  const palette = ['#e74c3c','#3498db','#2ecc71','#9b59b6','#f39c12','#1abc9c','#e67e22','#e91e63','#00bcd4','#ff5722'];
+  return palette[Math.abs(h) % palette.length];
+}
+
 async function loadReviews(parkingId) {
   if (!window._fbDb || !window._fbFns) { setTimeout(() => loadReviews(parkingId), 300); return; }
   const listEl = document.getElementById('reviewList_' + parkingId);
   if (!listEl) return;
   try {
-    const { collection, getDocs, query, orderBy, limit, where } = window._fbFns;
-    const q = query(collection(window._fbDb, 'reviews'), where('parkingId', '==', parkingId), orderBy('createdAt', 'desc'), limit(20));
+    // Tylko where — bez orderBy żeby nie wymagać złożonego indeksu Firestore
+    const { collection, getDocs, query, where } = window._fbFns;
+    const q = query(collection(window._fbDb, 'reviews'), where('parkingId', '==', parkingId));
     const snap = await getDocs(q);
     const reviews = [];
     snap.forEach(d => reviews.push({ id: d.id, ...d.data() }));
+
+    // Sortujemy po stronie klienta — od najnowszych
+    reviews.sort((a, b) => {
+      const ta = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt?.seconds || 0) * 1000;
+      const tb = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt?.seconds || 0) * 1000;
+      return tb - ta;
+    });
+    const top20 = reviews.slice(0, 20);
+
     const countEl = document.getElementById('reviewCount_' + parkingId);
-    if (countEl) countEl.textContent = reviews.length ? `(${reviews.length})` : '';
-    if (!reviews.length) {
+    if (countEl) countEl.textContent = top20.length ? `(${top20.length})` : '';
+
+    if (!top20.length) {
       listEl.innerHTML = '<div class="no-reviews">Brak opinii. Bądź pierwszy!</div>';
       return;
     }
-    // calc avg
-    const avg = (reviews.reduce((s,r) => s + (r.rating||0), 0) / reviews.length).toFixed(1);
+
+    // Średnia ocena
+    const avg = (top20.reduce((s, r) => s + (r.rating || 0), 0) / top20.length).toFixed(1);
     const avgEl = document.getElementById('avgRating_' + parkingId);
     if (avgEl) avgEl.textContent = `★ ${avg}`;
-    listEl.innerHTML = reviews.map(r => {
+
+    listEl.innerHTML = top20.map(r => {
       const nick = r.authorName || 'Anonim';
       const initial = nick.charAt(0).toUpperCase();
-      const avatarColor = _nickColor(nick);
+      const color = _nickColor(nick);
+      const stars = '★'.repeat(r.rating || 0) + '<span style="color:var(--border)">' + '☆'.repeat(5 - (r.rating || 0)) + '</span>';
       const dateStr = r.createdAt?.toDate
-        ? r.createdAt.toDate().toLocaleDateString('pl-PL', { day:'2-digit', month:'short', year:'numeric' })
+        ? r.createdAt.toDate().toLocaleDateString('pl-PL', { day: '2-digit', month: 'short', year: 'numeric' })
         : 'Przed chwilą';
-      const starsOn = '★'.repeat(r.rating||0);
-      const starsOff = '☆'.repeat(5-(r.rating||0));
       return `
       <div class="review-item">
-        <div class="review-top" style="display:flex;align-items:center;gap:8px">
-          <div style="width:30px;height:30px;border-radius:50%;background:${avatarColor};color:#fff;font-weight:800;font-size:.72rem;display:flex;align-items:center;justify-content:center;flex-shrink:0">${initial}</div>
+        <div class="review-top" style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+          <div style="width:32px;height:32px;border-radius:50%;background:${color};color:#fff;font-weight:800;
+            font-size:.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0">${initial}</div>
           <div style="flex:1;min-width:0">
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
-              <span class="review-author">${escHtml(nick)}</span>
-              <span class="review-stars" style="color:#ffd700;font-size:.78rem">${starsOn}<span style="color:var(--border)">${starsOff}</span></span>
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <span class="review-author" style="font-weight:700;font-size:.78rem">${escHtml(nick)}</span>
+              <span style="color:#ffd700;font-size:.8rem">${stars}</span>
             </div>
-            <div class="review-date">${dateStr}</div>
+            <div class="review-date" style="font-size:.61rem;color:var(--muted)">${dateStr}</div>
           </div>
         </div>
-        ${r.text ? `<div class="review-text" style="margin-top:6px">${escHtml(r.text)}</div>` : ''}
-        <div style="display:flex;justify-content:flex-end;margin-top:5px">
-          <button onclick="likeReview('${r.id}','${parkingId}')" style="background:none;border:1px solid var(--border);border-radius:20px;padding:2px 8px;font-size:.62rem;color:var(--muted);cursor:pointer;font-family:inherit;transition:all .15s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">👍 ${r.likes||0}</button>
-        </div>
-      </div>
-    `}).join('');
+        ${r.text ? `<div class="review-text">${escHtml(r.text)}</div>` : ''}
+      </div>`;
+    }).join('');
+
   } catch(e) {
+    console.error('Błąd ładowania opinii:', e.code, e.message);
     if (e.code === 'permission-denied' || (e.message && e.message.includes('permission'))) {
-      console.warn('Firestore permissions – opinie niedostępne:', e.code);
-      if (listEl) listEl.innerHTML = '<div class="no-reviews">⚠️ Brak uprawnień do odczytu opinii.<br><small style="color:var(--muted)">Zaktualizuj reguły Firestore.</small></div>';
+      listEl.innerHTML = '<div class="no-reviews">⚠️ Zaktualizuj reguły Firestore – brak dostępu do opinii.</div>';
+    } else if (e.code === 'failed-precondition' || (e.message && e.message.includes('index'))) {
+      // Brakujący indeks — pobierz bez filtra i filtruj lokalnie
+      _loadReviewsFallback(parkingId, listEl);
     } else {
-      console.error('Błąd ładowania opinii:', e);
-      if (listEl) listEl.innerHTML = '<div class="no-reviews">Błąd ładowania opinii.</div>';
+      listEl.innerHTML = '<div class="no-reviews">Błąd ładowania opinii.</div>';
     }
+  }
+}
+
+// Fallback gdy Firestore zwraca błąd indeksu — pobierz wszystko i filtruj lokalnie
+async function _loadReviewsFallback(parkingId, listEl) {
+  try {
+    const { collection, getDocs } = window._fbFns;
+    const snap = await getDocs(collection(window._fbDb, 'reviews'));
+    const reviews = [];
+    snap.forEach(d => { const r = d.data(); if (r.parkingId === parkingId) reviews.push({ id: d.id, ...r }); });
+    reviews.sort((a, b) => {
+      const ta = a.createdAt?.seconds || 0;
+      const tb = b.createdAt?.seconds || 0;
+      return tb - ta;
+    });
+    if (!reviews.length) { listEl.innerHTML = '<div class="no-reviews">Brak opinii. Bądź pierwszy!</div>'; return; }
+    const avg = (reviews.reduce((s, r) => s + (r.rating || 0), 0) / reviews.length).toFixed(1);
+    const avgEl = document.getElementById('avgRating_' + parkingId);
+    if (avgEl) avgEl.textContent = `★ ${avg}`;
+    listEl.innerHTML = reviews.slice(0, 20).map(r => {
+      const nick = r.authorName || 'Anonim';
+      const color = _nickColor(nick);
+      const stars = '★'.repeat(r.rating||0) + '☆'.repeat(5-(r.rating||0));
+      const dateStr = r.createdAt?.toDate ? r.createdAt.toDate().toLocaleDateString('pl-PL') : '';
+      return `<div class="review-item">
+        <div class="review-top" style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+          <div style="width:32px;height:32px;border-radius:50%;background:${color};color:#fff;font-weight:800;font-size:.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0">${nick.charAt(0).toUpperCase()}</div>
+          <div style="flex:1"><div style="display:flex;justify-content:space-between"><span class="review-author">${escHtml(nick)}</span><span style="color:#ffd700;font-size:.8rem">${stars}</span></div><div class="review-date">${dateStr}</div></div>
+        </div>
+        ${r.text ? `<div class="review-text">${escHtml(r.text)}</div>` : ''}
+      </div>`;
+    }).join('');
+  } catch(e2) {
+    listEl.innerHTML = '<div class="no-reviews">Nie można załadować opinii.</div>';
   }
 }
 
 async function submitReview(parkingId, lat, lng, name) {
   if (!currentUser) { showAuthToast(); return; }
   const rating = reviewStars[parkingId] || 0;
-  if (!rating) { showSmartToast('⭐ Wybierz ocenę klikając w gwiazdki!', 'warn'); return; }
+  if (!rating) { alert('Wybierz ocenę (gwiazdki).'); return; }
   const text = (document.getElementById('reviewText_' + parkingId)?.value || '').trim();
   const btn = document.querySelector(`#reviews_${parkingId} .review-submit`);
-  if (btn) { btn.textContent = '⏳ Zapisywanie...'; btn.disabled = true; }
-
-  // Nick: displayName ustawiony przy rejestracji (imię/pseudonim)
-  const nick = currentUser.displayName || currentUser.email.split('@')[0];
-
+  if (btn) { btn.textContent = 'Zapisywanie...'; btn.disabled = true; }
   try {
     const { collection, addDoc, serverTimestamp } = window._fbFns;
     await addDoc(collection(window._fbDb, 'reviews'), {
-      parkingId,
-      parkingName: name,
-      parkingLat: lat,
-      parkingLng: lng,
-      rating,
-      text,
-      // Zapisujemy nick wyraźnie jako authorName
-      authorName: nick,
-      authorUid: currentUser.uid,
-      authorEmail: currentUser.email,
-      createdAt: serverTimestamp(),
-      status: 'active',
-      likes: 0,
+      parkingId, parkingName: name, parkingLat: lat, parkingLng: lng,
+      rating, text, authorName: currentUser.displayName || currentUser.email.split('@')[0],
+      authorUid: currentUser.uid, authorEmail: currentUser.email,
+      createdAt: serverTimestamp(), status: 'active'
     });
     reviewStars[parkingId] = 0;
     const row = document.getElementById('starRow_' + parkingId);
     if (row) row.querySelectorAll('.star').forEach(s => s.classList.remove('on'));
     const textEl = document.getElementById('reviewText_' + parkingId);
     if (textEl) textEl.value = '';
-    showSmartToast(`✅ Opinia dodana! Dziękujemy, ${nick} 🎉`, 'success');
     await loadReviews(parkingId);
   } catch(e) {
     if (e.code === 'permission-denied' || (e.message && e.message.includes('permission'))) {
@@ -2052,8 +2172,8 @@ document.getElementById('cmpOverlay').addEventListener('click', e => {
   if (e.target === document.getElementById('cmpOverlay')) document.getElementById('cmpOverlay').classList.add('hidden');
 });
 
-function escHtml(str) {
 
+function escHtml(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
@@ -2295,19 +2415,342 @@ buildMarkers();
 render('');
 
 // ══════════════════════════════════════════════════════
-// HELPER: KOLOR AWATARA (hash z nicku)
+// NAWIGACJA – STYL GOOGLE MAPS
+// Strzałka kierunkowa, kamera podążająca, kompas
 // ══════════════════════════════════════════════════════
-function _nickColor(nick) {
-  let hash = 0;
-  for (const c of String(nick)) hash = nick.charCodeAt(0) + (hash << 5) - hash;
-  const colors = ['#e74c3c','#3498db','#2ecc71','#9b59b6','#f39c12','#1abc9c','#e67e22','#e91e63','#00bcd4','#8bc34a'];
-  return colors[Math.abs(hash) % colors.length];
+
+// Stwórz marker-strzałkę (kierunek jazdy)
+function _makeNavArrowMarker(lat, lng, bearing) {
+  const icon = _makeArrowIcon(bearing);
+  const m = L.marker([lat, lng], { icon, zIndexOffset: 1000 }).addTo(map);
+  m._bearing = bearing;
+  return m;
 }
 
+function _makeArrowIcon(bearing) {
+  return L.divIcon({
+    className: '',
+    iconSize: [40, 40],
+    iconAnchor: [20, 20],
+    html: `<div id="nav-arrow-icon" style="
+      width:40px;height:40px;
+      display:flex;align-items:center;justify-content:center;
+      transform:rotate(${bearing}deg);
+      transition:transform 0.4s ease;
+      filter:drop-shadow(0 2px 8px rgba(71,255,176,.7))
+    ">
+      <svg width="36" height="36" viewBox="0 0 36 36">
+        <circle cx="18" cy="18" r="17" fill="#0d0f14" stroke="#47ffb0" stroke-width="2.5"/>
+        <polygon points="18,5 26,28 18,23 10,28" fill="#47ffb0"/>
+        <circle cx="18" cy="18" r="4" fill="#fff" opacity=".7"/>
+      </svg>
+    </div>`
+  });
+}
+
+function _setMarkerRotation(marker, bearing) {
+  if (!marker) return;
+  marker._bearing = bearing;
+  // Aktualizuj div wewnątrz markera
+  const el = marker.getElement && marker.getElement();
+  if (el) {
+    const arrow = el.querySelector('#nav-arrow-icon');
+    if (arrow) arrow.style.transform = `rotate(${bearing}deg)`;
+  }
+}
+
+// Oblicz bearing (kąt) między dwoma punktami GPS
+function _calcBearing(lat1, lng1, lat2, lng2) {
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const lat1R = lat1 * Math.PI / 180;
+  const lat2R = lat2 * Math.PI / 180;
+  const y = Math.sin(dLng) * Math.cos(lat2R);
+  const x = Math.cos(lat1R) * Math.sin(lat2R) - Math.sin(lat1R) * Math.cos(lat2R) * Math.cos(dLng);
+  return ((Math.atan2(y, x) * 180 / Math.PI) + 360) % 360;
+}
+
+// Kompas przez DeviceOrientationEvent (działa na telefonie)
+let _compassHandler = null;
+function _startCompass(callback) {
+  if (!window.DeviceOrientationEvent) return;
+
+  // iOS 13+ wymaga pozwolenia
+  if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+    DeviceOrientationEvent.requestPermission()
+      .then(perm => { if (perm === 'granted') _listenCompass(callback); })
+      .catch(() => {});
+  } else {
+    _listenCompass(callback);
+  }
+}
+
+function _listenCompass(callback) {
+  if (_compassHandler) window.removeEventListener('deviceorientationabsolute', _compassHandler);
+  if (_compassHandler) window.removeEventListener('deviceorientation', _compassHandler);
+
+  _compassHandler = e => {
+    let heading = null;
+    if (e.webkitCompassHeading != null) {
+      heading = e.webkitCompassHeading; // iOS
+    } else if (e.absolute && e.alpha != null) {
+      heading = (360 - e.alpha) % 360; // Android absolute
+    } else if (e.alpha != null) {
+      heading = (360 - e.alpha) % 360;
+    }
+    if (heading != null && !isNaN(heading)) callback(heading);
+  };
+
+  // Preferuj absolute orientation
+  window.addEventListener('deviceorientationabsolute', _compassHandler, true);
+  window.addEventListener('deviceorientation', _compassHandler, true);
+}
+
+function _stopCompass() {
+  if (_compassHandler) {
+    window.removeEventListener('deviceorientationabsolute', _compassHandler, true);
+    window.removeEventListener('deviceorientation', _compassHandler, true);
+    _compassHandler = null;
+  }
+}
+
+// Przycisk powrotu kamery do użytkownika (jak "re-center" w Google Maps)
+let _lockBtnEl = null;
+function _injectCameraLockBtn(onRelock) {
+  if (_lockBtnEl) _lockBtnEl.remove();
+  const btn = document.createElement('button');
+  btn.id = 'sp-cam-lock';
+  btn.innerHTML = '🎯';
+  btn.title = 'Wróć do mojej pozycji';
+  btn.style.cssText = `
+    position:absolute;bottom:170px;right:12px;z-index:1001;
+    width:44px;height:44px;border-radius:50%;border:none;
+    background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.35);
+    font-size:20px;cursor:pointer;display:flex;align-items:center;
+    justify-content:center;transition:all .2s;opacity:0;pointer-events:none;
+  `;
+  btn.onclick = () => {
+    _updateLockBtnUI(true);
+    onRelock();
+  };
+  document.querySelector('.map-wrap').appendChild(btn);
+  _lockBtnEl = btn;
+}
+
+function _updateLockBtnUI(locked) {
+  if (!_lockBtnEl) return;
+  if (locked) {
+    _lockBtnEl.style.opacity = '0';
+    _lockBtnEl.style.pointerEvents = 'none';
+  } else {
+    _lockBtnEl.style.opacity = '1';
+    _lockBtnEl.style.pointerEvents = 'auto';
+    _lockBtnEl.style.background = '#e8ff47';
+  }
+}
+
+// Zatrzymaj kompas i cleanup przy endNavigation
+const _origEnd = endNavigation;
+window.endNavigation = function() {
+  _origEnd();
+  _stopCompass();
+  if (_lockBtnEl) { _lockBtnEl.remove(); _lockBtnEl = null; }
+  const tp = document.getElementById('sp-turn-panel');
+  if (tp) tp.classList.remove('visible');
+  _navStepsData = [];
+  // Przywróć normalny widok
+  map.setView([51.103, 17.025], 14, { animate: true, duration: 0.8 });
+};
+
 // ══════════════════════════════════════════════════════
-// SMART TOAST (lepszy niż alert)
+// TURN-BY-TURN — kroki nawigacji + głos
 // ══════════════════════════════════════════════════════
-function showSmartToast(msg, type = 'success') {
+let _navStepsData = [];
+let _navStepIdx   = 0;
+let _announcedSet = new Set();
+
+// Głos — Web Speech API po polsku (fallback do MP3 sounds/)
+function _speakNav(text) {
+  // Próba MP3
+  const keyMap = {
+    'Rozpoczynam nawigację':'start',
+    'Skręć w lewo':'turn_left',
+    'Skręć w prawo':'turn_right',
+    'Za 200 metrów skręć w lewo':'turn_left_200',
+    'Za 200 metrów skręć w prawo':'turn_right_200',
+    'Jedź prosto':'straight',
+    'Zawróć':'u_turn',
+    'Dotarłeś do celu':'arrived',
+  };
+  const mp3key = Object.keys(keyMap).find(k => text.includes(k));
+  if (mp3key) {
+    const audio = new Audio(`sounds/${keyMap[mp3key]}.mp3`);
+    audio.play().catch(() => _ttsSpeakPL(text));
+    return;
+  }
+  _ttsSpeakPL(text);
+}
+
+function _ttsSpeakPL(text) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'pl-PL'; utt.rate = 0.95; utt.pitch = 1.05;
+  const voices = window.speechSynthesis.getVoices();
+  const pl = voices.find(v => v.lang && v.lang.startsWith('pl'));
+  if (pl) utt.voice = pl;
+  window.speechSynthesis.speak(utt);
+}
+
+// Wyciągnij kroki z odpowiedzi OSRM
+function _extractOSRMSteps(route) {
+  const steps = [];
+  for (const leg of route.legs || []) {
+    for (const s of leg.steps || []) {
+      const mod = s.maneuver?.modifier || '';
+      const type = s.maneuver?.type || '';
+      steps.push({
+        text: s.name || 'Kontynuuj jazdę',
+        maneuver: type + (mod ? '_' + mod : ''),
+        distance: s.distance || 0,
+        distText: s.distance > 999 ? (s.distance/1000).toFixed(1)+' km' : Math.round(s.distance)+' m',
+        endLat: s.maneuver?.location?.[1] || null,
+        endLng: s.maneuver?.location?.[0] || null,
+      });
+    }
+  }
+  return steps;
+}
+
+// Wyciągnij kroki z Valhalla
+function _extractValhallaSteps(trip) {
+  const steps = [];
+  const typeText = { 1:'Jedź prosto',2:'Skręć w prawo',3:'Skręć w lewo',4:'Zawróć',10:'Wjedź na rondo',23:'Start',24:'Dotarłeś do celu' };
+  for (const leg of trip.legs || []) {
+    for (const m of leg.maneuvers || []) {
+      steps.push({
+        text: m.instruction || typeText[m.type] || 'Kontynuuj',
+        maneuver: typeText[m.type] || 'straight',
+        distance: (m.length || 0) * 1000,
+        distText: m.length > 1 ? m.length.toFixed(1)+' km' : Math.round((m.length||0)*1000)+' m',
+        endLat: null, endLng: null,
+      });
+    }
+  }
+  return steps;
+}
+
+// Strzałka emoji z manewru
+function _maneuverEmoji(maneuver) {
+  if (!maneuver) return '⬆️';
+  const m = maneuver.toLowerCase();
+  if (m.includes('uturn'))      return '↩️';
+  if (m.includes('left'))       return '⬅️';
+  if (m.includes('right'))      return '➡️';
+  if (m.includes('roundabout')) return '🔄';
+  if (m.includes('arrive'))     return '🏁';
+  if (m.includes('depart'))     return '🚀';
+  return '⬆️';
+}
+
+// Pokaż krok w panelu
+function _showTurnStep(idx) {
+  const tp = document.getElementById('sp-turn-panel');
+  if (!tp) return;
+  if (!_navStepsData.length || idx >= _navStepsData.length) { tp.classList.remove('visible'); return; }
+  const step = _navStepsData[idx];
+  tp.classList.add('visible');
+  document.getElementById('sp-turn-arrow').textContent = _maneuverEmoji(step.maneuver);
+  document.getElementById('sp-turn-text').textContent = step.text;
+  document.getElementById('sp-turn-dist').textContent = step.distText ? `za ${step.distText}` : '';
+  // Następny krok
+  const next = _navStepsData[idx + 1];
+  const etaEl = document.getElementById('sp-turn-eta');
+  if (etaEl && next) etaEl.textContent = `Potem:\n${_maneuverEmoji(next.maneuver)} ${next.text.substring(0,30)}`;
+  else if (etaEl) etaEl.textContent = '';
+}
+
+// Sprawdzaj kroki na podstawie pozycji GPS
+function _checkNavStep(userLat, userLng, destLat, destLng) {
+  // Sprawdź czy dotarł do celu
+  const distDest = _haverM(userLat, userLng, destLat, destLng);
+  if (distDest < 25 && !_announcedSet.has('arrived')) {
+    _announcedSet.add('arrived');
+    _speakNav('Dotarłeś do celu. Parking jest w pobliżu.');
+    document.getElementById('sp-turn-text').textContent = '🎉 Dotarłeś do celu!';
+    document.getElementById('sp-turn-dist').textContent = '';
+    document.getElementById('navDestMeta').textContent = '🎉 Dotarłeś!';
+    setTimeout(() => window.endNavigation(), 4000);
+    return;
+  }
+
+  if (!_navStepsData.length) return;
+
+  for (let i = _navStepIdx; i < _navStepsData.length; i++) {
+    const step = _navStepsData[i];
+    if (step.endLat == null) continue;
+    const dist = _haverM(userLat, userLng, step.endLat, step.endLng);
+
+    // ~220m zapowiedź
+    if (dist < 230 && dist > 35 && !_announcedSet.has(`pre_${i}`)) {
+      _announcedSet.add(`pre_${i}`);
+      const m = step.maneuver.toLowerCase();
+      if (m.includes('left'))  _speakNav('Za 200 metrów skręć w lewo');
+      else if (m.includes('right')) _speakNav('Za 200 metrów skręć w prawo');
+      _showTurnStep(i);
+    }
+
+    // <30m — wykonaj skręt
+    if (dist < 30 && !_announcedSet.has(`now_${i}`)) {
+      _announcedSet.add(`now_${i}`);
+      const m = step.maneuver.toLowerCase();
+      if (m.includes('left'))       _speakNav('Skręć w lewo');
+      else if (m.includes('right')) _speakNav('Skręć w prawo');
+      else if (m.includes('uturn')) _speakNav('Zawróć');
+      else                           _speakNav('Jedź prosto');
+      _navStepIdx = i + 1;
+      _showTurnStep(_navStepIdx);
+    }
+  }
+}
+
+function _haverM(lat1, lng1, lat2, lng2) {
+  const R = 6371000;
+  const dLat = (lat2-lat1)*Math.PI/180, dLng = (lng2-lng1)*Math.PI/180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+// Podpięcie checkNavStep do watchPosition — patch przez override
+const _origStartNav = startNavigation;
+window.startNavigation = function(destLat, destLng, destName) {
+  _navStepsData = [];
+  _navStepIdx = 0;
+  _announcedSet.clear();
+  // Zapisz cel globalnie do sprawdzenia w watch
+  window._navDest = { lat: destLat, lng: destLng };
+  _origStartNav(destLat, destLng, destName);
+};
+
+// Patch watchPosition callback — dodaj _checkNavStep
+// (dopinamy po fakcie przez override oryginalnego watchId)
+const _origGetCurrentPos = navigator.geolocation.getCurrentPosition.bind(navigator.geolocation);
+// Nie patchujemy natywnego API — zamiast tego checkujemy w istniejącym watch
+// przez interwał sprawdzający aktualną pozycję razem z krokami
+let _stepCheckInterval = null;
+map.on('moveend', () => {
+  // nic — użyty jako hook
+});
+
+// Uruchom checking kroków co 2s gdy nawigacja aktywna
+setInterval(() => {
+  if (!isNavigating || !userLocation || !window._navDest) return;
+  _checkNavStep(userLocation[0], userLocation[1], window._navDest.lat, window._navDest.lng);
+}, 2000);
+
+// ══════════════════════════════════════════════════════
+// SMART TOAST
+// ══════════════════════════════════════════════════════
+function showSmartToast(msg, type) {
   let t = document.getElementById('sp-smart-toast');
   if (!t) {
     t = document.createElement('div');
@@ -2315,47 +2758,34 @@ function showSmartToast(msg, type = 'success') {
     t.style.cssText = `position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);
       padding:12px 22px;border-radius:24px;font-size:.8rem;font-weight:600;z-index:99999;
       opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;
-      white-space:nowrap;max-width:90vw;text-align:center;
-      box-shadow:0 4px 20px rgba(0,0,0,.4);font-family:inherit`;
+      white-space:nowrap;max-width:90vw;text-align:center;font-family:inherit;
+      box-shadow:0 4px 20px rgba(0,0,0,.5)`;
     document.body.appendChild(t);
   }
-  const colors = { success: '#27ae60', error: '#c0392b', warn: '#e67e22', info: '#2980b9' };
-  t.style.background = colors[type] || colors.success;
+  const c = { success:'#27ae60', error:'#c0392b', warn:'#e67e22', info:'#2980b9' };
+  t.style.background = c[type] || c.success;
   t.style.color = '#fff';
   t.textContent = msg;
   t.style.opacity = '1';
   t.style.transform = 'translateX(-50%) translateY(0)';
-  clearTimeout(t._timer);
-  t._timer = setTimeout(() => {
+  clearTimeout(t._tmr);
+  t._tmr = setTimeout(() => {
     t.style.opacity = '0';
     t.style.transform = 'translateX(-50%) translateY(20px)';
   }, 3500);
 }
 
 // ══════════════════════════════════════════════════════
-// LIKE OPINII
-// ══════════════════════════════════════════════════════
-async function likeReview(reviewId, parkingId) {
-  if (!window._fbDb || !window._fbFns) return;
-  try {
-    const { doc, updateDoc, increment } = window._fbFns;
-    await updateDoc(doc(window._fbDb, 'reviews', reviewId), { likes: increment(1) });
-    // Odśwież listę
-    await loadReviews(parkingId);
-  } catch(e) { console.warn('Like error:', e); }
-}
-
-// ══════════════════════════════════════════════════════
-// TRYB NOCNY MAPY (Leaflet + CSS filter)
+// TRYB NOCNY MAPY (Leaflet CSS filter)
 // ══════════════════════════════════════════════════════
 let isNightMode = false;
 
 function toggleNightMode(force) {
-  isNightMode = (force !== undefined) ? force : !isNightMode;
+  isNightMode = force !== undefined ? force : !isNightMode;
   const tile = document.querySelector('.leaflet-tile-pane');
   if (tile) {
     tile.style.filter = isNightMode
-      ? 'brightness(.55) saturate(.4) hue-rotate(195deg) contrast(1.1)'
+      ? 'brightness(.45) saturate(.35) hue-rotate(195deg) contrast(1.15)'
       : 'brightness(.82) saturate(.6) hue-rotate(195deg)';
   }
   const btn = document.getElementById('sp-night-btn');
@@ -2363,334 +2793,95 @@ function toggleNightMode(force) {
     btn.textContent = isNightMode ? '☀️' : '🌙';
     btn.title = isNightMode ? 'Tryb dzienny' : 'Tryb nocny';
     btn.style.background = isNightMode ? '#1a1a2e' : '#fff';
+    btn.style.color = isNightMode ? '#e8ff47' : '#333';
+    btn.style.border = isNightMode ? '1px solid #e8ff47' : 'none';
   }
-  // Zmień też tło mapy
-  const mapEl = document.getElementById('map');
-  if (mapEl) mapEl.style.background = isNightMode ? '#0a0c12' : '#c8d8e8';
 }
 
-// Auto tryb nocny po 20:00
-const _hour = new Date().getHours();
-if (_hour >= 20 || _hour < 6) setTimeout(() => toggleNightMode(true), 500);
+// Auto tryb nocny po 20:00 lub przed 6:00
+(function() {
+  const h = new Date().getHours();
+  if (h >= 20 || h < 6) setTimeout(() => toggleNightMode(true), 800);
+})();
 
 // ══════════════════════════════════════════════════════
-// SYMULACJA KORKÓW (Leaflet — kolorowe nakładki)
+// WARSTWA KORKÓW (symulacja na liniach Leaflet)
 // ══════════════════════════════════════════════════════
 let trafficVisible = false;
-let trafficLayers = [];
+let trafficLayers  = [];
 
-const TRAFFIC_SEGMENTS = [
-  // [lat1, lng1, lat2, lng2, level] — level: 'low'|'medium'|'high'|'jam'
-  [51.1079, 17.0330, 51.1040, 17.0350, 'high'],
-  [51.1040, 17.0350, 51.0990, 17.0362, 'medium'],
-  [51.1000, 17.0250, 51.1079, 17.0330, 'jam'],
-  [51.1079, 17.0200, 51.1100, 17.0270, 'medium'],
-  [51.1100, 17.0270, 51.1150, 17.0340, 'low'],
-  [51.0965, 17.0340, 51.1000, 17.0250, 'high'],
-  [51.1150, 17.0390, 51.1200, 17.0450, 'low'],
-  [51.1200, 17.0450, 51.1380, 17.0420, 'medium'],
-  [51.1050, 17.0580, 51.1090, 17.0650, 'high'],
-  [51.0930, 17.0180, 51.0965, 17.0250, 'jam'],
-  [51.1100, 16.9942, 51.1138, 17.0050, 'medium'],
-  [51.0920, 17.0052, 51.0930, 17.0180, 'low'],
+const TRAFFIC_DATA = [
+  [51.1079,17.0330, 51.1040,17.0350, 'high'],
+  [51.1040,17.0350, 51.0990,17.0362, 'medium'],
+  [51.1000,17.0250, 51.1079,17.0330, 'jam'],
+  [51.1079,17.0200, 51.1100,17.0270, 'medium'],
+  [51.1100,17.0270, 51.1150,17.0340, 'low'],
+  [51.0965,17.0340, 51.1000,17.0250, 'high'],
+  [51.1150,17.0390, 51.1200,17.0450, 'low'],
+  [51.1200,17.0450, 51.1380,17.0420, 'medium'],
+  [51.1050,17.0580, 51.1090,17.0650, 'high'],
+  [51.0930,17.0180, 51.0965,17.0250, 'jam'],
+  [51.1100,16.9942, 51.1138,17.0050, 'medium'],
+  [51.0920,17.0052, 51.0930,17.0180, 'low'],
+  [51.1320,17.0260, 51.1200,17.0290, 'medium'],
+  [51.0850,17.0120, 51.0930,17.0180, 'low'],
 ];
-
-const TRAFFIC_COLORS = { low: '#27ae60', medium: '#f39c12', high: '#e67e22', jam: '#e74c3c' };
-const TRAFFIC_LABELS = { low: 'Płynny ruch', medium: 'Umiarkowany ruch', high: 'Duży ruch', jam: 'Korek!' };
+const TRAFFIC_COLORS = { low:'#27ae60', medium:'#f39c12', high:'#e67e22', jam:'#e74c3c' };
+const TRAFFIC_LABELS = { low:'🟢 Płynny ruch', medium:'🟡 Umiarkowany', high:'🟠 Duży ruch', jam:'🔴 Korek!' };
 
 function toggleTraffic() {
   trafficVisible = !trafficVisible;
   const btn = document.getElementById('sp-traffic-btn');
-
   if (trafficVisible) {
-    trafficLayers = TRAFFIC_SEGMENTS.map(([lat1,lng1,lat2,lng2,level]) => {
-      const line = L.polyline([[lat1,lng1],[lat2,lng2]], {
-        color: TRAFFIC_COLORS[level],
-        weight: 7,
-        opacity: 0.75,
-        lineCap: 'round',
+    trafficLayers = TRAFFIC_DATA.map(([la1,ln1,la2,ln2,lvl]) => {
+      const line = L.polyline([[la1,ln1],[la2,ln2]], {
+        color: TRAFFIC_COLORS[lvl], weight: 7, opacity: .78, lineCap:'round'
       }).addTo(map);
-      line.bindTooltip(`🚦 ${TRAFFIC_LABELS[level]}`, { sticky: true, opacity: .92 });
+      line.bindTooltip(TRAFFIC_LABELS[lvl], { sticky:true, opacity:.95 });
       return line;
     });
-    if (btn) { btn.style.background = '#e74c3c'; btn.style.color = '#fff'; btn.title = 'Ukryj korki'; }
+    if (btn) { btn.style.background='#e74c3c'; btn.style.color='#fff'; btn.title='Ukryj korki'; }
     showSmartToast('🚦 Warstwa korków włączona (dane symulowane)', 'info');
   } else {
     trafficLayers.forEach(l => { try { map.removeLayer(l); } catch(e){} });
     trafficLayers = [];
-    if (btn) { btn.style.background = '#fff'; btn.style.color = '#333'; btn.title = 'Pokaż korki'; }
+    if (btn) { btn.style.background='#fff'; btn.style.color='#333'; btn.title='Pokaż korki'; }
     showSmartToast('🚦 Warstwa korków wyłączona', 'info');
   }
 }
 
 // ══════════════════════════════════════════════════════
-// PRZYCISKI MAPY — wstrzyknij do mapy
+// PRZYCISKI MAPY — wstrzyknij do .map-wrap
 // ══════════════════════════════════════════════════════
 (function injectMapButtons() {
   const wrap = document.querySelector('.map-wrap');
-  if (!wrap) return;
+  if (!wrap || document.getElementById('sp-map-controls')) return;
 
   const ctrl = document.createElement('div');
   ctrl.id = 'sp-map-controls';
-  ctrl.style.cssText = `position:absolute;bottom:140px;right:12px;z-index:1000;
-    display:flex;flex-direction:column;gap:7px`;
+  ctrl.style.cssText = `position:absolute;bottom:150px;right:12px;z-index:1000;
+    display:flex;flex-direction:column;gap:8px`;
+
+  const btnStyle = `width:44px;height:44px;border:none;border-radius:50%;background:#fff;
+    box-shadow:0 2px 10px rgba(0,0,0,.32);font-size:19px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:transform .15s,box-shadow .15s;font-family:inherit`;
+
   ctrl.innerHTML = `
     <button id="sp-night-btn" title="Tryb nocny" onclick="toggleNightMode()"
-      style="width:42px;height:42px;border:none;border-radius:50%;background:#fff;
-      box-shadow:0 2px 10px rgba(0,0,0,.3);font-size:18px;cursor:pointer;
-      display:flex;align-items:center;justify-content:center;transition:transform .15s"
-      onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">🌙</button>
+      style="${btnStyle}"
+      onmouseover="this.style.transform='scale(1.12)';this.style.boxShadow='0 4px 16px rgba(0,0,0,.4)'"
+      onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 2px 10px rgba(0,0,0,.32)'">🌙</button>
     <button id="sp-traffic-btn" title="Pokaż korki" onclick="toggleTraffic()"
-      style="width:42px;height:42px;border:none;border-radius:50%;background:#fff;
-      box-shadow:0 2px 10px rgba(0,0,0,.3);font-size:18px;cursor:pointer;
-      display:flex;align-items:center;justify-content:center;transition:transform .15s"
-      onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">🚦</button>
+      style="${btnStyle}"
+      onmouseover="this.style.transform='scale(1.12)';this.style.boxShadow='0 4px 16px rgba(0,0,0,.4)'"
+      onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 2px 10px rgba(0,0,0,.32)'">🚦</button>
+    <button id="sp-zoom-me-btn" title="Moja lokalizacja" onclick="locateMe()"
+      style="${btnStyle}"
+      onmouseover="this.style.transform='scale(1.12)'" onmouseout="this.style.transform='scale(1)'">📍</button>
   `;
   wrap.appendChild(ctrl);
 })();
-
-// ══════════════════════════════════════════════════════
-// NAWIGACJA — PODPOWIEDZI SKRĘTÓW (Turn-by-Turn)
-// ══════════════════════════════════════════════════════
-// Panel instrukcji — wstrzyknij do nav-bar
-(function injectNavInstructions() {
-  const navBar = document.getElementById('navBar');
-  if (!navBar) return;
-
-  // Panel skrętu (nad nav-barem)
-  const turnPanel = document.createElement('div');
-  turnPanel.id = 'sp-turn-panel';
-  turnPanel.style.cssText = `
-    position:absolute;bottom:100%;left:0;right:0;
-    background:rgba(13,15,20,.97);border-top:1px solid var(--border);
-    padding:10px 16px;display:none;align-items:center;gap:12px;
-    backdrop-filter:blur(10px);border-radius:0;
-  `;
-  turnPanel.innerHTML = `
-    <div id="sp-turn-arrow" style="font-size:2.2rem;min-width:44px;text-align:center;filter:drop-shadow(0 0 8px rgba(232,255,71,.6))">⬆️</div>
-    <div style="flex:1;min-width:0">
-      <div id="sp-turn-text" style="font-weight:800;font-size:.85rem;line-height:1.3;color:var(--text)">Jedź prosto</div>
-      <div id="sp-turn-dist" style="font-size:.7rem;color:var(--accent);font-weight:700;margin-top:2px"></div>
-    </div>
-    <div id="sp-turn-next" style="font-size:.62rem;color:var(--muted);text-align:right;max-width:100px;line-height:1.4"></div>
-  `;
-  navBar.parentElement.insertBefore(turnPanel, navBar);
-})();
-
-// Dane kroków trasy — wypełniane przez _buildRoute
-let _navSteps = [];
-let _navStepIdx = 0;
-let _navWatchEnhanced = null;
-let _announcedSteps = new Set();
-
-// Głos: Web Speech API fallback (gdy brak MP3)
-function _speak(text) {
-  if (!window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  const utt = new SpeechSynthesisUtterance(text);
-  utt.lang = 'pl-PL';
-  utt.rate = 0.95;
-  utt.pitch = 1.05;
-  const voices = speechSynthesis.getVoices();
-  const plVoice = voices.find(v => v.lang && v.lang.startsWith('pl'));
-  if (plVoice) utt.voice = plVoice;
-  speechSynthesis.speak(utt);
-}
-
-// Próba odtworzenia pliku MP3, fallback na TTS
-let _currentAudio = null;
-function _playVoice(key, fallbackText) {
-  const src = `sounds/${key}.mp3`;
-  if (_currentAudio) { _currentAudio.pause(); _currentAudio = null; }
-  const audio = new Audio(src);
-  audio.onerror = () => _speak(fallbackText);
-  audio.play().catch(() => _speak(fallbackText));
-  _currentAudio = audio;
-}
-
-function _getManeuverArrow(m) {
-  if (!m) return '⬆️';
-  if (m.includes('left'))       return '⬅️';
-  if (m.includes('right'))      return '➡️';
-  if (m.includes('uturn'))      return '↩️';
-  if (m.includes('roundabout')) return '🔄';
-  if (m.includes('merge'))      return '↗️';
-  if (m.includes('ramp'))       return '⬆️';
-  return '⬆️';
-}
-
-function _announceManeuver(step, isPre) {
-  if (!step) return;
-  const m = step.maneuver || '';
-  if (m.includes('left')) {
-    isPre ? _playVoice('turn_left_200', 'Za 200 metrów skręć w lewo')
-          : _playVoice('turn_left', 'Skręć w lewo');
-  } else if (m.includes('right')) {
-    isPre ? _playVoice('turn_right_200', 'Za 200 metrów skręć w prawo')
-          : _playVoice('turn_right', 'Skręć w prawo');
-  } else if (m.includes('uturn')) {
-    _playVoice('u_turn', 'Zawróć jeśli to możliwe');
-  } else if (m.includes('roundabout')) {
-    _speak('Wjedź na rondo');
-  } else if (!isPre) {
-    _playVoice('straight', 'Jedź prosto');
-  }
-}
-
-function _showTurnPanel(step, distText) {
-  const panel = document.getElementById('sp-turn-panel');
-  if (!panel) return;
-  if (!step) { panel.style.display = 'none'; return; }
-  panel.style.display = 'flex';
-  const arrow = _getManeuverArrow(step.maneuver || '');
-  document.getElementById('sp-turn-arrow').textContent = arrow;
-  // Oczyść HTML tagów z instrukcji (np. <b>Piłsudskiego</b>)
-  const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = step.instructions || step.instruction || 'Kontynuuj jazdę';
-  document.getElementById('sp-turn-text').textContent = tempDiv.textContent || tempDiv.innerText;
-  document.getElementById('sp-turn-dist').textContent = distText ? `za ${distText}` : '';
-}
-
-function _hideTurnPanel() {
-  const p = document.getElementById('sp-turn-panel');
-  if (p) p.style.display = 'none';
-}
-
-// Haversine w metrach
-function _haversineM(lat1, lng1, lat2, lng2) {
-  const R = 6371000;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLng = (lng2 - lng1) * Math.PI / 180;
-  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-}
-
-// Parsuj steps z odpowiedzi OSRM
-function _parseOSRMSteps(route) {
-  const steps = [];
-  try {
-    for (const leg of route.legs || []) {
-      for (const s of leg.steps || []) {
-        steps.push({
-          instructions: s.name || 'Kontynuuj',
-          maneuver: (s.maneuver?.type || '') + (s.maneuver?.modifier ? '_' + s.maneuver.modifier : ''),
-          distance: s.distance,
-          distText: s.distance > 1000 ? (s.distance/1000).toFixed(1) + ' km' : Math.round(s.distance) + ' m',
-          end: { lat: s.maneuver?.location?.[1] || 0, lng: s.maneuver?.location?.[0] || 0 },
-        });
-      }
-    }
-  } catch(e) {}
-  return steps;
-}
-
-// Parsuj steps z odpowiedzi Valhalla
-function _parseValhallaSteps(trip) {
-  const steps = [];
-  try {
-    for (const leg of trip.legs || []) {
-      for (const m of leg.maneuvers || []) {
-        const typeMap = { 1:'straight', 2:'turn_right', 3:'turn_left', 4:'uturn', 10:'roundabout', 23:'start', 24:'destination' };
-        steps.push({
-          instructions: m.instruction || 'Kontynuuj',
-          maneuver: typeMap[m.type] || 'straight',
-          distance: (m.length||0) * 1000,
-          distText: m.length > 1 ? m.length.toFixed(1) + ' km' : Math.round((m.length||0)*1000) + ' m',
-          end: { lat: 0, lng: 0 }, // Valhalla nie daje punktu końcowego kroku wprost
-        });
-      }
-    }
-  } catch(e) {}
-  return steps;
-}
-
-// Uruchom śledzenie kroków nawigacyjnych (wywołaj po _buildRoute)
-function _startTurnByTurn(destLat, destLng) {
-  _navStepIdx = 0;
-  _announcedSteps.clear();
-
-  if (_navWatchEnhanced) navigator.geolocation.clearWatch(_navWatchEnhanced);
-
-  _playVoice('start', 'Rozpoczynam nawigację. Jedź zgodnie ze wskazówkami.');
-
-  // Pokaż pierwszy krok od razu
-  if (_navSteps.length > 0) {
-    _showTurnPanel(_navSteps[0], _navSteps[0].distText);
-  }
-
-  _navWatchEnhanced = navigator.geolocation.watchPosition(pos => {
-    const userLat = pos.coords.latitude;
-    const userLng = pos.coords.longitude;
-
-    // Sprawdź odległość do celu
-    const distToDest = _haversineM(userLat, userLng, destLat, destLng);
-    if (distToDest < 25 && !_announcedSteps.has('arrived')) {
-      _announcedSteps.add('arrived');
-      _playVoice('arrived', 'Dotarłeś do celu. Twój parking jest w pobliżu.');
-      _hideTurnPanel();
-      document.getElementById('navDestMeta').textContent = '🎉 Dotarłeś do celu!';
-      return;
-    }
-
-    // Jeśli mamy kroki z API (OSRM) — sprawdzaj każdy krok
-    if (_navSteps.length === 0) return;
-
-    for (let i = _navStepIdx; i < _navSteps.length; i++) {
-      const step = _navSteps[i];
-      if (!step.end || (!step.end.lat && !step.end.lng)) continue;
-      const distToStep = _haversineM(userLat, userLng, step.end.lat, step.end.lng);
-
-      // Zapowiedź 220m przed skrętem
-      if (distToStep < 230 && distToStep > 40 && !_announcedSteps.has(`pre_${i}`)) {
-        _announcedSteps.add(`pre_${i}`);
-        _announceManeuver(step, true);
-        _showTurnPanel(step, step.distText || '200 m');
-      }
-
-      // Zapowiedź przy skręcie (<30m)
-      if (distToStep < 30 && !_announcedSteps.has(`now_${i}`)) {
-        _announcedSteps.add(`now_${i}`);
-        _announceManeuver(step, false);
-        _navStepIdx = i + 1;
-        // Pokaż następny krok
-        const nextStep = _navSteps[_navStepIdx];
-        if (nextStep) _showTurnPanel(nextStep, nextStep.distText);
-      }
-    }
-
-  }, null, { enableHighAccuracy: true, maximumAge: 2000, timeout: 10000 });
-}
-
-// Zatrzymaj TBT gdy endNavigation
-const _origEndNavigation = endNavigation;
-window.endNavigation = function() {
-  _origEndNavigation();
-  if (_navWatchEnhanced) { navigator.geolocation.clearWatch(_navWatchEnhanced); _navWatchEnhanced = null; }
-  _navSteps = [];
-  _hideTurnPanel();
-  if (_currentAudio) { _currentAudio.pause(); _currentAudio = null; }
-};
-
-// Patch _buildRoute — po sukcesie uruchom TBT
-const _origBuildRoute = _buildRoute;
-window._buildRoute = async function(fromLat, fromLng, toLat, toLng, name) {
-  _navSteps = [];
-  await _origBuildRoute(fromLat, fromLng, toLat, toLng, name);
-  // Spróbuj pobrać kroki OSRM (szczegółowe)
-  if (location.protocol !== 'file:') {
-    try {
-      const r = await fetch(
-        `https://router.project-osrm.org/route/v1/driving/${fromLng},${fromLat};${toLng},${toLat}?steps=true&overview=false`,
-      );
-      if (r.ok) {
-        const d = await r.json();
-        if (d.routes?.[0]) _navSteps = _parseOSRMSteps(d.routes[0]);
-      }
-    } catch(e) { /* brak kroków — tylko głos startu */ }
-  }
-  // Uruchom śledzenie TBT
-  if (isNavigating) _startTurnByTurn(toLat, toLng);
-};
 </script>
 </body>
 </html>
