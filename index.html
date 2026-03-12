@@ -900,84 +900,68 @@ const ZONE_SPP_COORDS = [
 // ══════════════════════════════════════════════════════════════
 // DANE PARKINGÓW
 // ══════════════════════════════════════════════════════════════
-// Zdjęcia: Google Street View static API (bezklucz = losowe z coords)
-function gsv(lat,lng,h=0){
-  // Używamy OpenStreetMap Static Map jako zdjęcie lokalizacji (bez klucza API)
-  // Zoom 18 = poziom ulicy, format PNG
-  const z=18, x=Math.floor((lng+180)/360*Math.pow(2,z));
-  const latR=lat*Math.PI/180, y=Math.floor((1-Math.log(Math.tan(latR)+1/Math.cos(latR))/Math.PI)/2*Math.pow(2,z));
-  // Używamy kafelka OSM jako placeholder + dodajemy overlay z pinezką przez Staticmap API
-  return `https://staticmap.openstreetmap.de/staticmap.php?center=${lat},${lng}&zoom=17&size=400x200&maptype=mapnik&markers=${lat},${lng},lightblue`;
-}
-// Prawdziwe zdjęcia parkingów z Wikimedia Commons / tematyczne
-const TYPE_IMGS = {
-  garage:[
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Parking_structure_2_crop.jpg/400px-Parking_structure_2_crop.jpg',
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Multi-storey_car_park_in_Bristol%2C_England.jpg/400px-Multi-storey_car_park_in_Bristol%2C_England.jpg',
-  ],
-  open:[
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Parking_lot_at_Valley_Forge.jpg/400px-Parking_lot_at_Valley_Forge.jpg',
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Parking_lot_2.jpg/400px-Parking_lot_2.jpg',
-  ],
-  mall:[
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Magnolia_Wroclaw_2014.jpg/400px-Magnolia_Wroclaw_2014.jpg',
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Galeria_Dominikanska_Wroclaw.jpg/400px-Galeria_Dominikanska_Wroclaw.jpg',
-  ],
-  pr:[
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Park_and_ride_sign.jpg/400px-Park_and_ride_sign.jpg',
-  ],
-  private:[
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Secure_parking_lot.jpg/400px-Secure_parking_lot.jpg',
-  ],
-  custom:[]
-};
-function getMapThumb(lat,lng){
-  // Używamy tile OpenStreetMap z centrum na parkingu
-  const z=17;
-  const x=Math.floor((lng+180)/360*Math.pow(2,z));
-  const latR=lat*Math.PI/180;
-  const y=Math.floor((1-Math.log(Math.tan(latR)+1/Math.cos(latR))/Math.PI)/2*Math.pow(2,z));
-  // tile.openstreetmap.org
-  return `https://tile.openstreetmap.org/${z}/${x}/${y}.png`;
-}
-function getParkingPhotos(p){
-  const typeImgs = TYPE_IMGS[p.t]||TYPE_IMGS['open'];
-  return typeImgs;
+// ── ZDJĘCIA PARKINGÓW — Google Street View API (bez klucza) ──
+
+function getParkingStreetViewUrl(lat, lng, heading) {
+  // Google Street View Static — nie wymaga klucza dla podstawowych żądań (z watermarkiem)
+  const h = heading || 0;
+  return `https://maps.googleapis.com/maps/api/streetview?size=600x300&location=${lat},${lng}&heading=${h}&pitch=5&fov=80&source=outdoor`;
 }
 
-// Buduje HTML mapy jako pierwszy "slajd" galerii
+// Kilka ujęć z różnych kątów dla galerii
+function getParkingPhotoSlides(p) {
+  const { lat, lng } = p;
+  const slides = [
+    { url: getParkingStreetViewUrl(lat, lng, 0),   label: '📸 Widok główny' },
+    { url: getParkingStreetViewUrl(lat, lng, 90),  label: '📸 Widok boczny' },
+    { url: getParkingStreetViewUrl(lat, lng, 180), label: '📸 Widok naprzeciwko' },
+  ];
+  return slides;
+}
+
+// Buduje HTML galerii zdjęć (bez mapki)
 function buildGalleryHTML(p, parkingId) {
-  const photos = getParkingPhotos(p);
-  const mapThumbId = 'mapThumb_' + parkingId;
-  // Pierwsza zakładka: mini-mapa OpenStreetMap (iframe)
-  const mapSlide = `<div class="photo-slide active" id="slide_map_${parkingId}">
-    <div style="width:100%;height:160px;background:#0d1117;position:relative;overflow:hidden">
-      <iframe 
-        src="https://www.openstreetmap.org/export/embed.html?bbox=${p.lng-0.003},${p.lat-0.002},${p.lng+0.003},${p.lat+0.002}&layer=mapnik&marker=${p.lat},${p.lng}"
-        style="width:100%;height:100%;border:none;filter:brightness(.85) saturate(.7) hue-rotate(195deg)"
-        loading="lazy"
-        title="Mapa parkingu"
-      ></iframe>
-      <div style="position:absolute;bottom:5px;left:6px;background:rgba(0,0,0,.65);border-radius:4px;padding:2px 6px;font-size:.6rem;color:#aaa">🗺 Mapa lokalizacji</div>
-    </div>
-  </div>`;
+  const slides = getParkingPhotoSlides(p);
 
-  // Kolejne zakładki: zdjęcia tematyczne
-  const photoSlides = photos.map((ph, idx) => `
-    <div class="photo-slide" id="slide_img${idx}_${parkingId}" style="display:none">
-      <div style="width:100%;height:160px;overflow:hidden;background:#0a0c12">
-        <img src="${ph}" loading="lazy" style="width:100%;height:100%;object-fit:cover" 
-          onerror="this.closest('.photo-slide').style.display='none'" alt="Zdjęcie parkingu"/>
+  const slideHtml = slides.map((s, idx) => `
+    <div class="photo-slide ${idx===0?'active':''}" id="slide_${idx}_${parkingId}" style="${idx>0?'display:none':''}">
+      <div style="position:relative;width:100%;height:160px;background:#0a0c12;overflow:hidden">
+        <img
+          src="${s.url}"
+          loading="lazy"
+          style="width:100%;height:100%;object-fit:cover;transition:opacity .3s"
+          onerror="this.closest('.photo-slide').style.display='none';_showNextSlide('${parkingId}',${idx})"
+          alt="${s.label}"
+        />
+        <div style="position:absolute;bottom:5px;left:6px;background:rgba(0,0,0,.65);
+          border-radius:4px;padding:2px 7px;font-size:.57rem;color:#ccc;pointer-events:none">
+          ${s.label}
+        </div>
+        <div style="position:absolute;bottom:5px;right:6px;background:rgba(0,0,0,.55);
+          border-radius:4px;padding:2px 6px;font-size:.52rem;color:#888;pointer-events:none">
+          © Google Street View
+        </div>
       </div>
     </div>`).join('');
 
-  const allSlides = ['map', ...photos.map((_,i)=>`img${i}`)];
-  const thumbs = [
-    `<div class="photo-thumb active" onclick="switchPhotoSlide('${parkingId}','map',this)">🗺</div>`,
-    ...photos.map((ph,idx)=>`<div class="photo-thumb" onclick="switchPhotoSlide('${parkingId}','img${idx}',this)"><img src="${ph}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentNode.style.display='none'"/></div>`)
-  ].join('');
+  // Miniatury / nawigacja (strzałki)
+  const nav = slides.length > 1 ? `
+    <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding:4px 8px 6px;background:var(--card)">
+      <button onclick="_photoNav('${parkingId}',-1,${slides.length})"
+        style="background:none;border:1px solid var(--border);border-radius:6px;
+        color:var(--muted);padding:2px 9px;cursor:pointer;font-size:.75rem;font-family:inherit">‹</button>
+      <span id="photoCnt_${parkingId}" style="font-size:.6rem;color:var(--muted)">1 / ${slides.length}</span>
+      <button onclick="_photoNav('${parkingId}',1,${slides.length})"
+        style="background:none;border:1px solid var(--border);border-radius:6px;
+        color:var(--muted);padding:2px 9px;cursor:pointer;font-size:.75rem;font-family:inherit">›</button>
+      <a href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${p.lat},${p.lng}"
+        target="_blank"
+        style="margin-left:6px;font-size:.57rem;color:var(--a2);text-decoration:none;opacity:.8">
+        Street View ↗
+      </a>
+    </div>` : '';
 
-  return `<div class="photo-gallery">${mapSlide}${photoSlides}<div class="photo-thumbs">${thumbs}</div></div>`;
+  return `<div class="photo-gallery" id="gallery_${parkingId}" data-current="0">${slideHtml}${nav}</div>`;
 }
 
 const BUILT_IN = [
@@ -2232,17 +2216,37 @@ rules_version = '2';<br>service cloud.firestore {<br>
 // ══════════════════════════════════════════════════════
 // ZDJĘCIA – GALERIA (mapa + zdjęcia tematyczne)
 // ══════════════════════════════════════════════════════
-window.switchPhotoSlide = function(parkingId, slideKey, thumbEl) {
-  // Ukryj wszystkie slajdy
-  const gallery = thumbEl?.closest?.('.photo-gallery');
+// Nawigacja galerii Street View — strzałki ‹ ›
+window._photoNav = function(parkingId, dir, total) {
+  const gallery = document.getElementById('gallery_' + parkingId);
   if (!gallery) return;
-  gallery.querySelectorAll('.photo-slide').forEach(s => s.style.display = 'none');
-  // Pokaż wybrany
-  const target = document.getElementById(`slide_${slideKey}_${parkingId}`);
-  if (target) target.style.display = 'block';
-  // Zaktualizuj aktywną miniaturę
-  gallery.querySelectorAll('.photo-thumb').forEach(t => t.classList.remove('active'));
-  if (thumbEl) thumbEl.classList.add('active');
+  let cur = parseInt(gallery.dataset.current || '0');
+  // Szukaj następnego widocznego slajdu
+  let next = (cur + dir + total) % total;
+  let tries = 0;
+  while (tries < total) {
+    const slide = document.getElementById(`slide_${next}_${parkingId}`);
+    if (slide && slide.style.display !== 'none') break;
+    next = (next + dir + total) % total;
+    tries++;
+  }
+  // Ukryj aktualny, pokaż nowy
+  const curSlide = document.getElementById(`slide_${cur}_${parkingId}`);
+  if (curSlide) curSlide.style.display = 'none';
+  const nextSlide = document.getElementById(`slide_${next}_${parkingId}`);
+  if (nextSlide) nextSlide.style.display = 'block';
+  gallery.dataset.current = next;
+  const cnt = document.getElementById('photoCnt_' + parkingId);
+  if (cnt) cnt.textContent = `${next + 1} / ${total}`;
+};
+
+window._showNextSlide = function(parkingId, failedIdx) {
+  const gallery = document.getElementById('gallery_' + parkingId);
+  if (!gallery) return;
+  const total = gallery.querySelectorAll('.photo-slide').length;
+  const next = (failedIdx + 1) % total;
+  const nextSlide = document.getElementById(`slide_${next}_${parkingId}`);
+  if (nextSlide) { nextSlide.style.display = 'block'; gallery.dataset.current = next; }
 };
 
 // ══════════════════════════════════════════════════════
@@ -2357,7 +2361,7 @@ document.getElementById('cmpOverlay').addEventListener('click', e => {
 
 
 function escHtml(str) {
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(str).replace(/&/g,'&amp;').replace(/\x3c/g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 // ══════════════════════════════════════════════════════
@@ -3398,14 +3402,12 @@ window.setPoll = function(parkingId, question, answer, el) {
 // Nadpisz mkPopup żeby wstrzyknąć ankietę i lajki do formularza
 const _origMkPopup = mkPopup;
 window.mkPopup = function(p, i, isCustom) {
-  const html = _origMkPopup(p, i, isCustom);
+  const rawHtml = _origMkPopup(p, i, isCustom);
   const parkingId = p._docId || ('builtin_' + i);
   const pollHtml = _buildPollHTML(parkingId);
   // Wstaw ankietę przed przyciskiem "Dodaj opinię"
-  return html.replace(
-    `<button class="review-submit" onclick="submitReview('${parkingId}'`,
-    pollHtml + `<button class="review-submit" onclick="submitReview('${parkingId}'`
-  );
+  const needle = '<button class="review-submit" onclick="submitReview(\'' + parkingId + '\'';
+  return rawHtml.replace(needle, pollHtml + needle);
 };
 
 // Nadpisz submitReview żeby zapisywał ankietę i nick
@@ -3652,34 +3654,28 @@ window.activate = function(i) {
 map.on('popupopen', function(e) {
   if (window.innerWidth > 640) return;
   const popup = e.popup;
-  // Poczekaj na wyrenderowanie, potem przesuń popup
   setTimeout(() => {
     const el = popup.getElement();
     if (!el) return;
-    el.style.cssText += `
-      position: fixed !important;
-      left: 0 !important;
-      right: 0 !important;
-      bottom: 0 !important;
-      top: auto !important;
-      width: 100vw !important;
-      transform: none !important;
-      margin: 0 !important;
-      z-index: 3000 !important;
-    `;
+    el.style.position = 'fixed';
+    el.style.left = '0';
+    el.style.right = '0';
+    el.style.bottom = '0';
+    el.style.top = 'auto';
+    el.style.width = '100vw';
+    el.style.transform = 'none';
+    el.style.margin = '0';
+    el.style.zIndex = '3000';
     const wrapper = el.querySelector('.leaflet-popup-content-wrapper');
     if (wrapper) {
-      wrapper.style.cssText += `
-        width: 100% !important;
-        max-width: 100% !important;
-        border-radius: 18px 18px 0 0 !important;
-        max-height: 72vh !important;
-        overflow-y: auto !important;
-        box-sizing: border-box !important;
-        margin: 0 !important;
-      `;
+      wrapper.style.width = '100%';
+      wrapper.style.maxWidth = '100%';
+      wrapper.style.borderRadius = '18px 18px 0 0';
+      wrapper.style.maxHeight = '72vh';
+      wrapper.style.overflowY = 'auto';
+      wrapper.style.boxSizing = 'border-box';
+      wrapper.style.margin = '0';
     }
-    // Ukryj tip (strzałkę)
     const tip = el.querySelector('.leaflet-popup-tip-container');
     if (tip) tip.style.display = 'none';
   }, 10);
