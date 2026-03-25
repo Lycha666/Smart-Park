@@ -83,107 +83,6 @@ setupAdminAccount();
 html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
 body{display:flex;flex-direction:column}
 
-/* ── MOBILE RESPONSIVE ── */
-@media (max-width: 640px) {
-  /* Sidebar domyślnie schowany na telefonie */
-  #sidebar {
-    position: fixed !important;
-    left: 0; top: 0; bottom: 0;
-    z-index: 2500;
-    width: 88vw !important;
-    max-width: 340px;
-    transform: translateX(-100%);
-    transition: transform .3s cubic-bezier(.4,0,.2,1), opacity .3s !important;
-    opacity: 1 !important;
-    box-shadow: 6px 0 40px rgba(0,0,0,.7);
-  }
-  #sidebar.mobile-open {
-    transform: translateX(0) !important;
-  }
-  /* Overlay za sidebarem */
-  #sb-backdrop {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 2400;
-    background: rgba(0,0,0,.55);
-  }
-  #sb-backdrop.show { display: block; }
-
-  /* Pływający przycisk otwierania sidebara */
-  #sp-sb-toggle {
-    display: flex !important;
-  }
-
-  /* Header — mniej elementów */
-  .hstats { display: none !important; }
-  header { padding: 0 10px; gap: 7px; }
-
-  /* Popup — pełna szerokość od dołu (jak bottom sheet) */
-  .leaflet-popup {
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    top: auto !important;
-    position: fixed !important;
-    margin: 0 !important;
-    width: 100% !important;
-  }
-  .leaflet-popup-content-wrapper {
-    border-radius: 18px 18px 0 0 !important;
-    max-width: 100% !important;
-    width: 100% !important;
-    max-height: 70vh !important;
-    overflow-y: auto !important;
-    margin: 0 !important;
-    box-sizing: border-box !important;
-  }
-  .leaflet-popup-content {
-    min-width: unset !important;
-    max-width: 100% !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-  }
-  .leaflet-popup-tip-container { display: none !important; }
-  .leaflet-popup-close-button {
-    top: 12px !important; right: 14px !important;
-    font-size: 1.3rem !important; z-index: 10 !important;
-  }
-
-  /* Przyciski mapy — niżej żeby nie zakrywały nawigacji */
-  #sp-map-controls { bottom: 100px !important; }
-
-  /* Panel skrętów — pełna szerokość */
-  #sp-turn-panel { left: 0 !important; right: 0 !important; border-radius: 0 !important; }
-
-  /* Pasek nawigacji */
-  #navBar { font-size: .72rem; }
-
-  /* Compare panel */
-  .compare-panel { min-width: unset !important; width: 100% !important; left: 0 !important; transform: none !important; border-radius: 12px 12px 0 0 !important; }
-}
-
-/* Przycisk otwierania sidebara (ukryty na desktop) */
-#sp-sb-toggle {
-  display: none;
-  position: fixed;
-  top: 60px;
-  left: 12px;
-  z-index: 2300;
-  width: 44px; height: 44px;
-  border-radius: 12px;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  color: var(--text);
-  font-size: 1.1rem;
-  cursor: pointer;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 3px 14px rgba(0,0,0,.5);
-  transition: background .15s;
-}
-#sp-sb-toggle:hover { background: var(--card); }
-
 header{height:52px;flex-shrink:0;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 14px;gap:10px}
 .logo{font-weight:800;font-size:.98rem;display:flex;align-items:center;gap:7px;white-space:nowrap}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 7px var(--accent);animation:pulse 2s infinite}
@@ -364,6 +263,37 @@ header{height:52px;flex-shrink:0;background:var(--panel);border-bottom:1px solid
 .pu-price .note{margin-top:5px;color:var(--muted);font-size:.64rem;line-height:1.5}
 .pu-nav-btn{display:block;background:var(--accent);color:#000;font-weight:700;font-size:.73rem;text-align:center;padding:7px;border-radius:8px;border:none;cursor:pointer;font-family:inherit;width:100%;margin-bottom:5px}
 .pu-nav-btn:hover{opacity:.82}
+
+/* VISIBILITY SELECTOR */
+.vis-option{display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--border);border-radius:7px;padding:7px 10px;cursor:pointer;font-size:.75rem;flex:1;transition:all .15s}
+.vis-option input{display:none}
+.vis-option.selected{border-color:var(--accent);background:rgba(232,255,71,.06);color:var(--accent)}
+
+/* PAYMENT GATE */
+.pay-gate-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:9500;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+.pay-gate-overlay.hidden{display:none}
+.pay-gate-modal{background:var(--panel);border:1px solid var(--a4);border-radius:18px;padding:28px 26px 24px;width:380px;max-width:95vw;text-align:center;box-shadow:0 20px 60px rgba(180,124,255,.25)}
+.pay-gate-icon{font-size:2.8rem;margin-bottom:10px}
+.pay-gate-title{font-size:1.1rem;font-weight:800;margin-bottom:6px}
+.pay-gate-sub{font-size:.77rem;color:var(--muted);margin-bottom:20px;line-height:1.6}
+.pay-gate-price{font-size:2.4rem;font-weight:900;color:var(--accent);margin-bottom:4px}
+.pay-gate-price span{font-size:.82rem;font-weight:400;color:var(--muted)}
+.pay-gate-features{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:20px;text-align:left}
+.pay-gate-feat{font-size:.72rem;padding:3px 0;color:var(--muted);display:flex;align-items:center;gap:7px}
+.pay-gate-btn{width:100%;padding:13px;border-radius:10px;border:none;font-weight:800;font-size:.9rem;cursor:pointer;font-family:inherit;background:var(--accent);color:#000;margin-bottom:8px;transition:opacity .15s}
+.pay-gate-btn:hover{opacity:.88}
+.pay-gate-close{background:none;border:none;color:var(--muted);font-size:.72rem;cursor:pointer;font-family:inherit}
+.pay-form{text-align:left;margin-top:16px;border-top:1px solid var(--border);padding-top:16px;display:none}
+.pay-form.show{display:block}
+.pay-form-row{margin-bottom:10px}
+.pay-form-row label{display:block;font-size:.62rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:3px;font-weight:600}
+.pay-form-row input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--text);font-size:.82rem;outline:none;font-family:inherit}
+.pay-form-row input:focus{border-color:var(--accent)}
+.pay-f2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pay-processing{display:none;text-align:center;padding:14px 0;color:var(--accent);font-weight:700;font-size:.85rem}
+.pending-badge{background:rgba(255,140,71,.1);color:var(--a3);border:1px solid rgba(255,140,71,.3);border-radius:20px;font-size:.6rem;padding:2px 7px;font-weight:600}
+.nav-locked-btn{display:block;background:rgba(180,124,255,.1);color:var(--a4);border:1px solid rgba(180,124,255,.3);border-radius:8px;padding:8px;font-size:.73rem;font-weight:700;cursor:pointer;font-family:inherit;width:100%;text-align:center;margin-bottom:5px;transition:all .15s}
+.nav-locked-btn:hover{background:rgba(180,124,255,.2)}
 
 .leaflet-tile-pane{filter:brightness(.82) saturate(.6) hue-rotate(195deg)}
 .leaflet-control-zoom{border:1px solid var(--border)!important;border-radius:8px!important;overflow:hidden}
@@ -564,9 +494,6 @@ header{height:52px;flex-shrink:0;background:var(--panel);border-bottom:1px solid
 </header>
 
 <div class="body">
-  <!-- Mobile: backdrop za sidebarem + przycisk otwierania -->
-  <div id="sb-backdrop" onclick="closeMobileSidebar()"></div>
-  <button id="sp-sb-toggle" onclick="toggleMobileSidebar()" title="Lista parkingów">🅿</button>
   <div id="sidebar">
     <div class="sb-head">
       <span class="sb-title">Lista parkingów</span>
@@ -640,30 +567,6 @@ header{height:52px;flex-shrink:0;background:var(--panel);border-bottom:1px solid
       <div class="lr"><div class="ld" style="background:#47ffb0"></div> Parking strzeżony</div>
       <div class="lr"><div class="ld" style="background:#ff4f7b"></div> Mój parking</div>
     </div>
-
-    <!-- PANEL SKRĘTÓW (turn-by-turn) — jak Google Maps -->
-    <div id="sp-turn-panel" style="
-      position:absolute;bottom:0;left:0;right:0;z-index:999;
-      background:rgba(13,15,20,.97);border-top:2px solid var(--a5);
-      padding:12px 16px 10px;display:none;align-items:center;gap:14px;
-      backdrop-filter:blur(12px);transform:translateY(0);
-      transition:transform .3s;
-    ">
-      <div id="sp-turn-arrow" style="
-        font-size:2.8rem;min-width:50px;text-align:center;
-        filter:drop-shadow(0 0 10px rgba(232,255,71,.8));
-        animation:sp-arrow-pulse 1.5s ease-in-out infinite;
-      ">⬆️</div>
-      <div style="flex:1;min-width:0">
-        <div id="sp-turn-text" style="font-weight:800;font-size:.92rem;color:var(--text);line-height:1.25;margin-bottom:3px">Wyznaczam trasę…</div>
-        <div id="sp-turn-dist" style="font-size:.73rem;color:var(--accent);font-weight:700"></div>
-      </div>
-      <div id="sp-turn-eta" style="text-align:right;font-size:.68rem;color:var(--muted);white-space:nowrap;line-height:1.6"></div>
-    </div>
-    <style>
-      @keyframes sp-arrow-pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
-      #sp-turn-panel.visible { display:flex !important; }
-    </style>
 
     <!-- PASEK NAWIGACJI -->
     <div class="nav-bar" id="navBar">
@@ -775,7 +678,24 @@ header{height:52px;flex-shrink:0;background:var(--panel);border-bottom:1px solid
       <div class="form-row"><label>Szerokość (lat) *</label><input id="f-lat" type="number" step="0.000001" placeholder="51.1079"/></div>
       <div class="form-row"><label>Długość (lng) *</label><input id="f-lng" type="number" step="0.000001" placeholder="17.0385"/></div>
     </div>
-    <div class="mbtns" style="margin-bottom:9px">
+    <!-- WIDOCZNOŚĆ -->
+    <div class="form-row" style="margin-top:4px">
+      <label>👁 Widoczność parkingu</label>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <label class="vis-option" id="visPrivateLabel">
+          <input type="radio" name="f-vis" id="f-vis-private" value="private" checked onchange="updateVisInfo()"/>
+          <span>🔒 Tylko dla mnie</span>
+        </label>
+        <label class="vis-option" id="visPublicLabel">
+          <input type="radio" name="f-vis" id="f-vis-public" value="public" onchange="updateVisInfo()"/>
+          <span>🌍 Udostępnij publicznie</span>
+        </label>
+      </div>
+      <div id="visInfo" style="margin-top:6px;font-size:.67rem;color:var(--muted);background:var(--card);border-radius:6px;padding:6px 9px;line-height:1.5">
+        🔒 Parking widoczny tylko dla Ciebie. Nie wymaga zatwierdzenia.
+      </div>
+    </div>
+    <div class="mbtns" style="margin-bottom:9px;margin-top:10px">
       <button class="mbtn mbtn-map" id="pickMapBtn">📍 Wskaż na mapie</button>
     </div>
     <div class="mbtns">
@@ -793,6 +713,36 @@ header{height:52px;flex-shrink:0;background:var(--panel);border-bottom:1px solid
   <div class="geo-toast-btns">
     <button class="at-btn at-btn-manual" onclick="startManualLocation()">📌 Ustaw ręcznie na mapie</button>
     <button class="geo-toast at-btn-close" onclick="hideGeoToast()">✕</button>
+  </div>
+</div>
+
+<!-- PAYMENT GATE -->
+<div class="pay-gate-overlay hidden" id="payGate">
+  <div class="pay-gate-modal">
+    <div class="pay-gate-icon">🅿</div>
+    <div class="pay-gate-title">Smart Park Premium</div>
+    <div class="pay-gate-sub">Odblokuj pełny dostęp do nawigacji i planowania tras — jednorazowa opłata, bez subskrypcji.</div>
+    <div class="pay-gate-price">9,99 zł <span>jednorazowo</span></div>
+    <div class="pay-gate-features">
+      <div class="pay-gate-feat">🧭 <b>Nawigacja turn-by-turn</b> do każdego parkingu</div>
+      <div class="pay-gate-feat">🗺 <b>Trasa samochodem</b> z podglądem na mapie</div>
+      <div class="pay-gate-feat">📍 <b>Śledzenie pozycji</b> podczas jazdy</div>
+      <div class="pay-gate-feat">⏱ <b>Czas dojazdu i odległość</b> w czasie rzeczywistym</div>
+      <div class="pay-gate-feat">♾ <b>Dostęp na zawsze</b> — bez limitu tras</div>
+    </div>
+    <button class="pay-gate-btn" onclick="showPayForm()">💳 Przejdź do płatności</button>
+    <div class="pay-form" id="payForm">
+      <div class="pay-form-row"><label>Numer karty</label><input id="pay-card" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCard(this)"/></div>
+      <div class="pay-f2">
+        <div class="pay-form-row"><label>Ważna do</label><input id="pay-exp" placeholder="MM/RR" maxlength="5" oninput="formatExp(this)"/></div>
+        <div class="pay-form-row"><label>CVV</label><input id="pay-cvv" placeholder="123" maxlength="3" type="password"/></div>
+      </div>
+      <div class="pay-form-row"><label>Imię i nazwisko</label><input id="pay-name" placeholder="Jan Kowalski"/></div>
+      <button class="pay-gate-btn" onclick="processPayment()" id="payConfirmBtn">🔒 Zapłać 9,99 zł</button>
+      <div class="pay-processing" id="payProcessing">⏳ Przetwarzanie płatności...</div>
+    </div>
+    <br>
+    <button class="pay-gate-close" onclick="closePayGate()">✕ Może później</button>
   </div>
 </div>
 
@@ -900,68 +850,86 @@ const ZONE_SPP_COORDS = [
 // ══════════════════════════════════════════════════════════════
 // DANE PARKINGÓW
 // ══════════════════════════════════════════════════════════════
-// ── ZDJĘCIA PARKINGÓW — Google Street View API (bez klucza) ──
+// ══════════════════════════════════════════════════════
+// ZDJĘCIA PARKINGÓW – Wikimedia Commons
+// ══════════════════════════════════════════════════════
+// Konkretne zdjęcia dla znanych obiektów (Wikimedia Commons, licencja CC)
+const PARKING_PHOTOS = {
+  // Garaże i podziemne
+  "Interparking NFM": ["https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Wroc%C5%82aw_-_Narodowe_Forum_Muzyki_01.jpg/640px-Wroc%C5%82aw_-_Narodowe_Forum_Muzyki_01.jpg"],
+  "Parking Nowy Targ": ["https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Wroclaw_Nowy_Targ.jpg/640px-Wroclaw_Nowy_Targ.jpg"],
+  "Parking PEGAZ": ["https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Wroclaw_Pegaz.jpg/640px-Wroclaw_Pegaz.jpg"],
+  "Parking Bulvary": ["https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Bulwar_Xawery_Dunikowski_Wroclaw.jpg/640px-Bulwar_Xawery_Dunikowski_Wroclaw.jpg"],
+  "Parking Szczepińska (podz.)": ["https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Wroclaw_-_Plac_Dominikanski.jpg/640px-Wroclaw_-_Plac_Dominikanski.jpg"],
+  // Galerie
+  "Parking Wroclavia": ["https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Wroclavia_mall.jpg/640px-Wroclavia_mall.jpg"],
+  "Parking Galeria Dominikańska": ["https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Wroclaw_-_Plac_Dominikanski.jpg/640px-Wroclaw_-_Plac_Dominikanski.jpg"],
+  "Parking Renoma": ["https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Renoma_Wroclaw.jpg/640px-Renoma_Wroclaw.jpg"],
+  "Parking Magnolia Park": ["https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Magnolia_Wroclaw_2014.jpg/640px-Magnolia_Wroclaw_2014.jpg"],
+  "Parking Pasaż Grunwaldzki": ["https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Wroclaw_pasaz_grunwaldzki.jpg/640px-Wroclaw_pasaz_grunwaldzki.jpg"],
+  "Parking Sky Tower": ["https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Sky_Tower_Wroclaw.jpg/640px-Sky_Tower_Wroclaw.jpg"],
+  "Parking Arkady Wrocławskie": ["https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Arkady_Wroc%C5%82awskie.jpg/640px-Arkady_Wroc%C5%82awskie.jpg"],
+  "Parking ZOO Wrocław": ["https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Zoo_Wroc%C5%82aw_-_wej%C5%9Bcie.jpg/640px-Zoo_Wroc%C5%82aw_-_wej%C5%9Bcie.jpg"],
+  "Parking Hala Stulecia naziemny": ["https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Centennial_Hall_Wroclaw_2013.jpg/640px-Centennial_Hall_Wroclaw_2013.jpg"],
+  "Parking ZOO/Hala Stulecia podz.": ["https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Centennial_Hall_Wroclaw_2013.jpg/640px-Centennial_Hall_Wroclaw_2013.jpg"],
+  "Parking Panorama Racławicka": ["https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Panorama_Rac%C5%82awicka_Wroc%C5%82aw.jpg/640px-Panorama_Rac%C5%82awicka_Wroc%C5%82aw.jpg"],
+  "Parking Ferio Gaj": ["https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Ferio_Gaj_Wroc%C5%82aw.jpg/640px-Ferio_Gaj_Wroc%C5%82aw.jpg"],
+  // P+R
+  "P+R Stadion Wrocław": ["https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Stadion_Miejski_Wroc%C5%82aw.jpg/640px-Stadion_Miejski_Wroc%C5%82aw.jpg"],
+  "P+R Opolska (Głubczycka)": ["https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Wroclaw_tram.jpg/640px-Wroclaw_tram.jpg"],
+  // Lotnisko
+  "Parking Cargo Lotnisko": ["https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Port_lotniczy_Wroclaw.jpg/640px-Port_lotniczy_Wroclaw.jpg"],
+  "Parking Lotnisko Long Term D": ["https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Port_lotniczy_Wroclaw.jpg/640px-Port_lotniczy_Wroclaw.jpg"],
+};
 
-function getParkingStreetViewUrl(lat, lng, heading) {
-  // Google Street View Static — nie wymaga klucza dla podstawowych żądań (z watermarkiem)
-  const h = heading || 0;
-  return `https://maps.googleapis.com/maps/api/streetview?size=600x300&location=${lat},${lng}&heading=${h}&pitch=5&fov=80&source=outdoor`;
+// Fallback zdjęcia według typu (gdy nie ma konkretnego)
+const TYPE_IMGS = {
+  garage:['https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Parking_structure_2_crop.jpg/480px-Parking_structure_2_crop.jpg'],
+  open:['https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Parking_lot_at_Valley_Forge.jpg/480px-Parking_lot_at_Valley_Forge.jpg'],
+  mall:['https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Galeria_handlowa.jpg/480px-Galeria_handlowa.jpg'],
+  pr:['https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Park_and_ride_sign.jpg/480px-Park_and_ride_sign.jpg'],
+  private:['https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Secure_parking_lot.jpg/480px-Secure_parking_lot.jpg'],
+  custom:[]
+};
+
+function getParkingPhotos(p) {
+  return PARKING_PHOTOS[p.n] || TYPE_IMGS[p.t] || TYPE_IMGS['open'];
 }
 
-// Kilka ujęć z różnych kątów dla galerii
-function getParkingPhotoSlides(p) {
-  const { lat, lng } = p;
-  const slides = [
-    { url: getParkingStreetViewUrl(lat, lng, 0),   label: '📸 Widok główny' },
-    { url: getParkingStreetViewUrl(lat, lng, 90),  label: '📸 Widok boczny' },
-    { url: getParkingStreetViewUrl(lat, lng, 180), label: '📸 Widok naprzeciwko' },
-  ];
-  return slides;
-}
 
-// Buduje HTML galerii zdjęć (bez mapki)
+// Buduje HTML galerii: mini-mapa OSM + zdjęcia (tylko jeśli istnieją dla tego parkingu)
 function buildGalleryHTML(p, parkingId) {
-  const slides = getParkingPhotoSlides(p);
+  const hasSpecificPhoto = !!PARKING_PHOTOS[p.n];
+  const photos = getParkingPhotos(p);
 
-  const slideHtml = slides.map((s, idx) => `
-    <div class="photo-slide ${idx===0?'active':''}" id="slide_${idx}_${parkingId}" style="${idx>0?'display:none':''}">
-      <div style="position:relative;width:100%;height:160px;background:#0a0c12;overflow:hidden">
-        <img
-          src="${s.url}"
-          loading="lazy"
-          style="width:100%;height:100%;object-fit:cover;transition:opacity .3s"
-          onerror="this.closest('.photo-slide').style.display='none';_showNextSlide('${parkingId}',${idx})"
-          alt="${s.label}"
-        />
-        <div style="position:absolute;bottom:5px;left:6px;background:rgba(0,0,0,.65);
-          border-radius:4px;padding:2px 7px;font-size:.57rem;color:#ccc;pointer-events:none">
-          ${s.label}
-        </div>
-        <div style="position:absolute;bottom:5px;right:6px;background:rgba(0,0,0,.55);
-          border-radius:4px;padding:2px 6px;font-size:.52rem;color:#888;pointer-events:none">
-          © Google Street View
-        </div>
+  // Pierwsza zakładka: mini-mapa OpenStreetMap
+  const mapSlide = `<div class="photo-slide active" id="slide_map_${parkingId}">
+    <div style="width:100%;height:160px;background:#0d1117;position:relative;overflow:hidden">
+      <iframe
+        src="https://www.openstreetmap.org/export/embed.html?bbox=${p.lng-0.003},${p.lat-0.002},${p.lng+0.003},${p.lat+0.002}&layer=mapnik&marker=${p.lat},${p.lng}"
+        style="width:100%;height:100%;border:none;filter:brightness(.85) saturate(.7) hue-rotate(195deg)"
+        loading="lazy" title="Mapa parkingu"></iframe>
+      <div style="position:absolute;bottom:5px;left:6px;background:rgba(0,0,0,.65);border-radius:4px;padding:2px 6px;font-size:.6rem;color:#aaa">🗺 Lokalizacja</div>
+    </div>
+  </div>`;
+
+  // Zakładki ze zdjęciami — tylko jeśli mamy konkretne zdjęcie dla tego parkingu
+  const photoSlides = hasSpecificPhoto ? photos.map((ph, idx) => `
+    <div class="photo-slide" id="slide_img${idx}_${parkingId}">
+      <div style="width:100%;height:160px;overflow:hidden;background:#0a0c12">
+        <img src="${ph}" loading="lazy" style="width:100%;height:100%;object-fit:cover"
+          onerror="this.closest('.photo-slide').style.display='none'" alt="${escHtml(p.n)}"/>
       </div>
-    </div>`).join('');
+    </div>`).join('') : '';
 
-  // Miniatury / nawigacja (strzałki)
-  const nav = slides.length > 1 ? `
-    <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding:4px 8px 6px;background:var(--card)">
-      <button onclick="_photoNav('${parkingId}',-1,${slides.length})"
-        style="background:none;border:1px solid var(--border);border-radius:6px;
-        color:var(--muted);padding:2px 9px;cursor:pointer;font-size:.75rem;font-family:inherit">‹</button>
-      <span id="photoCnt_${parkingId}" style="font-size:.6rem;color:var(--muted)">1 / ${slides.length}</span>
-      <button onclick="_photoNav('${parkingId}',1,${slides.length})"
-        style="background:none;border:1px solid var(--border);border-radius:6px;
-        color:var(--muted);padding:2px 9px;cursor:pointer;font-size:.75rem;font-family:inherit">›</button>
-      <a href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${p.lat},${p.lng}"
-        target="_blank"
-        style="margin-left:6px;font-size:.57rem;color:var(--a2);text-decoration:none;opacity:.8">
-        Street View ↗
-      </a>
-    </div>` : '';
+  const thumbs = [
+    `<div class="photo-thumb active" onclick="switchPhotoSlide('${parkingId}','map',this)" title="Mapa">🗺</div>`,
+    ...(hasSpecificPhoto ? photos.map((ph, idx) =>
+      `<div class="photo-thumb" onclick="switchPhotoSlide('${parkingId}','img${idx}',this)"><img src="${ph}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentNode.style.display='none'"/></div>`
+    ) : [])
+  ].join('');
 
-  return `<div class="photo-gallery" id="gallery_${parkingId}" data-current="0">${slideHtml}${nav}</div>`;
+  return `<div class="photo-gallery">${mapSlide}${photoSlides}<div class="photo-thumbs">${thumbs}</div></div>`;
 }
 
 const BUILT_IN = [
@@ -1058,79 +1026,6 @@ const BUILT_IN = [
   {n:"P+R Klecina (Jutrzenki)",         a:"ul. Jutrzenki",                      lat:51.06400,lng:16.99000,r:3.9,open:1,t:"pr",  zone:null,free:0,spots:200,price:{h1v:2,h1:"2 zł",h24:"—",note:"Wymaga Urban Card"},payHours:"Czynny całą dobę"},
   {n:"P+R Pętla Rogowska / Żerniki",   a:"ul. Żernicka / Rumiankowa",          lat:51.11989,lng:16.95131,r:4.2,open:1,t:"pr",  zone:null,free:1,spots:350,price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNY"},payHours:"Bezpłatne z biletem MPK"},
   {n:"P+R Majchra",                     a:"ul. Alojzego Majchra",               lat:51.14386,lng:16.87271,r:3.8,open:1,t:"pr",  zone:null,free:0,spots:120,price:{h1v:2,h1:"2 zł",h24:"—",note:"Wymaga Urban Card"},payHours:"Czynny całą dobę"},
-
-  // ── DODATKOWE GARAŻE I PODZIEMNE ──
-  {n:"Parking Sofitel / Monopol",       a:"ul. Modrzejewskiej 2",               lat:51.10412,lng:17.03155,r:4.3,open:1,t:"garage",zone:"sspp_b",free:0,spots:80, price:{h1v:8,h1:"8 zł",h24:"90 zł",note:"Garaż hotelu Monopol. Dostępny dla gości zewnętrznych"},payHours:"Pn–nd 9:00–20:00"},
-  {n:"Parking Wrocław Plaza (podz.)",   a:"ul. Drobnera 1",                     lat:51.11650,lng:17.03120,r:3.8,open:1,t:"garage",zone:"sspp_b",free:0,spots:120,price:{h1v:6,h1:"6 zł",h24:"—",note:"Parking w kompleksie przy Odrze"},payHours:"Pn–nd 9:00–20:00"},
-  {n:"Parking Qubus Hotel",             a:"ul. Św. Marii Magdaleny 2",          lat:51.10980,lng:17.03540,r:3.9,open:1,t:"garage",zone:"sspp_a",free:0,spots:50, price:{h1v:10,h1:"10 zł",h24:"—",note:"Parking hotelowy dostępny dla wszystkich"},payHours:"Pn–nd 9:00–20:00"},
-  {n:"Parking Holiday Inn Wrocław",     a:"ul. Partyzantów 1",                  lat:51.10150,lng:17.01550,r:4.0,open:1,t:"garage",zone:"sspp_b",free:0,spots:90, price:{h1v:7,h1:"7 zł",h24:"60 zł",note:"Parking hotelowy – dostępny zewnętrznie w weekendy"},payHours:"Czynny całą dobę"},
-  {n:"Parking NH Hotel Wrocław",        a:"ul. Świdnicka 88/90",                lat:51.10088,lng:17.03021,r:4.1,open:1,t:"garage",zone:"sspp_b",free:0,spots:60, price:{h1v:8,h1:"8 zł",h24:"70 zł",note:"Podziemny garaż hotelu NH"},payHours:"Czynny całą dobę"},
-  {n:"Parking Ibis Centrum",            a:"ul. Joannitów 10",                   lat:51.09750,lng:17.03280,r:3.7,open:1,t:"garage",zone:"spp",  free:0,spots:70, price:{h1v:5,h1:"5 zł",h24:"45 zł",note:"Parking przy hotelu Ibis, blisko PKP"},payHours:"Pn–pt 9:00–18:00"},
-  {n:"Parking Galeria Arkana",          a:"ul. Teatralna",                      lat:51.10780,lng:17.02240,r:3.8,open:1,t:"garage",zone:"sspp_b",free:0,spots:100,price:{h1v:6,h1:"6 zł",h24:"—",note:"Przy Teatrze Muzycznym Capitol"},payHours:"Pn–nd 9:00–20:00"},
-  {n:"Parking Centrum Św. Łazarza",     a:"ul. Jedności Narodowej 48",          lat:51.12350,lng:17.04680,r:3.6,open:1,t:"garage",zone:"spp",  free:0,spots:80, price:{h1v:4,h1:"4 zł",h24:"—",note:"Osiedle Śródmiejskie – weekendy bezpłatne"},payHours:"Pn–pt 9:00–18:00"},
-  {n:"Parking MPK Braniborska",         a:"ul. Braniborska 59",                 lat:51.09500,lng:16.97800,r:3.5,open:1,t:"garage",zone:null,  free:1,spots:200,price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ Parking MPK przy zajezdni – BEZPŁATNY"},payHours:"Bezpłatne zawsze"},
-  {n:"Parking Łazienna (PKO BP)",       a:"ul. Łazienna 6",                     lat:51.11180,lng:17.03680,r:3.7,open:1,t:"garage",zone:"sspp_b",free:0,spots:45, price:{h1v:5,h1:"5 zł",h24:"—",note:"Przy Ostrowie Tumskim"},payHours:"Pn–nd 9:00–20:00"},
-  {n:"Parking Świdnicka Business Hub",  a:"ul. Świdnicka 9",                    lat:51.10540,lng:17.02980,r:4.0,open:1,t:"garage",zone:"sspp_b",free:0,spots:130,price:{h1v:7,h1:"7 zł",h24:"—",note:"Nowoczesny biurowiec, czysty parking"},payHours:"Pn–nd 9:00–20:00"},
-  {n:"Parking Centrum Historyczne",     a:"ul. Kiełbaśnicza",                   lat:51.11020,lng:17.03250,r:3.5,open:1,t:"garage",zone:"sspp_a",free:0,spots:35, price:{h1v:8,h1:"8 zł",h24:"—",note:"Ścisłe centrum, bardzo drogi"},payHours:"Pn–nd 9:00–20:00"},
-
-  // ── NAZIEMNE DODATKOWE ──
-  {n:"Parking ul. Roosevelta",          a:"ul. Roosevelta",                     lat:51.10980,lng:17.02350,r:3.7,open:1,t:"open",  zone:"sspp_b",free:0,spots:40, price:{h1v:5,h1:"5 zł",h24:"—",note:"Strefa B – naprzeciwko Opery Wrocławskiej"},payHours:"Pn–nd 9:00–20:00"},
-  {n:"Parking ul. Małachowskiego",      a:"ul. Małachowskiego",                 lat:51.09320,lng:17.04280,r:3.6,open:1,t:"open",  zone:"sspp_b",free:0,spots:55, price:{h1v:5,h1:"5 zł",h24:"—",note:"Blisko Galerii Joy"},payHours:"Pn–nd 9:00–20:00"},
-  {n:"Parking Plac Bema",               a:"pl. Bema",                           lat:51.10880,lng:17.01580,r:3.8,open:1,t:"open",  zone:"sspp_b",free:0,spots:60, price:{h1v:5,h1:"5 zł",h24:"—",note:"Przy parku i fontannie"},payHours:"Pn–nd 9:00–20:00"},
-  {n:"Parking ul. Podwale (ring)",      a:"ul. Podwale / Kacza",                lat:51.11050,lng:17.02090,r:3.5,open:1,t:"open",  zone:"sspp_b",free:0,spots:30, price:{h1v:5,h1:"5 zł",h24:"—",note:"Wzdłuż fosy miejskiej"},payHours:"Pn–nd 9:00–20:00"},
-  {n:"Parking Szewska (boczna)",        a:"ul. Szewska (boczna)",               lat:51.10870,lng:17.02650,r:3.4,open:1,t:"open",  zone:"sspp_a",free:0,spots:20, price:{h1v:7,h1:"7 zł",h24:"—",note:"Ścisłe centrum, limitowane miejsca"},payHours:"Pn–nd 9:00–20:00"},
-  {n:"Parking Karola Szajnochy",        a:"ul. Karola Szajnochy",               lat:51.10760,lng:17.03100,r:3.6,open:1,t:"open",  zone:"sspp_a",free:0,spots:25, price:{h1v:7,h1:"7 zł",h24:"—",note:"Przy Rynku – bardzo drogi, małe szanse na miejsce"},payHours:"Pn–nd 9:00–20:00"},
-  {n:"Parking ul. Piotra Skargi",       a:"ul. Piotra Skargi",                  lat:51.10500,lng:17.03650,r:3.7,open:1,t:"open",  zone:"sspp_b",free:0,spots:35, price:{h1v:5,h1:"5 zł",h24:"—",note:"Południe centrum – Strefa B"},payHours:"Pn–nd 9:00–20:00"},
-  {n:"Parking ul. Boduena",             a:"ul. Aleksandra Boduena",             lat:51.09950,lng:17.04850,r:3.5,open:1,t:"open",  zone:"sspp_b",free:0,spots:30, price:{h1v:5,h1:"5 zł",h24:"—",note:"Okolice ul. Kościuszki"},payHours:"Pn–nd 9:00–20:00"},
-  {n:"Parking Przy Moście Grunwaldzkim",a:"al. Grunwaldzka / Most",             lat:51.10720,lng:17.05500,r:3.8,open:1,t:"open",  zone:"sspp_b",free:0,spots:45, price:{h1v:5,h1:"5 zł",h24:"—",note:"Przy moście Grunwaldzkim, blisko Politechniki"},payHours:"Pn–nd 9:00–20:00"},
-  {n:"Parking Kępa Mieszczańska",       a:"ul. Na Kępie Mieszczańskiej",        lat:51.11780,lng:17.04850,r:4.2,open:1,t:"open",  zone:null,  free:1,spots:70, price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNY – wyspa na Odrze, piękna okolica"},payHours:"Bezpłatne zawsze"},
-  {n:"Parking Wyspa Słodowa",           a:"ul. Wyspa Słodowa",                  lat:51.11550,lng:17.03700,r:4.0,open:1,t:"open",  zone:null,  free:1,spots:30, price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNY – przy plaży miejskiej"},payHours:"Bezpłatne zawsze"},
-  {n:"Parking ul. Bogusławskiego",      a:"ul. Bogusławskiego",                 lat:51.10350,lng:17.04400,r:3.6,open:1,t:"open",  zone:"sspp_b",free:0,spots:35, price:{h1v:5,h1:"5 zł",h24:"—",note:"Przy Bibliotece Ossolineum"},payHours:"Pn–nd 9:00–20:00"},
-  {n:"Parking Muzeum Narodowe",         a:"pl. Powstańców Warszawy 5",          lat:51.10650,lng:17.03900,r:3.9,open:1,t:"open",  zone:"sspp_b",free:0,spots:50, price:{h1v:5,h1:"5 zł",h24:"—",note:"Przy Muzeum Narodowym i Panoramie Racławickiej"},payHours:"Pn–nd 9:00–20:00"},
-  {n:"Parking Śródmiejska 14",          a:"ul. Śródmiejska 14",                 lat:51.09780,lng:17.03780,r:3.5,open:1,t:"open",  zone:"sspp_b",free:0,spots:25, price:{h1v:5,h1:"5 zł",h24:"—",note:"Południe centrum"},payHours:"Pn–nd 9:00–20:00"},
-  {n:"Parking ul. Świętego Wincentego", a:"ul. Świętego Wincentego",            lat:51.12580,lng:17.05200,r:3.6,open:1,t:"open",  zone:"spp",  free:0,spots:40, price:{h1v:3,h1:"3 zł",h24:"—",note:"Dzielnica Nadodrze – weekendy bezpłatne"},payHours:"Pn–pt 9:00–18:00"},
-  {n:"Parking Plac Jana Pawła II",      a:"pl. Jana Pawła II",                  lat:51.09600,lng:17.02050,r:4.0,open:1,t:"open",  zone:"spp",  free:0,spots:80, price:{h1v:3,h1:"3 zł",h24:"—",note:"Duży plac, blisko centrum – weekendy bezpłatne"},payHours:"Pn–pt 9:00–18:00"},
-  {n:"Parking ul. Armii Krajowej",      a:"ul. Armii Krajowej",                 lat:51.09200,lng:17.02400,r:3.5,open:1,t:"open",  zone:"spp",  free:0,spots:50, price:{h1v:3,h1:"3 zł",h24:"—",note:"SPP – weekendy bezpłatne"},payHours:"Pn–pt 9:00–18:00"},
-  {n:"Parking Gajowicka Park",          a:"ul. Gajowicka 10",                   lat:51.09050,lng:17.01800,r:3.7,open:1,t:"open",  zone:null,  free:1,spots:60, price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNY – poza strefą"},payHours:"Bezpłatne zawsze"},
-  {n:"Parking ul. Zielińskiego (darmowy)",a:"ul. Zielińskiego boczna",          lat:51.10020,lng:17.02250,r:3.8,open:1,t:"open",  zone:null,  free:1,spots:45, price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNY – poza strefą płatną"},payHours:"Bezpłatne zawsze"},
-  {n:"Parking os. Powstańców Śl.",      a:"os. Powstańców Śląskich",            lat:51.09100,lng:16.98800,r:3.6,open:1,t:"open",  zone:null,  free:1,spots:80, price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNY – osiedle mieszkaniowe"},payHours:"Bezpłatne zawsze"},
-  {n:"Parking Psie Pole centrum",       a:"ul. Kiełczowska",                    lat:51.15800,lng:17.08400,r:3.5,open:1,t:"open",  zone:null,  free:1,spots:70, price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNY – dzielnica Psie Pole"},payHours:"Bezpłatne zawsze"},
-  {n:"Parking Krzyki centrum",          a:"ul. Hallera",                        lat:51.08200,lng:17.03800,r:3.6,open:1,t:"open",  zone:null,  free:1,spots:60, price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNY – dzielnica Krzyki"},payHours:"Bezpłatne zawsze"},
-  {n:"Parking Fabryczna / Nowy Dwór",   a:"ul. Długosza",                       lat:51.10050,lng:16.96200,r:3.7,open:1,t:"open",  zone:null,  free:1,spots:90, price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNY – dzielnica Fabryczna"},payHours:"Bezpłatne zawsze"},
-
-  // ── GALERIE DODATKOWE ──
-  {n:"Parking Biedronka Grabiszyńska",  a:"ul. Grabiszyńska 40",                lat:51.09450,lng:16.99800,r:3.8,open:0,t:"mall",  zone:null,  free:0,spots:80, price:{h1v:0,h1:"0 zł*",h24:"—",note:"✅ BEZPŁATNY przy zakupach. Poza zakupami opłata"},payHours:"Czynny w godz. sklepu"},
-  {n:"Parking Ikea Wrocław",            a:"ul. Długosza 2–4",                   lat:51.10530,lng:16.95120,r:4.2,open:0,t:"mall",  zone:null,  free:1,spots:800,price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNY – ogromny parking IKEA"},payHours:"Czynny w godz. sklepu"},
-  {n:"Parking Obi Długosza",            a:"ul. Długosza 5",                     lat:51.10800,lng:16.95800,r:3.9,open:0,t:"mall",  zone:null,  free:1,spots:250,price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNY"},payHours:"Czynny w godz. sklepu"},
-  {n:"Parking Leroy Merlin Maślice",    a:"ul. Stargardzka 8",                  lat:51.12600,lng:16.87500,r:3.8,open:0,t:"mall",  zone:null,  free:1,spots:300,price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNY – przy hipermarkecie"},payHours:"Czynny w godz. sklepu"},
-  {n:"Parking Kaufland Ślężna",         a:"ul. Ślężna 118",                     lat:51.08600,lng:17.01500,r:3.7,open:0,t:"mall",  zone:null,  free:1,spots:200,price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNY przy zakupach"},payHours:"Czynny w godz. sklepu"},
-  {n:"Parking Auchan Bielany",          a:"ul. Wrocławska 15, Bielany Wrocł.",  lat:51.16200,lng:16.98800,r:4.0,open:0,t:"mall",  zone:null,  free:1,spots:1500,price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNY – ogromne centrum handlowe"},payHours:"Czynny w godz. galerii"},
-  {n:"Parking Centrum Olimpia",         a:"ul. Góralska 5",                     lat:51.10200,lng:16.93500,r:3.8,open:0,t:"mall",  zone:null,  free:1,spots:600,price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNY przy zakupach"},payHours:"Czynny w godz. galerii"},
-  {n:"Parking Brama Oławska (Dino)",    a:"ul. Oławska / Świdnicka",            lat:51.10450,lng:17.04150,r:3.5,open:0,t:"mall",  zone:null,  free:0,spots:30, price:{h1v:4,h1:"4 zł",h24:"—",note:"Mały parking przy centrum usługowym"},payHours:"Czynny w godz. sklepu"},
-  {n:"Parking Wzgórze Partyzantów",     a:"ul. Partyzantów (galeria)",          lat:51.10220,lng:17.01450,r:3.9,open:0,t:"mall",  zone:null,  free:0,spots:180,price:{h1v:0,h1:"0 zł*",h24:"—",note:"Bezpłatny 90 min przy zakupach"},payHours:"Czynny w godz. galerii"},
-
-  // ── STRZEŻONE DODATKOWE ──
-  {n:"Parking strzeżony Legnicka",      a:"ul. Legnicka 55",                    lat:51.11200,lng:16.99100,r:4.0,open:1,t:"private",zone:null,  free:0,spots:70, price:{h1v:5,h1:"5 zł",h24:"40 zł",note:"Całodobowy monitoring, ochroniarz w dzień"},payHours:"Czynny 24/7"},
-  {n:"Parking strzeżony Pilczyce",      a:"ul. Pilczycka 42",                   lat:51.12200,lng:16.97200,r:3.9,open:1,t:"private",zone:null,  free:0,spots:50, price:{h1v:4,h1:"4 zł",h24:"35 zł",note:"Tani parking strzeżony na zachodzie"},payHours:"Czynny 24/7"},
-  {n:"Parking strzeżony Stabłowice",    a:"ul. Stabłowicka 100",                lat:51.12800,lng:16.89500,r:3.7,open:1,t:"private",zone:null,  free:0,spots:80, price:{h1v:3,h1:"3 zł",h24:"28 zł",note:"Zachód Wrocławia, blisko autostrady A8"},payHours:"Czynny 24/7"},
-  {n:"Parking lotniskowy AirPark",      a:"ul. Lotnicza 12",                    lat:51.11100,lng:16.87200,r:4.3,open:1,t:"private",zone:null,  free:0,spots:300,price:{h1v:0,h1:"—",h24:"29 zł",note:"Transfer do lotniska gratis! Rezerwacja online – taniej. Oceniany wysoko"},payHours:"Czynny 24/7"},
-  {n:"Parking OK Park Lotnisko",        a:"ul. Graniczna 188",                  lat:51.11450,lng:16.87100,r:4.1,open:1,t:"private",zone:null,  free:0,spots:150,price:{h1v:0,h1:"—",h24:"25 zł",note:"Tani parking lotniskowy z transferem"},payHours:"Czynny 24/7"},
-  {n:"Parking Wrocław Główny (PKS)",    a:"ul. Sucha 11 (PKS)",                 lat:51.09540,lng:17.03250,r:3.5,open:1,t:"private",zone:null,  free:0,spots:100,price:{h1v:4,h1:"4 zł",h24:"35 zł",note:"Przy dworcu PKS, całodobowy"},payHours:"Czynny 24/7"},
-  {n:"Parking strzeżony Bałtycka",      a:"ul. Bałtycka 10",                    lat:51.13500,lng:17.06800,r:3.7,open:1,t:"private",zone:null,  free:0,spots:60, price:{h1v:4,h1:"4 zł",h24:"32 zł",note:"Parking strzeżony na Sępolnie"},payHours:"Czynny 24/7"},
-
-  // ── PARKINGI DZIELNICOWE I OSIEDLOWE ──
-  {n:"Parking Centrum Handl. Borek",    a:"ul. Hallera 52",                     lat:51.07850,lng:17.03650,r:3.8,open:0,t:"mall",  zone:null,  free:1,spots:400,price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNY – CH Borek, duże centrum na południu"},payHours:"Czynny w godz. galerii"},
-  {n:"Parking os. Kozanów",             a:"ul. Kozanowska 85",                  lat:51.11800,lng:16.92500,r:3.5,open:1,t:"open",  zone:null,  free:1,spots:120,price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNY – duże osiedle na zachodzie"},payHours:"Bezpłatne zawsze"},
-  {n:"Parking os. Gaj",                 a:"ul. Orzechowa",                      lat:51.07800,lng:17.05800,r:3.5,open:1,t:"open",  zone:null,  free:1,spots:80, price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNY – os. Gaj na południu"},payHours:"Bezpłatne zawsze"},
-  {n:"Parking Szpital Wojewódzki",      a:"ul. Borowska 213",                   lat:51.07200,lng:17.02700,r:3.6,open:1,t:"open",  zone:null,  free:0,spots:150,price:{h1v:3,h1:"3 zł",h24:"—",note:"Parking przy szpitalu – pierwsze 20 min bezpłatne"},payHours:"Czynny całą dobę"},
-  {n:"Parking Szpital im. Babińskiego", a:"ul. Babińskiego 29",                 lat:51.12100,lng:16.92800,r:3.5,open:1,t:"open",  zone:null,  free:0,spots:100,price:{h1v:2,h1:"2 zł",h24:"—",note:"Parking szpitalny"},payHours:"Czynny całą dobę"},
-  {n:"Parking Politechniki Wrocław.",   a:"pl. Grunwaldzki 13 (PWr)",           lat:51.10800,lng:17.06100,r:3.8,open:1,t:"open",  zone:"sspp_b",free:0,spots:80, price:{h1v:5,h1:"5 zł",h24:"—",note:"Parking uczelniany – dostępny publicznie w weekendy"},payHours:"Pn–nd 9:00–20:00"},
-  {n:"Parking UWr Plac Grunwaldzki",    a:"pl. Grunwaldzki 24 (UWr)",           lat:51.10950,lng:17.05900,r:3.7,open:1,t:"open",  zone:"sspp_b",free:0,spots:60, price:{h1v:5,h1:"5 zł",h24:"—",note:"Parking Uniwersytetu Wrocławskiego"},payHours:"Pn–nd 9:00–20:00"},
-  {n:"Parking AWF Wrocław",             a:"ul. Paderewskiego 35",               lat:51.10380,lng:17.07250,r:3.6,open:1,t:"open",  zone:null,  free:1,spots:120,price:{h1v:0,h1:"0 zł",h24:"0 zł",note:"✅ BEZPŁATNY – przy AWF, dużo miejsca"},payHours:"Bezpłatne zawsze"},
-  {n:"Parking Tarczyński Arena",        a:"al. Śląska 1 (Stadion)",             lat:51.13900,lng:16.94400,r:4.0,open:0,t:"open",  zone:null,  free:0,spots:2000,price:{h1v:0,h1:"20 zł",h24:"20 zł",note:"Płatny tylko podczas meczów i eventów. Normalnie bezpłatny"},payHours:"Tylko podczas eventów"},
-  {n:"Parking Aquapark Wrocław",        a:"ul. Borowska 99",                    lat:51.08200,lng:17.01900,r:4.1,open:0,t:"mall",  zone:null,  free:0,spots:300,price:{h1v:3,h1:"3 zł",h24:"—",note:"2h bezpłatnie przy bilecie do Aquaparku"},payHours:"Czynny w godz. aquaparku"},
-  {n:"Parking Centrum Kongresowe",      a:"ul. Wystawowa 1 (Hala Stulecia)",    lat:51.10460,lng:17.07560,r:3.8,open:1,t:"open",  zone:null,  free:0,spots:500,price:{h1v:5,h1:"5 zł",h24:"—",note:"Przy Hali Stulecia i ZOO – ceny rosną podczas eventów"},payHours:"Czynny całą dobę"},
-  {n:"Parking Ogród Botaniczny",        a:"ul. Kanonia 6–7",                    lat:51.11350,lng:17.05150,r:4.2,open:1,t:"open",  zone:"sspp_b",free:0,spots:40, price:{h1v:5,h1:"5 zł",h24:"—",note:"Przy Ogrodzie Botanicznym UWr"},payHours:"Pn–nd 9:00–20:00"},
 ];
 
 // Kolory, ikony, etykiety
@@ -1302,7 +1197,10 @@ function mkPopup(p, i, isCustom) {
     ${priceBlock}
     ${calcHtml}
     <div style="display:flex;gap:5px;margin-bottom:5px">
-      <button class="pu-nav-btn" style="flex:1" onclick="startNavigation(${p.lat}, ${p.lng}, '${p.n.replace(/'/g,"\\'")}')">🧭 Nawiguj</button>
+      ${isPremium()
+        ? `<button class="pu-nav-btn" style="flex:1" onclick="startNavigation(${p.lat}, ${p.lng}, '${p.n.replace(/'/g,"\\'")}')">🧭 Nawiguj</button>`
+        : `<button class="nav-locked-btn" style="flex:1" onclick="openPayGate({lat:${p.lat},lng:${p.lng},name:'${p.n.replace(/'/g,"\\'")}'})" title="Wymagany dostęp Premium">🔒 Nawiguj – Premium 9,99 zł</button>`
+      }
       ${compareHtml}
     </div>
     <a class="pu-btn" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}&travelmode=driving" target="_blank" style="background:rgba(71,200,255,.12);color:var(--a2);border:1px solid rgba(71,200,255,.3);margin-bottom:5px;display:block;text-align:center;padding:7px;border-radius:8px;text-decoration:none;font-weight:700;font-size:.73rem">🗺 Google Maps →</a>
@@ -1598,11 +1496,36 @@ async function loadUserParkings() {
     const snap = await getDocs(q);
     const loaded = [];
     snap.forEach(d => loaded.push({ ...d.data(), _docId: d.id, t: 'custom' }));
-    ALL = [...BUILT_IN, ...loaded];
+    // Załaduj też zatwierdzone publiczne parkingi innych użytkowników
+    await loadApprovedPublicParkings(loaded);
+  } catch(e) { console.error('Błąd ładowania parkingów:', e); }
+}
+
+async function loadApprovedPublicParkings(userOwn = null) {
+  try {
+    const { collection, getDocs, query, where } = window._fbFns;
+    // Pobierz własne parkingi jeśli nie podano
+    let ownList = userOwn;
+    if (!ownList && currentUser) {
+      const q2 = query(collection(window._fbDb, 'parkings'), where('uid', '==', currentUser.uid));
+      const s2 = await getDocs(q2);
+      ownList = [];
+      s2.forEach(d => ownList.push({ ...d.data(), _docId: d.id, t: 'custom' }));
+    }
+    // Zatwierdzone publiczne od innych
+    const qPub = query(collection(window._fbDb, 'parkings'), where('status', '==', 'approved'), where('visibility', '==', 'public'));
+    const snapPub = await getDocs(qPub);
+    const approved = [];
+    snapPub.forEach(d => {
+      if (!currentUser || d.data().uid !== currentUser.uid) {
+        approved.push({ ...d.data(), _docId: d.id, t: 'custom' });
+      }
+    });
+    ALL = [...BUILT_IN, ...(ownList || []), ...approved];
     buildMarkers();
     render(document.getElementById('search').value.toLowerCase());
     document.getElementById('hc').textContent = ALL.length;
-  } catch(e) { console.error('Błąd ładowania parkingów:', e); }
+  } catch(e) { console.error('Błąd ładowania publicznych parkingów:', e); }
 }
 
 async function saveToFirestore(parkingData) {
@@ -1675,22 +1598,40 @@ document.getElementById('saveBtn').onclick=async()=>{
   const h1=document.getElementById('f-price').value.trim();
   const note=document.getElementById('f-note').value.trim();
   const r=parseFloat(document.getElementById('f-rating').value)||0;
-  const newP={n:name,a:document.getElementById('f-addr').value.trim()||'Wrocław',lat,lng,r:r||null,open:parseInt(document.getElementById('f-open').value),t:'custom',zone:zone||null,free:zone==='free'?1:0,price:{h1:h1||'—',h24:'—',note:note||''}};
+  const visibility = document.querySelector('input[name="f-vis"]:checked')?.value || 'private';
+  const status = visibility === 'public' ? 'pending' : 'private'; // pending = czeka na admina
+  const newP={n:name,a:document.getElementById('f-addr').value.trim()||'Wrocław',lat,lng,r:r||null,open:parseInt(document.getElementById('f-open').value),t:'custom',zone:zone||null,free:zone==='free'?1:0,price:{h1:h1||'—',h24:'—',note:note||''},visibility,status};
   const btn=document.getElementById('saveBtn');
   btn.textContent='Zapisywanie...'; btn.disabled=true;
   try {
     const docId = await saveToFirestore(newP);
     newP._docId = docId;
-    ALL.push({...newP, t:'custom'});
-    buildMarkers(); render(document.getElementById('search').value.toLowerCase());
-    document.getElementById('hc').textContent=ALL.length;
+    // Prywatne parkingi widoczne od razu, publiczne pending – nie dodawaj do mapy
+    if (visibility === 'private') {
+      ALL.push({...newP, t:'custom'});
+      buildMarkers(); render(document.getElementById('search').value.toLowerCase());
+      document.getElementById('hc').textContent=ALL.length;
+    }
     overlay.classList.add('hidden'); clearF();
-    setTimeout(()=>activate(ALL.length-1),300);
+    if (visibility === 'public') {
+      showSuccessToast('📬 Parking wysłany do zatwierdzenia przez admina!', '#47c8ff');
+    } else {
+      showSuccessToast('✅ Parking dodany jako prywatny!', '#47ffb0');
+      setTimeout(()=>activate(ALL.length-1),300);
+    }
   } catch(e) { alert('Błąd zapisu: '+e.message); }
   finally { btn.textContent='💾 Zapisz parking'; btn.disabled=false; }
 };
 
-function clearF(){['f-name','f-addr','f-price','f-note','f-lat','f-lng','f-rating'].forEach(id=>document.getElementById(id).value='');document.getElementById('f-type').value='open';document.getElementById('f-zone').value='';document.getElementById('f-open').value='1';}
+function showSuccessToast(msg, color='#47ffb0') {
+  const t = document.createElement('div');
+  t.style.cssText = `position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:9999;background:${color};color:#000;font-weight:800;font-size:.8rem;padding:11px 22px;border-radius:30px;box-shadow:0 4px 20px ${color}66;white-space:nowrap`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+function clearF(){['f-name','f-addr','f-price','f-note','f-lat','f-lng','f-rating'].forEach(id=>document.getElementById(id).value='');document.getElementById('f-type').value='open';document.getElementById('f-zone').value='';document.getElementById('f-open').value='1';const r=document.getElementById('f-vis-private');if(r)r.checked=true;updateVisInfo();}
 
 // ══════════════════════════════════════════════════════
 // NAWIGACJA – GEOLOKALIZACJA + LEAFLET ROUTING
@@ -1801,7 +1742,11 @@ function locateMe() {
 }
 
 function startNavigation(destLat, destLng, destName) {
-  pendingNavDest = { lat: destLat, lng: destLng, name: destName };
+  // Sprawdź dostęp premium (admin zawsze ma)
+  if (!isPremium()) {
+    openPayGate({ lat: destLat, lng: destLng, name: destName });
+    return;
+  }
 
   if (!isGeoAvailable()) {
     showGeoToast(
@@ -1828,60 +1773,10 @@ function startNavigation(destLat, destLng, destName) {
       }).addTo(map).bindTooltip('📍 Twoja lokalizacja', {permanent: false});
       _buildRoute(lat, lng, destLat, destLng, destName);
       if (watchId) navigator.geolocation.clearWatch(watchId);
-
-      // ── KAMERA JAK GOOGLE MAPS — przechylona perspektywa ──
-      if (userLocationMarker) map.removeLayer(userLocationMarker);
-      userLocationMarker = _makeNavArrowMarker(lat, lng, 0);
-
-      let _lastBearing = 0;
-      let _lastLat = lat, _lastLng = lng;
-      window._navCamLocked = true;
-
-      // Wstrzyknij przycisk "wróć do mnie" + panel perspektywy
-      _injectNavCameraUI();
-
-      // Pierwsza kamera — od razu pochyl i wycentruj
-      _applyNavCamera(lat, lng, 0);
-
-      map.on('dragstart.nav', () => {
-        window._navCamLocked = false;
-        _updateRecenterBtn(true); // pokaż przycisk
-      });
-
       watchId = navigator.geolocation.watchPosition(p2 => {
-        const newLat = p2.coords.latitude;
-        const newLng = p2.coords.longitude;
-        userLocation = [newLat, newLng];
-
-        const bearing = (p2.coords.heading != null && !isNaN(p2.coords.heading) && p2.coords.heading >= 0)
-          ? p2.coords.heading
-          : _calcBearing(_lastLat, _lastLng, newLat, newLng);
-
-        const moved = _haverM(_lastLat, _lastLng, newLat, newLng);
-        if (moved > 1) { _lastLat = newLat; _lastLng = newLng; }
-        if (!isNaN(bearing) && bearing >= 0) _lastBearing = bearing;
-
-        // Przesuń strzałkę
-        if (userLocationMarker) {
-          userLocationMarker.setLatLng([newLat, newLng]);
-          _setMarkerRotation(userLocationMarker, _lastBearing);
-        }
-
-        // Kamera podąża (jeśli nie odblokowana przez użytkownika)
-        if (window._navCamLocked) {
-          _applyNavCamera(newLat, newLng, _lastBearing);
-        }
-
-      }, null, { enableHighAccuracy: true, maximumAge: 1000, timeout: 15000 });
-
-      // Kompas telefonu
-      _startCompass(heading => {
-        _lastBearing = heading;
-        if (userLocationMarker) _setMarkerRotation(userLocationMarker, heading);
-        if (window._navCamLocked && userLocation) {
-          _applyNavCamera(userLocation[0], userLocation[1], heading);
-        }
-      });
+        userLocation = [p2.coords.latitude, p2.coords.longitude];
+        if (userLocationMarker) userLocationMarker.setLatLng(userLocation);
+      }, null, { enableHighAccuracy: true });
     },
     err => {
       btn.classList.remove('locating');
@@ -1972,12 +1867,6 @@ async function _buildRoute(fromLat, fromLng, toLat, toLng, name) {
         document.getElementById('navDist').textContent = (d.routes[0].distance/1000).toFixed(1);
         document.getElementById('navTime').textContent = Math.round(d.routes[0].duration/60);
         document.getElementById('navDestMeta').textContent = 'Trasa po drogach • samochodem';
-        // Zapisz kroki nawigacji i uruchom TBT
-        _navStepsData = _extractOSRMSteps(d.routes[0]);
-        _navStepIdx = 0;
-        _announcedSet.clear();
-        _showTurnStep(0);
-        _speakNav('Rozpoczynam nawigację');
         return;
       }
     }
@@ -2000,11 +1889,6 @@ async function _buildRoute(fromLat, fromLng, toLat, toLng, name) {
         document.getElementById('navDist').textContent = d.trip.summary.length.toFixed(1);
         document.getElementById('navTime').textContent = Math.round(d.trip.summary.time/60);
         document.getElementById('navDestMeta').textContent = 'Trasa po drogach • samochodem';
-        _navStepsData = _extractValhallaSteps(d.trip);
-        _navStepIdx = 0;
-        _announcedSet.clear();
-        _showTurnStep(0);
-        _speakNav('Rozpoczynam nawigację');
         return;
       }
     }
@@ -2044,116 +1928,44 @@ function setReviewStar(parkingId, val) {
   });
 }
 
-// Kolory awatarów — hash z nicku
-function _nickColor(nick) {
-  let h = 0;
-  for (let i = 0; i < nick.length; i++) h = nick.charCodeAt(i) + (h << 5) - h;
-  const palette = ['#e74c3c','#3498db','#2ecc71','#9b59b6','#f39c12','#1abc9c','#e67e22','#e91e63','#00bcd4','#ff5722'];
-  return palette[Math.abs(h) % palette.length];
-}
-
 async function loadReviews(parkingId) {
   if (!window._fbDb || !window._fbFns) { setTimeout(() => loadReviews(parkingId), 300); return; }
   const listEl = document.getElementById('reviewList_' + parkingId);
   if (!listEl) return;
   try {
-    // Tylko where — bez orderBy żeby nie wymagać złożonego indeksu Firestore
-    const { collection, getDocs, query, where } = window._fbFns;
-    const q = query(collection(window._fbDb, 'reviews'), where('parkingId', '==', parkingId));
+    const { collection, getDocs, query, orderBy, limit, where } = window._fbFns;
+    const q = query(collection(window._fbDb, 'reviews'), where('parkingId', '==', parkingId), orderBy('createdAt', 'desc'), limit(20));
     const snap = await getDocs(q);
     const reviews = [];
     snap.forEach(d => reviews.push({ id: d.id, ...d.data() }));
-
-    // Sortujemy po stronie klienta — od najnowszych
-    reviews.sort((a, b) => {
-      const ta = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt?.seconds || 0) * 1000;
-      const tb = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt?.seconds || 0) * 1000;
-      return tb - ta;
-    });
-    const top20 = reviews.slice(0, 20);
-
     const countEl = document.getElementById('reviewCount_' + parkingId);
-    if (countEl) countEl.textContent = top20.length ? `(${top20.length})` : '';
-
-    if (!top20.length) {
+    if (countEl) countEl.textContent = reviews.length ? `(${reviews.length})` : '';
+    if (!reviews.length) {
       listEl.innerHTML = '<div class="no-reviews">Brak opinii. Bądź pierwszy!</div>';
       return;
     }
-
-    // Średnia ocena
-    const avg = (top20.reduce((s, r) => s + (r.rating || 0), 0) / top20.length).toFixed(1);
+    // calc avg
+    const avg = (reviews.reduce((s,r) => s + (r.rating||0), 0) / reviews.length).toFixed(1);
     const avgEl = document.getElementById('avgRating_' + parkingId);
     if (avgEl) avgEl.textContent = `★ ${avg}`;
-
-    listEl.innerHTML = top20.map(r => {
-      const nick = r.authorName || 'Anonim';
-      const initial = nick.charAt(0).toUpperCase();
-      const color = _nickColor(nick);
-      const stars = '★'.repeat(r.rating || 0) + '<span style="color:var(--border)">' + '☆'.repeat(5 - (r.rating || 0)) + '</span>';
-      const dateStr = r.createdAt?.toDate
-        ? r.createdAt.toDate().toLocaleDateString('pl-PL', { day: '2-digit', month: 'short', year: 'numeric' })
-        : 'Przed chwilą';
-      return `
+    listEl.innerHTML = reviews.map(r => `
       <div class="review-item">
-        <div class="review-top" style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
-          <div style="width:32px;height:32px;border-radius:50%;background:${color};color:#fff;font-weight:800;
-            font-size:.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0">${initial}</div>
-          <div style="flex:1;min-width:0">
-            <div style="display:flex;align-items:center;justify-content:space-between">
-              <span class="review-author" style="font-weight:700;font-size:.78rem">${escHtml(nick)}</span>
-              <span style="color:#ffd700;font-size:.8rem">${stars}</span>
-            </div>
-            <div class="review-date" style="font-size:.61rem;color:var(--muted)">${dateStr}</div>
-          </div>
+        <div class="review-top">
+          <span class="review-author">${escHtml(r.authorName||'Anonim')}</span>
+          <span class="review-stars">${'★'.repeat(r.rating||0)}${'☆'.repeat(5-(r.rating||0))}</span>
         </div>
         ${r.text ? `<div class="review-text">${escHtml(r.text)}</div>` : ''}
-      </div>`;
-    }).join('');
-
+        <div class="review-date">${r.createdAt?.toDate ? r.createdAt.toDate().toLocaleDateString('pl-PL') : ''}</div>
+      </div>
+    `).join('');
   } catch(e) {
-    console.error('Błąd ładowania opinii:', e.code, e.message);
     if (e.code === 'permission-denied' || (e.message && e.message.includes('permission'))) {
-      listEl.innerHTML = '<div class="no-reviews">⚠️ Zaktualizuj reguły Firestore – brak dostępu do opinii.</div>';
-    } else if (e.code === 'failed-precondition' || (e.message && e.message.includes('index'))) {
-      // Brakujący indeks — pobierz bez filtra i filtruj lokalnie
-      _loadReviewsFallback(parkingId, listEl);
+      console.warn('Firestore permissions – opinie niedostępne:', e.code);
+      if (listEl) listEl.innerHTML = '<div class="no-reviews">⚠️ Brak uprawnień do odczytu opinii.<br><small style="color:var(--muted)">Zaktualizuj reguły Firestore.</small></div>';
     } else {
-      listEl.innerHTML = '<div class="no-reviews">Błąd ładowania opinii.</div>';
+      console.error('Błąd ładowania opinii:', e);
+      if (listEl) listEl.innerHTML = '<div class="no-reviews">Błąd ładowania opinii.</div>';
     }
-  }
-}
-
-// Fallback gdy Firestore zwraca błąd indeksu — pobierz wszystko i filtruj lokalnie
-async function _loadReviewsFallback(parkingId, listEl) {
-  try {
-    const { collection, getDocs } = window._fbFns;
-    const snap = await getDocs(collection(window._fbDb, 'reviews'));
-    const reviews = [];
-    snap.forEach(d => { const r = d.data(); if (r.parkingId === parkingId) reviews.push({ id: d.id, ...r }); });
-    reviews.sort((a, b) => {
-      const ta = a.createdAt?.seconds || 0;
-      const tb = b.createdAt?.seconds || 0;
-      return tb - ta;
-    });
-    if (!reviews.length) { listEl.innerHTML = '<div class="no-reviews">Brak opinii. Bądź pierwszy!</div>'; return; }
-    const avg = (reviews.reduce((s, r) => s + (r.rating || 0), 0) / reviews.length).toFixed(1);
-    const avgEl = document.getElementById('avgRating_' + parkingId);
-    if (avgEl) avgEl.textContent = `★ ${avg}`;
-    listEl.innerHTML = reviews.slice(0, 20).map(r => {
-      const nick = r.authorName || 'Anonim';
-      const color = _nickColor(nick);
-      const stars = '★'.repeat(r.rating||0) + '☆'.repeat(5-(r.rating||0));
-      const dateStr = r.createdAt?.toDate ? r.createdAt.toDate().toLocaleDateString('pl-PL') : '';
-      return `<div class="review-item">
-        <div class="review-top" style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
-          <div style="width:32px;height:32px;border-radius:50%;background:${color};color:#fff;font-weight:800;font-size:.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0">${nick.charAt(0).toUpperCase()}</div>
-          <div style="flex:1"><div style="display:flex;justify-content:space-between"><span class="review-author">${escHtml(nick)}</span><span style="color:#ffd700;font-size:.8rem">${stars}</span></div><div class="review-date">${dateStr}</div></div>
-        </div>
-        ${r.text ? `<div class="review-text">${escHtml(r.text)}</div>` : ''}
-      </div>`;
-    }).join('');
-  } catch(e2) {
-    listEl.innerHTML = '<div class="no-reviews">Nie można załadować opinii.</div>';
   }
 }
 
@@ -2216,37 +2028,17 @@ rules_version = '2';<br>service cloud.firestore {<br>
 // ══════════════════════════════════════════════════════
 // ZDJĘCIA – GALERIA (mapa + zdjęcia tematyczne)
 // ══════════════════════════════════════════════════════
-// Nawigacja galerii Street View — strzałki ‹ ›
-window._photoNav = function(parkingId, dir, total) {
-  const gallery = document.getElementById('gallery_' + parkingId);
+window.switchPhotoSlide = function(parkingId, slideKey, thumbEl) {
+  // Ukryj wszystkie slajdy
+  const gallery = thumbEl?.closest?.('.photo-gallery');
   if (!gallery) return;
-  let cur = parseInt(gallery.dataset.current || '0');
-  // Szukaj następnego widocznego slajdu
-  let next = (cur + dir + total) % total;
-  let tries = 0;
-  while (tries < total) {
-    const slide = document.getElementById(`slide_${next}_${parkingId}`);
-    if (slide && slide.style.display !== 'none') break;
-    next = (next + dir + total) % total;
-    tries++;
-  }
-  // Ukryj aktualny, pokaż nowy
-  const curSlide = document.getElementById(`slide_${cur}_${parkingId}`);
-  if (curSlide) curSlide.style.display = 'none';
-  const nextSlide = document.getElementById(`slide_${next}_${parkingId}`);
-  if (nextSlide) nextSlide.style.display = 'block';
-  gallery.dataset.current = next;
-  const cnt = document.getElementById('photoCnt_' + parkingId);
-  if (cnt) cnt.textContent = `${next + 1} / ${total}`;
-};
-
-window._showNextSlide = function(parkingId, failedIdx) {
-  const gallery = document.getElementById('gallery_' + parkingId);
-  if (!gallery) return;
-  const total = gallery.querySelectorAll('.photo-slide').length;
-  const next = (failedIdx + 1) % total;
-  const nextSlide = document.getElementById(`slide_${next}_${parkingId}`);
-  if (nextSlide) { nextSlide.style.display = 'block'; gallery.dataset.current = next; }
+  gallery.querySelectorAll('.photo-slide').forEach(s => s.style.display = 'none');
+  // Pokaż wybrany
+  const target = document.getElementById(`slide_${slideKey}_${parkingId}`);
+  if (target) target.style.display = 'block';
+  // Zaktualizuj aktywną miniaturę
+  gallery.querySelectorAll('.photo-thumb').forEach(t => t.classList.remove('active'));
+  if (thumbEl) thumbEl.classList.add('active');
 };
 
 // ══════════════════════════════════════════════════════
@@ -2360,8 +2152,105 @@ document.getElementById('cmpOverlay').addEventListener('click', e => {
 });
 
 
+// ══════════════════════════════════════════════════════
+// SYSTEM PŁATNOŚCI – Premium 9,99 zł
+// ══════════════════════════════════════════════════════
+function isPremium() {
+  if (isAdmin) return true; // admin ma zawsze dostęp
+  return localStorage.getItem('smartpark_premium') === '1';
+}
+
+let _pendingNavAfterPay = null; // {lat, lng, name} – czekający cel nawigacji
+
+function openPayGate(pendingNav) {
+  _pendingNavAfterPay = pendingNav || null;
+  document.getElementById('payGate').classList.remove('hidden');
+  document.getElementById('payForm').classList.remove('show');
+  document.getElementById('payProcessing').style.display = 'none';
+  document.getElementById('payConfirmBtn').style.display = 'block';
+}
+
+function closePayGate() {
+  document.getElementById('payGate').classList.add('hidden');
+  _pendingNavAfterPay = null;
+}
+
+function showPayForm() {
+  document.getElementById('payForm').classList.add('show');
+}
+
+function formatCard(el) {
+  let v = el.value.replace(/\D/g,'').substring(0,16);
+  el.value = v.replace(/(.{4})/g,'$1 ').trim();
+}
+function formatExp(el) {
+  let v = el.value.replace(/\D/g,'');
+  if (v.length >= 2) v = v.substring(0,2)+'/'+v.substring(2,4);
+  el.value = v;
+}
+
+async function processPayment() {
+  const card = document.getElementById('pay-card').value.replace(/\s/g,'');
+  const exp  = document.getElementById('pay-exp').value;
+  const cvv  = document.getElementById('pay-cvv').value;
+  const name = document.getElementById('pay-name').value.trim();
+  if (card.length < 16) { alert('Podaj poprawny numer karty (16 cyfr).'); return; }
+  if (exp.length < 5)   { alert('Podaj datę ważności (MM/RR).'); return; }
+  if (cvv.length < 3)   { alert('Podaj CVV (3 cyfry).'); return; }
+  if (!name)            { alert('Podaj imię i nazwisko.'); return; }
+
+  document.getElementById('payConfirmBtn').style.display = 'none';
+  document.getElementById('payProcessing').style.display = 'block';
+  document.getElementById('payProcessing').textContent = '⏳ Przetwarzanie płatności...';
+
+  // Symulacja 2.5s
+  await new Promise(r => setTimeout(r, 2500));
+  document.getElementById('payProcessing').textContent = '✅ Płatność zaakceptowana!';
+  await new Promise(r => setTimeout(r, 900));
+
+  localStorage.setItem('smartpark_premium', '1');
+  closePayGate();
+
+  // Pokaż potwierdzenie
+  const toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:9999;background:#47ffb0;color:#000;font-weight:800;font-size:.82rem;padding:11px 22px;border-radius:30px;box-shadow:0 4px 20px rgba(71,255,176,.4)';
+  toast.textContent = '🎉 Premium aktywowany! Nawigacja odblokowana.';
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3500);
+
+  // Jeśli był oczekujący cel nawigacji — uruchom
+  if (_pendingNavAfterPay) {
+    const {lat, lng, name: dName} = _pendingNavAfterPay;
+    _pendingNavAfterPay = null;
+    setTimeout(() => startNavigation(lat, lng, dName), 400);
+  }
+
+  // Odśwież popup jeśli otwarty
+  buildMarkers();
+  render(document.getElementById('search').value.toLowerCase());
+}
+
+// ══════════════════════════════════════════════════════
+// VISIBILITY SELECTOR w formularzu dodawania
+// ══════════════════════════════════════════════════════
+function updateVisInfo() {
+  const val = document.querySelector('input[name="f-vis"]:checked')?.value || 'private';
+  const info = document.getElementById('visInfo');
+  const labels = document.querySelectorAll('.vis-option');
+  labels.forEach(l => l.classList.remove('selected'));
+  const checked = document.querySelector('input[name="f-vis"]:checked');
+  if (checked) checked.closest('.vis-option').classList.add('selected');
+  if (val === 'private') {
+    info.textContent = '🔒 Parking widoczny tylko dla Ciebie. Nie wymaga zatwierdzenia przez admina.';
+    info.style.color = 'var(--accent)';
+  } else {
+    info.innerHTML = '🌍 Parking zostanie wysłany do <b>admina do zatwierdzenia</b>. Po akceptacji pojawi się na mapie dla wszystkich użytkowników.';
+    info.style.color = 'var(--a2)';
+  }
+}
+
 function escHtml(str) {
-  return String(str).replace(/&/g,'&amp;').replace(/\x3c/g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 // ══════════════════════════════════════════════════════
@@ -2449,24 +2338,37 @@ async function adminLoadParkings() {
     snap.forEach(d => rows.push({ id: d.id, ...d.data() }));
     if (!rows.length) { body.innerHTML = '<div class="admin-empty">Brak parkingów użytkowników.</div>'; return; }
     rows.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
+
+    const pending = rows.filter(p => p.status === 'pending' || (!p.status && p.visibility === 'public'));
+    const others  = rows.filter(p => !(p.status === 'pending' || (!p.status && p.visibility === 'public')));
+
+    const renderRow = p => `
+      <tr style="${p.status==='pending'?'background:rgba(255,140,71,.04)':''}">
+        <td><b>${escHtml(p.n||'—')}</b></td>
+        <td style="color:var(--muted);font-size:.7rem">${escHtml(p.a||'—')}</td>
+        <td>
+          <span style="font-size:.62rem;padding:2px 6px;border-radius:20px;${p.visibility==='public'?'background:rgba(71,200,255,.1);color:#47c8ff;border:1px solid rgba(71,200,255,.25)':'background:rgba(232,255,71,.07);color:var(--accent);border:1px solid rgba(232,255,71,.2)'}">
+            ${p.visibility==='public'?'🌍 Publiczny':'🔒 Prywatny'}
+          </span>
+        </td>
+        <td style="color:var(--muted);font-size:.68rem">${p.createdAt ? new Date(p.createdAt).toLocaleDateString('pl-PL') : '—'}</td>
+        <td><span class="admin-badge ${p.status==='approved'?'badge-ok':p.status==='rejected'?'badge-rej':p.status==='private'?'':'badge-wait'}">${p.status==='approved'?'✓ Zatw.':p.status==='rejected'?'✕ Odrzuc.':p.visibility==='private'||p.status==='private'?'🔒 Prywatny':'⏳ Oczekuje'}</span></td>
+        <td>
+          ${(p.status==='pending'||(!p.status&&p.visibility==='public'))?`<button class="admin-act-btn btn-approve" onclick="adminUpdateParking('${p.id}','approved')">✓ Zatwierdź</button>`:''}
+          ${p.status!=='approved'&&p.status!=='private'&&p.visibility!=='private'?`<button class="admin-act-btn btn-reject" onclick="adminUpdateParking('${p.id}','rejected')">✕ Odrzuć</button>`:''}
+          <button class="admin-act-btn btn-delete" onclick="adminDeleteParking('${p.id}')">🗑</button>
+        </td>
+      </tr>`;
+
     body.innerHTML = `
+      ${pending.length ? `<div style="background:rgba(255,140,71,.08);border:1px solid rgba(255,140,71,.25);border-radius:8px;padding:9px 13px;margin-bottom:12px;font-size:.74rem;color:var(--a3)">
+        ⏳ <b>${pending.length} parking${pending.length===1?'':'ów'} czeka na zatwierdzenie</b> — sprawdź poniżej i zatwierdź lub odrzuć.
+      </div>` : '<div style="background:rgba(71,255,176,.07);border:1px solid rgba(71,255,176,.2);border-radius:8px;padding:8px 13px;margin-bottom:12px;font-size:.73rem;color:#47ffb0">✅ Brak parkingów oczekujących na zatwierdzenie.</div>'}
       <table class="admin-table">
-        <thead><tr>
-          <th>Nazwa</th><th>Adres</th><th>Dodał</th><th>Data</th><th>Status</th><th>Akcje</th>
-        </tr></thead>
-        <tbody>${rows.map(p => `
-          <tr>
-            <td><b>${escHtml(p.n||'—')}</b></td>
-            <td style="color:var(--muted)">${escHtml(p.a||'—')}</td>
-            <td style="color:var(--muted);font-size:.68rem">${escHtml(p.uid||'—').substring(0,10)}…</td>
-            <td style="color:var(--muted);font-size:.68rem">${p.createdAt ? new Date(p.createdAt).toLocaleDateString('pl-PL') : '—'}</td>
-            <td><span class="admin-badge ${p.status==='approved'?'badge-ok':p.status==='rejected'?'badge-rej':'badge-wait'}">${p.status==='approved'?'✓ Zatw.':p.status==='rejected'?'✕ Odrzuc.':'⏳ Oczekuje'}</span></td>
-            <td>
-              ${p.status!=='approved'?`<button class="admin-act-btn btn-approve" onclick="adminUpdateParking('${p.id}','approved')">✓ Zatwierdź</button>`:''}
-              ${p.status!=='rejected'?`<button class="admin-act-btn btn-reject" onclick="adminUpdateParking('${p.id}','rejected')">✕ Odrzuć</button>`:''}
-              <button class="admin-act-btn btn-delete" onclick="adminDeleteParking('${p.id}')">🗑</button>
-            </td>
-          </tr>`).join('')}
+        <thead><tr><th>Nazwa</th><th>Adres</th><th>Typ</th><th>Data</th><th>Status</th><th>Akcje</th></tr></thead>
+        <tbody>
+          ${pending.map(renderRow).join('')}
+          ${others.map(renderRow).join('')}
         </tbody>
       </table>`;
   } catch(e) {
@@ -2478,6 +2380,8 @@ async function adminUpdateParking(docId, status) {
   const { doc, updateDoc } = window._fbFns;
   await updateDoc(doc(window._fbDb, 'parkings', docId), { status });
   adminLoadParkings();
+  // Jeśli zatwierdzono — odśwież mapę (załaduj zatwierdzone publiczne parkingi)
+  if (status === 'approved') loadApprovedPublicParkings();
 }
 
 async function adminDeleteParking(docId) {
@@ -2600,1102 +2504,6 @@ tb.onclick=()=>{sbO=!sbO;sb.classList.toggle('collapsed',!sbO);tb.textContent=sb
 document.getElementById('hc').textContent = ALL.length;
 buildMarkers();
 render('');
-
-// ══════════════════════════════════════════════════════
-// NAWIGACJA – STYL GOOGLE MAPS
-// Strzałka kierunkowa, kamera podążająca, kompas
-// ══════════════════════════════════════════════════════
-
-// Stwórz marker-strzałkę (kierunek jazdy)
-function _makeNavArrowMarker(lat, lng, bearing) {
-  const icon = _makeArrowIcon(bearing);
-  const m = L.marker([lat, lng], { icon, zIndexOffset: 1000 }).addTo(map);
-  m._bearing = bearing;
-  return m;
-}
-
-function _makeArrowIcon(bearing) {
-  return L.divIcon({
-    className: '',
-    iconSize: [40, 40],
-    iconAnchor: [20, 20],
-    html: `<div id="nav-arrow-icon" style="
-      width:40px;height:40px;
-      display:flex;align-items:center;justify-content:center;
-      transform:rotate(${bearing}deg);
-      transition:transform 0.4s ease;
-      filter:drop-shadow(0 2px 8px rgba(71,255,176,.7))
-    ">
-      <svg width="36" height="36" viewBox="0 0 36 36">
-        <circle cx="18" cy="18" r="17" fill="#0d0f14" stroke="#47ffb0" stroke-width="2.5"/>
-        <polygon points="18,5 26,28 18,23 10,28" fill="#47ffb0"/>
-        <circle cx="18" cy="18" r="4" fill="#fff" opacity=".7"/>
-      </svg>
-    </div>`
-  });
-}
-
-function _setMarkerRotation(marker, bearing) {
-  if (!marker) return;
-  marker._bearing = bearing;
-  // Aktualizuj div wewnątrz markera
-  const el = marker.getElement && marker.getElement();
-  if (el) {
-    const arrow = el.querySelector('#nav-arrow-icon');
-    if (arrow) arrow.style.transform = `rotate(${bearing}deg)`;
-  }
-}
-
-// Oblicz bearing (kąt) między dwoma punktami GPS
-function _calcBearing(lat1, lng1, lat2, lng2) {
-  const dLng = (lng2 - lng1) * Math.PI / 180;
-  const lat1R = lat1 * Math.PI / 180;
-  const lat2R = lat2 * Math.PI / 180;
-  const y = Math.sin(dLng) * Math.cos(lat2R);
-  const x = Math.cos(lat1R) * Math.sin(lat2R) - Math.sin(lat1R) * Math.cos(lat2R) * Math.cos(dLng);
-  return ((Math.atan2(y, x) * 180 / Math.PI) + 360) % 360;
-}
-
-// Kompas przez DeviceOrientationEvent (działa na telefonie)
-let _compassHandler = null;
-function _startCompass(callback) {
-  if (!window.DeviceOrientationEvent) return;
-
-  // iOS 13+ wymaga pozwolenia
-  if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-    DeviceOrientationEvent.requestPermission()
-      .then(perm => { if (perm === 'granted') _listenCompass(callback); })
-      .catch(() => {});
-  } else {
-    _listenCompass(callback);
-  }
-}
-
-function _listenCompass(callback) {
-  if (_compassHandler) window.removeEventListener('deviceorientationabsolute', _compassHandler);
-  if (_compassHandler) window.removeEventListener('deviceorientation', _compassHandler);
-
-  _compassHandler = e => {
-    let heading = null;
-    if (e.webkitCompassHeading != null) {
-      heading = e.webkitCompassHeading; // iOS
-    } else if (e.absolute && e.alpha != null) {
-      heading = (360 - e.alpha) % 360; // Android absolute
-    } else if (e.alpha != null) {
-      heading = (360 - e.alpha) % 360;
-    }
-    if (heading != null && !isNaN(heading)) callback(heading);
-  };
-
-  // Preferuj absolute orientation
-  window.addEventListener('deviceorientationabsolute', _compassHandler, true);
-  window.addEventListener('deviceorientation', _compassHandler, true);
-}
-
-function _stopCompass() {
-  if (_compassHandler) {
-    window.removeEventListener('deviceorientationabsolute', _compassHandler, true);
-    window.removeEventListener('deviceorientation', _compassHandler, true);
-    _compassHandler = null;
-  }
-}
-
-// Zastąpione przez _injectNavCameraUI / _updateRecenterBtn
-let _lockBtnEl = null;
-function _injectCameraLockBtn(onRelock) {}
-function _updateLockBtnUI(locked) {}
-
-// Zatrzymaj kompas i cleanup przy endNavigation
-const _origEnd = endNavigation;
-window.endNavigation = function() {
-  _origEnd();
-  _stopCompass();
-  map.off('dragstart.nav');
-  // Usuń UI nawigacji
-  ['sp-recenter-btn','sp-tilt-overlay','sp-nav-cam-controls'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.remove();
-  });
-  const tp = document.getElementById('sp-turn-panel');
-  if (tp) tp.classList.remove('visible');
-  _navStepsData = [];
-  window._navCamLocked = true;
-  // Reset mapy do widoku normalnego — odchylenie CSS z powrotem
-  _resetMapPerspective();
-  map.setView([51.103, 17.025], 14, { animate: true, duration: 0.8 });
-};
-
-// ══════════════════════════════════════════════════════
-// KAMERA NAWIGACJI — perspektywa jak Google Maps
-// ══════════════════════════════════════════════════════
-
-// Kamera nawigacji — płynne śledzenie bez przechylenia (CSS tilt powodował problemy)
-function _applyNavCamera(lat, lng, bearing) {
-  const zoom = 18;
-
-  // Przesuń kamerę lekko przed użytkownikiem (jak Google Maps)
-  const offsetM = 60;
-  const offsetLat = (offsetM / 111320) * Math.cos(bearing * Math.PI / 180);
-  const offsetLng = (offsetM / (111320 * Math.cos(lat * Math.PI / 180))) * Math.sin(bearing * Math.PI / 180);
-
-  map.setView([lat + offsetLat, lng + offsetLng], zoom, {
-    animate: true,
-    duration: 0.6,
-    noMoveStart: true,
-    easeLinearity: 0.5,
-  });
-}
-
-function _resetMapPerspective() {
-  // Nic do resetowania — brak CSS transform
-}
-
-// UI nawigacji — przycisk powrotu + tryb kamery
-function _injectNavCameraUI() {
-  // Usuń stare
-  ['sp-recenter-btn','sp-nav-cam-controls'].forEach(id => {
-    const el = document.getElementById(id); if (el) el.remove();
-  });
-
-  const wrap = document.querySelector('.map-wrap');
-  if (!wrap) return;
-
-  // Przycisk "Wróć do mnie" — pojawia się gdy użytkownik przesunie mapę
-  const recenter = document.createElement('button');
-  recenter.id = 'sp-recenter-btn';
-  recenter.innerHTML = `<span style="font-size:1.1rem">🎯</span><span style="font-size:.65rem;font-weight:700;display:block;line-height:1;margin-top:2px">Wróć</span>`;
-  recenter.title = 'Wróć do mojej pozycji';
-  recenter.style.cssText = `
-    position:absolute;bottom:175px;right:12px;z-index:1002;
-    width:54px;height:54px;border:none;border-radius:14px;
-    background:var(--accent);color:#000;
-    box-shadow:0 3px 16px rgba(232,255,71,.5);
-    cursor:pointer;display:none;flex-direction:column;
-    align-items:center;justify-content:center;
-    font-family:inherit;transition:all .25s;`;
-  recenter.onclick = () => {
-    window._navCamLocked = true;
-    _updateRecenterBtn(false);
-    if (userLocation) _applyNavCamera(userLocation[0], userLocation[1], 0);
-  };
-  wrap.appendChild(recenter);
-}
-
-function _updateRecenterBtn(show) {
-  const btn = document.getElementById('sp-recenter-btn');
-  if (!btn) return;
-  btn.style.display = show ? 'flex' : 'none';
-}
-let _navStepsData = [];
-let _navStepIdx   = 0;
-let _announcedSet = new Set();
-
-// Głos — Web Speech API po polsku (fallback do MP3 sounds/)
-function _speakNav(text) {
-  // Próba MP3
-  const keyMap = {
-    'Rozpoczynam nawigację':'start',
-    'Skręć w lewo':'turn_left',
-    'Skręć w prawo':'turn_right',
-    'Za 200 metrów skręć w lewo':'turn_left_200',
-    'Za 200 metrów skręć w prawo':'turn_right_200',
-    'Jedź prosto':'straight',
-    'Zawróć':'u_turn',
-    'Dotarłeś do celu':'arrived',
-  };
-  const mp3key = Object.keys(keyMap).find(k => text.includes(k));
-  if (mp3key) {
-    const audio = new Audio(`sounds/${keyMap[mp3key]}.mp3`);
-    audio.play().catch(() => _ttsSpeakPL(text));
-    return;
-  }
-  _ttsSpeakPL(text);
-}
-
-function _ttsSpeakPL(text) {
-  if (!window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  const utt = new SpeechSynthesisUtterance(text);
-  utt.lang = 'pl-PL'; utt.rate = 0.95; utt.pitch = 1.05;
-  const voices = window.speechSynthesis.getVoices();
-  const pl = voices.find(v => v.lang && v.lang.startsWith('pl'));
-  if (pl) utt.voice = pl;
-  window.speechSynthesis.speak(utt);
-}
-
-// Wyciągnij kroki z odpowiedzi OSRM
-function _extractOSRMSteps(route) {
-  const steps = [];
-  for (const leg of route.legs || []) {
-    for (const s of leg.steps || []) {
-      const mod = s.maneuver?.modifier || '';
-      const type = s.maneuver?.type || '';
-      steps.push({
-        text: s.name || 'Kontynuuj jazdę',
-        maneuver: type + (mod ? '_' + mod : ''),
-        distance: s.distance || 0,
-        distText: s.distance > 999 ? (s.distance/1000).toFixed(1)+' km' : Math.round(s.distance)+' m',
-        endLat: s.maneuver?.location?.[1] || null,
-        endLng: s.maneuver?.location?.[0] || null,
-      });
-    }
-  }
-  return steps;
-}
-
-// Wyciągnij kroki z Valhalla
-function _extractValhallaSteps(trip) {
-  const steps = [];
-  const typeText = { 1:'Jedź prosto',2:'Skręć w prawo',3:'Skręć w lewo',4:'Zawróć',10:'Wjedź na rondo',23:'Start',24:'Dotarłeś do celu' };
-  for (const leg of trip.legs || []) {
-    for (const m of leg.maneuvers || []) {
-      steps.push({
-        text: m.instruction || typeText[m.type] || 'Kontynuuj',
-        maneuver: typeText[m.type] || 'straight',
-        distance: (m.length || 0) * 1000,
-        distText: m.length > 1 ? m.length.toFixed(1)+' km' : Math.round((m.length||0)*1000)+' m',
-        endLat: null, endLng: null,
-      });
-    }
-  }
-  return steps;
-}
-
-// Strzałka emoji z manewru
-function _maneuverEmoji(maneuver) {
-  if (!maneuver) return '⬆️';
-  const m = maneuver.toLowerCase();
-  if (m.includes('uturn'))      return '↩️';
-  if (m.includes('left'))       return '⬅️';
-  if (m.includes('right'))      return '➡️';
-  if (m.includes('roundabout')) return '🔄';
-  if (m.includes('arrive'))     return '🏁';
-  if (m.includes('depart'))     return '🚀';
-  return '⬆️';
-}
-
-// Pokaż krok w panelu
-function _showTurnStep(idx) {
-  const tp = document.getElementById('sp-turn-panel');
-  if (!tp) return;
-  if (!_navStepsData.length || idx >= _navStepsData.length) { tp.classList.remove('visible'); return; }
-  const step = _navStepsData[idx];
-  tp.classList.add('visible');
-  document.getElementById('sp-turn-arrow').textContent = _maneuverEmoji(step.maneuver);
-  document.getElementById('sp-turn-text').textContent = step.text;
-  document.getElementById('sp-turn-dist').textContent = step.distText ? `za ${step.distText}` : '';
-  // Następny krok
-  const next = _navStepsData[idx + 1];
-  const etaEl = document.getElementById('sp-turn-eta');
-  if (etaEl && next) etaEl.textContent = `Potem:\n${_maneuverEmoji(next.maneuver)} ${next.text.substring(0,30)}`;
-  else if (etaEl) etaEl.textContent = '';
-}
-
-// Sprawdzaj kroki na podstawie pozycji GPS
-function _checkNavStep(userLat, userLng, destLat, destLng) {
-  // Sprawdź czy dotarł do celu
-  const distDest = _haverM(userLat, userLng, destLat, destLng);
-  if (distDest < 25 && !_announcedSet.has('arrived')) {
-    _announcedSet.add('arrived');
-    _speakNav('Dotarłeś do celu. Parking jest w pobliżu.');
-    document.getElementById('sp-turn-text').textContent = '🎉 Dotarłeś do celu!';
-    document.getElementById('sp-turn-dist').textContent = '';
-    document.getElementById('navDestMeta').textContent = '🎉 Dotarłeś!';
-    setTimeout(() => window.endNavigation(), 4000);
-    return;
-  }
-
-  if (!_navStepsData.length) return;
-
-  for (let i = _navStepIdx; i < _navStepsData.length; i++) {
-    const step = _navStepsData[i];
-    if (step.endLat == null) continue;
-    const dist = _haverM(userLat, userLng, step.endLat, step.endLng);
-
-    // ~220m zapowiedź
-    if (dist < 230 && dist > 35 && !_announcedSet.has(`pre_${i}`)) {
-      _announcedSet.add(`pre_${i}`);
-      const m = step.maneuver.toLowerCase();
-      if (m.includes('left'))  _speakNav('Za 200 metrów skręć w lewo');
-      else if (m.includes('right')) _speakNav('Za 200 metrów skręć w prawo');
-      _showTurnStep(i);
-    }
-
-    // <30m — wykonaj skręt
-    if (dist < 30 && !_announcedSet.has(`now_${i}`)) {
-      _announcedSet.add(`now_${i}`);
-      const m = step.maneuver.toLowerCase();
-      if (m.includes('left'))       _speakNav('Skręć w lewo');
-      else if (m.includes('right')) _speakNav('Skręć w prawo');
-      else if (m.includes('uturn')) _speakNav('Zawróć');
-      else                           _speakNav('Jedź prosto');
-      _navStepIdx = i + 1;
-      _showTurnStep(_navStepIdx);
-    }
-  }
-}
-
-function _haverM(lat1, lng1, lat2, lng2) {
-  const R = 6371000;
-  const dLat = (lat2-lat1)*Math.PI/180, dLng = (lng2-lng1)*Math.PI/180;
-  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
-  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
-}
-
-// Podpięcie checkNavStep do watchPosition — patch przez override
-const _origStartNav = startNavigation;
-window.startNavigation = function(destLat, destLng, destName) {
-  _navStepsData = [];
-  _navStepIdx = 0;
-  _announcedSet.clear();
-  // Zapisz cel globalnie do sprawdzenia w watch
-  window._navDest = { lat: destLat, lng: destLng };
-  _origStartNav(destLat, destLng, destName);
-};
-
-// Patch watchPosition callback — dodaj _checkNavStep
-// (dopinamy po fakcie przez override oryginalnego watchId)
-const _origGetCurrentPos = navigator.geolocation.getCurrentPosition.bind(navigator.geolocation);
-// Nie patchujemy natywnego API — zamiast tego checkujemy w istniejącym watch
-// przez interwał sprawdzający aktualną pozycję razem z krokami
-let _stepCheckInterval = null;
-map.on('moveend', () => {
-  // nic — użyty jako hook
-});
-
-// Uruchom checking kroków co 2s gdy nawigacja aktywna
-setInterval(() => {
-  if (!isNavigating || !userLocation || !window._navDest) return;
-  _checkNavStep(userLocation[0], userLocation[1], window._navDest.lat, window._navDest.lng);
-}, 2000);
-
-// ══════════════════════════════════════════════════════
-// SMART TOAST
-// ══════════════════════════════════════════════════════
-function showSmartToast(msg, type) {
-  let t = document.getElementById('sp-smart-toast');
-  if (!t) {
-    t = document.createElement('div');
-    t.id = 'sp-smart-toast';
-    t.style.cssText = `position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);
-      padding:12px 22px;border-radius:24px;font-size:.8rem;font-weight:600;z-index:99999;
-      opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;
-      white-space:nowrap;max-width:90vw;text-align:center;font-family:inherit;
-      box-shadow:0 4px 20px rgba(0,0,0,.5)`;
-    document.body.appendChild(t);
-  }
-  const c = { success:'#27ae60', error:'#c0392b', warn:'#e67e22', info:'#2980b9' };
-  t.style.background = c[type] || c.success;
-  t.style.color = '#fff';
-  t.textContent = msg;
-  t.style.opacity = '1';
-  t.style.transform = 'translateX(-50%) translateY(0)';
-  clearTimeout(t._tmr);
-  t._tmr = setTimeout(() => {
-    t.style.opacity = '0';
-    t.style.transform = 'translateX(-50%) translateY(20px)';
-  }, 3500);
-}
-
-// ══════════════════════════════════════════════════════
-// TRYB NOCNY MAPY (Leaflet CSS filter)
-// ══════════════════════════════════════════════════════
-let isNightMode = false;
-
-function toggleNightMode(force) {
-  isNightMode = force !== undefined ? force : !isNightMode;
-  const tile = document.querySelector('.leaflet-tile-pane');
-  if (tile) {
-    tile.style.filter = isNightMode
-      ? 'brightness(.45) saturate(.35) hue-rotate(195deg) contrast(1.15)'
-      : 'brightness(.82) saturate(.6) hue-rotate(195deg)';
-  }
-  const btn = document.getElementById('sp-night-btn');
-  if (btn) {
-    btn.textContent = isNightMode ? '☀️' : '🌙';
-    btn.title = isNightMode ? 'Tryb dzienny' : 'Tryb nocny';
-    btn.style.background = isNightMode ? '#1a1a2e' : '#fff';
-    btn.style.color = isNightMode ? '#e8ff47' : '#333';
-    btn.style.border = isNightMode ? '1px solid #e8ff47' : 'none';
-  }
-}
-
-// Auto tryb nocny po 20:00 lub przed 6:00
-(function() {
-  const h = new Date().getHours();
-  if (h >= 20 || h < 6) setTimeout(() => toggleNightMode(true), 800);
-})();
-
-// ══════════════════════════════════════════════════════
-// WARSTWA KORKÓW (symulacja na liniach Leaflet)
-// ══════════════════════════════════════════════════════
-let trafficVisible = false;
-let trafficLayers  = [];
-
-const TRAFFIC_DATA = [
-  [51.1079,17.0330, 51.1040,17.0350, 'high'],
-  [51.1040,17.0350, 51.0990,17.0362, 'medium'],
-  [51.1000,17.0250, 51.1079,17.0330, 'jam'],
-  [51.1079,17.0200, 51.1100,17.0270, 'medium'],
-  [51.1100,17.0270, 51.1150,17.0340, 'low'],
-  [51.0965,17.0340, 51.1000,17.0250, 'high'],
-  [51.1150,17.0390, 51.1200,17.0450, 'low'],
-  [51.1200,17.0450, 51.1380,17.0420, 'medium'],
-  [51.1050,17.0580, 51.1090,17.0650, 'high'],
-  [51.0930,17.0180, 51.0965,17.0250, 'jam'],
-  [51.1100,16.9942, 51.1138,17.0050, 'medium'],
-  [51.0920,17.0052, 51.0930,17.0180, 'low'],
-  [51.1320,17.0260, 51.1200,17.0290, 'medium'],
-  [51.0850,17.0120, 51.0930,17.0180, 'low'],
-];
-const TRAFFIC_COLORS = { low:'#27ae60', medium:'#f39c12', high:'#e67e22', jam:'#e74c3c' };
-const TRAFFIC_LABELS = { low:'🟢 Płynny ruch', medium:'🟡 Umiarkowany', high:'🟠 Duży ruch', jam:'🔴 Korek!' };
-
-function toggleTraffic() {
-  trafficVisible = !trafficVisible;
-  const btn = document.getElementById('sp-traffic-btn');
-  if (trafficVisible) {
-    trafficLayers = TRAFFIC_DATA.map(([la1,ln1,la2,ln2,lvl]) => {
-      const line = L.polyline([[la1,ln1],[la2,ln2]], {
-        color: TRAFFIC_COLORS[lvl], weight: 7, opacity: .78, lineCap:'round'
-      }).addTo(map);
-      line.bindTooltip(TRAFFIC_LABELS[lvl], { sticky:true, opacity:.95 });
-      return line;
-    });
-    if (btn) { btn.style.background='#e74c3c'; btn.style.color='#fff'; btn.title='Ukryj korki'; }
-    showSmartToast('🚦 Warstwa korków włączona (dane symulowane)', 'info');
-  } else {
-    trafficLayers.forEach(l => { try { map.removeLayer(l); } catch(e){} });
-    trafficLayers = [];
-    if (btn) { btn.style.background='#fff'; btn.style.color='#333'; btn.title='Pokaż korki'; }
-    showSmartToast('🚦 Warstwa korków wyłączona', 'info');
-  }
-}
-
-// ══════════════════════════════════════════════════════
-// PRZYCISKI MAPY — wstrzyknij do .map-wrap
-// ══════════════════════════════════════════════════════
-(function injectMapButtons() {
-  const wrap = document.querySelector('.map-wrap');
-  if (!wrap || document.getElementById('sp-map-controls')) return;
-
-  const ctrl = document.createElement('div');
-  ctrl.id = 'sp-map-controls';
-  ctrl.style.cssText = `position:absolute;bottom:150px;right:12px;z-index:1000;
-    display:flex;flex-direction:column;gap:8px`;
-
-  const btnStyle = `width:44px;height:44px;border:none;border-radius:50%;background:#fff;
-    box-shadow:0 2px 10px rgba(0,0,0,.32);font-size:19px;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;
-    transition:transform .15s,box-shadow .15s;font-family:inherit`;
-
-  ctrl.innerHTML = `
-    <button id="sp-night-btn" title="Tryb nocny" onclick="toggleNightMode()"
-      style="${btnStyle}"
-      onmouseover="this.style.transform='scale(1.12)';this.style.boxShadow='0 4px 16px rgba(0,0,0,.4)'"
-      onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 2px 10px rgba(0,0,0,.32)'">🌙</button>
-    <button id="sp-traffic-btn" title="Pokaż korki" onclick="toggleTraffic()"
-      style="${btnStyle}"
-      onmouseover="this.style.transform='scale(1.12)';this.style.boxShadow='0 4px 16px rgba(0,0,0,.4)'"
-      onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 2px 10px rgba(0,0,0,.32)'">🚦</button>
-  `;
-  wrap.appendChild(ctrl);
-})();
-
-// ══════════════════════════════════════════════════════
-// LIVE KORKI — TomTom Flow API (darmowy tier 2500 req/dzień)
-// Fallback: symulacja oparta o godzinę dnia
-// Auto-refresh co 10 minut
-// ══════════════════════════════════════════════════════
-const TOMTOM_KEY = 'pzDwGB3DvQvYZ27HFzfw4rdcOGJmGbTC';
-const WROCLAW_BBOX = { minLng:16.87, minLat:51.06, maxLng:17.12, maxLat:51.17 };
-let _liveTrafficLayers = [];
-let _trafficLastUpdate = null;
-let _trafficAutoInterval = null;
-
-// Główne segmenty drogowe Wrocławia z realnym ważeniem godzinowym
-const ROAD_SEGMENTS = [
-  // [la1,ln1,la2,ln2, name, heavyHours]
-  [51.1079,17.0330,51.1040,17.0350,'Świdnicka',[8,9,16,17,18]],
-  [51.1040,17.0350,51.0990,17.0362,'Powstańców Śl.',[8,9,17,18]],
-  [51.1000,17.0250,51.1079,17.0330,'Piłsudskiego',[8,9,17,18,19]],
-  [51.1079,17.0200,51.1100,17.0270,'Komuny Paryskiej',[7,8,16,17]],
-  [51.1100,17.0270,51.1150,17.0340,'Jedności Nar.',[8,17,18]],
-  [51.0965,17.0340,51.1000,17.0250,'Kościuszki',[8,9,16,17,18]],
-  [51.1150,17.0390,51.1200,17.0450,'Wyszyńskiego',[7,8,17]],
-  [51.1200,17.0450,51.1380,17.0420,'Wyspa Tamka',[17,18]],
-  [51.1050,17.0580,51.1090,17.0650,'Grunwaldzka',[8,9,16,17,18]],
-  [51.0930,17.0180,51.0965,17.0250,'Hallera',[8,9,17,18]],
-  [51.1100,16.9942,51.1138,17.0050,'Legnicka',[7,8,9,17,18]],
-  [51.0920,17.0052,51.0930,17.0180,'Robotnicza',[8,17,18]],
-  [51.1320,17.0260,51.1200,17.0290,'Dubois',[8,17]],
-  [51.0850,17.0120,51.0930,17.0180,'Armii Krajowej',[8,9,16,17]],
-  [51.1380,16.9418,51.1200,16.9700,'Milenijny Br.',[7,8,17,18]],
-  [51.0968,17.0362,51.0900,17.0400,'Borowska',[8,9,17,18]],
-  [51.1090,17.0100,51.1100,16.9942,'Długosza',[8,17]],
-  [51.1180,17.0580,51.1090,17.0580,'Wyszyńskiego E',[8,17,18]],
-];
-
-function _getHourlyLevel(heavyHours) {
-  const h = new Date().getHours();
-  const isWeekend = [0,6].includes(new Date().getDay());
-  if (isWeekend) return Math.random() < 0.3 ? 'medium' : 'low';
-  if (heavyHours.includes(h)) {
-    const r = Math.random();
-    return r < 0.3 ? 'jam' : r < 0.65 ? 'high' : 'medium';
-  }
-  if (heavyHours.includes(h-1) || heavyHours.includes(h+1)) return 'medium';
-  return Math.random() < 0.15 ? 'medium' : 'low';
-}
-
-async function _fetchLiveTomTom() {
-  if (!TOMTOM_KEY) return null;
-  // TomTom Traffic Flow Segment API
-  try {
-    const results = await Promise.all(ROAD_SEGMENTS.slice(0,6).map(async ([la1,ln1,la2,ln2]) => {
-      const url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${(la1+la2)/2},${(ln1+ln2)/2}&unit=KMPH&key=${TOMTOM_KEY}`;
-      const r = await fetch(url, { signal: AbortSignal.timeout(5000) });
-      if (!r.ok) return null;
-      const d = await r.json();
-      const ratio = d.flowSegmentData?.currentSpeed / (d.flowSegmentData?.freeFlowSpeed || 50);
-      return ratio < 0.4 ? 'jam' : ratio < 0.6 ? 'high' : ratio < 0.8 ? 'medium' : 'low';
-    }));
-    return results;
-  } catch(e) { return null; }
-}
-
-async function refreshTrafficLayer() {
-  if (!trafficVisible) return;
-
-  // Usuń stare
-  _liveTrafficLayers.forEach(l => { try { map.removeLayer(l); } catch(e){} });
-  _liveTrafficLayers = [];
-
-  // Spróbuj TomTom, fallback na symulację godzinową
-  const liveData = await _fetchLiveTomTom();
-
-  _liveTrafficLayers = ROAD_SEGMENTS.map(([la1,ln1,la2,ln2,name,heavyHours], i) => {
-    const level = liveData?.[i] ?? _getHourlyLevel(heavyHours);
-    const col = TRAFFIC_COLORS[level];
-    const line = L.polyline([[la1,ln1],[la2,ln2]], {
-      color: col, weight: 7, opacity: .82, lineCap:'round'
-    }).addTo(map);
-
-    const speedMap = { low:'🟢 Płynnie (~50 km/h)', medium:'🟡 Umiarkowanie (~30 km/h)', high:'🟠 Wolno (~15 km/h)', jam:'🔴 Korek (<5 km/h)' };
-    const src = TOMTOM_KEY && liveData ? ' • dane na żywo' : ' • dane szacunkowe';
-    line.bindTooltip(`<b>${name}</b><br>${speedMap[level]}${src}`, { sticky:true, opacity:.96 });
-    return line;
-  });
-
-  _trafficLastUpdate = new Date();
-
-  // Zaktualizuj przycisk z czasem odświeżenia
-  const btn = document.getElementById('sp-traffic-btn');
-  if (btn) {
-    btn.title = `Korki — aktualizacja: ${_trafficLastUpdate.toLocaleTimeString('pl-PL', {hour:'2-digit',minute:'2-digit'})}`;
-  }
-
-  // Pasek statusu korków
-  _showTrafficStatus(liveData ? 'live' : 'sim');
-}
-
-function _showTrafficStatus(type) {
-  let bar = document.getElementById('sp-traffic-bar');
-  if (!bar) {
-    bar = document.createElement('div');
-    bar.id = 'sp-traffic-bar';
-    bar.style.cssText = `position:absolute;top:8px;left:50%;transform:translateX(-50%);
-      z-index:1002;background:rgba(13,15,20,.92);border:1px solid var(--border);
-      border-radius:20px;padding:4px 14px;font-size:.65rem;color:var(--muted);
-      display:flex;align-items:center;gap:7px;white-space:nowrap;pointer-events:none;
-      box-shadow:0 2px 12px rgba(0,0,0,.4);`;
-    document.querySelector('.map-wrap').appendChild(bar);
-  }
-  const now = new Date().toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit'});
-  bar.innerHTML = type === 'live'
-    ? `<span style="color:#27ae60">●</span> Dane na żywo · ${now} <span style="color:var(--a2);cursor:pointer;pointer-events:auto" onclick="refreshTrafficLayer()">↻</span>`
-    : `<span style="color:#f39c12">●</span> Dane szacunkowe · ${now} <span style="color:var(--a2);cursor:pointer;pointer-events:auto" onclick="refreshTrafficLayer()">↻</span>`;
-  bar.style.display = 'flex';
-}
-
-// Nadpisz toggleTraffic żeby używał live danych
-const _origToggleTraffic = toggleTraffic;
-window.toggleTraffic = async function() {
-  trafficVisible = !trafficVisible;
-  const btn = document.getElementById('sp-traffic-btn');
-
-  if (trafficVisible) {
-    if (btn) { btn.style.background='#e74c3c'; btn.style.color='#fff'; }
-    // Usuń stare warstwy symulacji
-    trafficLayers.forEach(l => { try { map.removeLayer(l); } catch(e){} });
-    trafficLayers = [];
-    await refreshTrafficLayer();
-    // Auto-refresh co 10 minut
-    if (_trafficAutoInterval) clearInterval(_trafficAutoInterval);
-    _trafficAutoInterval = setInterval(refreshTrafficLayer, 10 * 60 * 1000);
-    showSmartToast('🚦 Korki włączone · odświeżanie co 10 min', 'info');
-  } else {
-    _liveTrafficLayers.forEach(l => { try { map.removeLayer(l); } catch(e){} });
-    _liveTrafficLayers = [];
-    if (_trafficAutoInterval) { clearInterval(_trafficAutoInterval); _trafficAutoInterval = null; }
-    if (btn) { btn.style.background='#fff'; btn.style.color='#333'; }
-    const bar = document.getElementById('sp-traffic-bar');
-    if (bar) bar.style.display = 'none';
-    showSmartToast('🚦 Korki wyłączone', 'info');
-  }
-};
-
-// ══════════════════════════════════════════════════════
-// LIVE ZAPEŁNIENIE PARKINGÓW — refresh co 10 min
-// (symulacja inteligentna oparta o wzorce ruchu Wrocławia)
-// ══════════════════════════════════════════════════════
-function _getLiveOccupancy(p, seed) {
-  const h = new Date().getHours();
-  const day = new Date().getDay();
-  const isWeekend = day === 0 || day === 6;
-  const base = seed % 25;
-
-  if (p.free || p.t === 'pr') {
-    return { pct: 15 + base, label: 'Dużo wolnych', color: '#47ffb0' };
-  }
-  if (p.t === 'mall') {
-    // Galerie — ruch weekendowy
-    const mallPeak = isWeekend ? [11,12,13,14,15,16,17] : [12,13,17,18];
-    const pct = mallPeak.includes(h) ? 55 + base : 20 + base;
-    return _occLabel(Math.min(95, pct));
-  }
-
-  // Szczyty komunikacyjne Wrocławia
-  const morningPeak = h >= 7 && h <= 9;
-  const eveningPeak = h >= 15 && h <= 18;
-  const lunch = h >= 12 && h <= 13;
-  const night = h >= 20 || h <= 6;
-
-  let pct;
-  if (night) pct = 5 + (base / 3) | 0;
-  else if (morningPeak && !isWeekend) pct = 62 + base;
-  else if (eveningPeak && !isWeekend) pct = 70 + base;
-  else if (lunch) pct = 45 + base;
-  else if (isWeekend && h >= 10 && h <= 17) pct = 40 + base;
-  else pct = 28 + base;
-
-  return _occLabel(Math.min(98, pct));
-}
-
-function _occLabel(pct) {
-  if (pct < 40) return { pct, label: 'Dużo wolnych', color: '#47ffb0' };
-  if (pct < 65) return { pct, label: 'Miejsca dostępne', color: '#e8ff47' };
-  if (pct < 85) return { pct, label: 'Prawie pełny', color: '#ff8c47' };
-  return { pct, label: 'Prawdopodobnie pełny', color: '#ff4f7b' };
-}
-
-// Nadpisz getOccupancy żeby używało live danych
-window.getOccupancy = function(p, parkingId) {
-  const seed = hashStr(parkingId || 'x');
-  return _getLiveOccupancy(p, seed);
-};
-
-// Refresh paska zajętości w otwartym popup co 10 min
-setInterval(() => {
-  document.querySelectorAll('.occ-fill').forEach(bar => {
-    const wrap = bar.closest('.occ-wrap');
-    if (!wrap) return;
-    const popup = bar.closest('.leaflet-popup-content');
-    if (!popup) return;
-    // Znajdź parking na podstawie popup
-    if (activeIdx >= 0 && ALL[activeIdx]) {
-      const p = ALL[activeIdx];
-      const id = p._docId || ('builtin_' + activeIdx);
-      const occ = getOccupancy(p, id);
-      bar.style.width = occ.pct + '%';
-      bar.style.background = occ.color;
-      const labelEl = wrap.querySelector('.occ-label span:last-child');
-      if (labelEl) { labelEl.textContent = occ.label; labelEl.style.color = occ.color; }
-      const metaEl = wrap.querySelector('.occ-meta');
-      if (metaEl) metaEl.textContent = `${occ.pct}% zajęte · ost. aktualizacja ${new Date().toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit'})}`;
-    }
-  });
-}, 10 * 60 * 1000);
-
-// ══════════════════════════════════════════════════════
-// MINI-ANKIETA PRZY DODAWANIU OPINII
-// + LAJKI KOMENTARZY
-// ══════════════════════════════════════════════════════
-
-// Dodaj style ankiety
-(function() {
-  const style = document.createElement('style');
-  style.textContent = `
-    .sp-poll { margin:8px 0; }
-    .sp-poll-q { font-size:.67rem; color:var(--muted); margin-bottom:5px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; }
-    .sp-poll-opts { display:flex; gap:5px; flex-wrap:wrap; }
-    .sp-poll-opt { font-size:.65rem; padding:3px 9px; border-radius:20px; border:1px solid var(--border);
-      color:var(--muted); cursor:pointer; transition:all .15s; font-family:inherit; background:transparent; }
-    .sp-poll-opt:hover { border-color:var(--accent); color:var(--accent); }
-    .sp-poll-opt.sel { background:var(--accent); color:#000; border-color:var(--accent); font-weight:700; }
-    .sp-poll-opt.sel-bad { background:var(--a6); color:#fff; border-color:var(--a6); font-weight:700; }
-    .sp-like-btn { background:none; border:1px solid var(--border); border-radius:20px; padding:2px 9px;
-      font-size:.62rem; color:var(--muted); cursor:pointer; font-family:inherit; transition:all .15s;
-      display:inline-flex; align-items:center; gap:3px; }
-    .sp-like-btn:hover { border-color:var(--a2); color:var(--a2); }
-    .sp-like-btn.liked { background:rgba(71,200,255,.12); border-color:var(--a2); color:var(--a2); font-weight:700; }
-  `;
-  document.head.appendChild(style);
-})();
-
-// Stan ankiet dla aktualnego formularza
-const _pollAnswers = {};
-
-function _buildPollHTML(parkingId) {
-  return `
-  <div style="margin:8px 0;border-top:1px solid var(--border);padding-top:8px">
-    <div style="font-size:.62rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700;margin-bottom:7px">📋 Mini-ankieta (opcjonalna)</div>
-
-    <div class="sp-poll">
-      <div class="sp-poll-q">Czy znalazłeś/aś wolne miejsce?</div>
-      <div class="sp-poll-opts">
-        <button class="sp-poll-opt" onclick="setPoll('${parkingId}','found','yes',this)">✅ Tak, od razu</button>
-        <button class="sp-poll-opt" onclick="setPoll('${parkingId}','found','wait',this)">⏳ Tak, po chwili</button>
-        <button class="sp-poll-opt" onclick="setPoll('${parkingId}','found','no',this)">❌ Nie znalazłem</button>
-      </div>
-    </div>
-
-    <div class="sp-poll">
-      <div class="sp-poll-q">Czy miejsca parkingowe są wystarczająco duże?</div>
-      <div class="sp-poll-opts">
-        <button class="sp-poll-opt" onclick="setPoll('${parkingId}','size','big',this)">✅ Duże / wygodne</button>
-        <button class="sp-poll-opt" onclick="setPoll('${parkingId}','size','ok',this)">😐 Przeciętne</button>
-        <button class="sp-poll-opt" onclick="setPoll('${parkingId}','size','small',this)">😬 Za ciasne</button>
-      </div>
-    </div>
-
-    <div class="sp-poll">
-      <div class="sp-poll-q">Jak oceniasz bezpieczeństwo?</div>
-      <div class="sp-poll-opts">
-        <button class="sp-poll-opt" onclick="setPoll('${parkingId}','safety','safe',this)">🔒 Bezpiecznie</button>
-        <button class="sp-poll-opt" onclick="setPoll('${parkingId}','safety','mid',this)">🤷 Przeciętnie</button>
-        <button class="sp-poll-opt" onclick="setPoll('${parkingId}','safety','unsafe',this)">⚠️ Ryzykownie</button>
-      </div>
-    </div>
-
-    <div class="sp-poll">
-      <div class="sp-poll-q">Czy parking jest dobrze oznakowany?</div>
-      <div class="sp-poll-opts">
-        <button class="sp-poll-opt" onclick="setPoll('${parkingId}','signs','good',this)">👍 Tak</button>
-        <button class="sp-poll-opt" onclick="setPoll('${parkingId}','signs','bad',this)">👎 Słabe oznakowanie</button>
-      </div>
-    </div>
-  </div>`;
-}
-
-window.setPoll = function(parkingId, question, answer, el) {
-  if (!_pollAnswers[parkingId]) _pollAnswers[parkingId] = {};
-  _pollAnswers[parkingId][question] = answer;
-  // Zaznacz wybrany przycisk
-  el.closest('.sp-poll-opts').querySelectorAll('.sp-poll-opt').forEach(b => {
-    b.classList.remove('sel','sel-bad');
-  });
-  const bad = ['no','small','unsafe','bad'];
-  el.classList.add(bad.includes(answer) ? 'sel-bad' : 'sel');
-};
-
-// Nadpisz mkPopup żeby wstrzyknąć ankietę i lajki do formularza
-const _origMkPopup = mkPopup;
-window.mkPopup = function(p, i, isCustom) {
-  const rawHtml = _origMkPopup(p, i, isCustom);
-  const parkingId = p._docId || ('builtin_' + i);
-  const pollHtml = _buildPollHTML(parkingId);
-  // Wstaw ankietę przed przyciskiem "Dodaj opinię"
-  const needle = '<button class="review-submit" onclick="submitReview(\'' + parkingId + '\'';
-  return rawHtml.replace(needle, pollHtml + needle);
-};
-
-// Nadpisz submitReview żeby zapisywał ankietę i nick
-const _origSubmitReview = submitReview;
-window.submitReview = async function(parkingId, lat, lng, name) {
-  // Dołącz odpowiedzi ankiety do zgłoszenia
-  window._pendingPoll = _pollAnswers[parkingId] || null;
-  await _origSubmitReview(parkingId, lat, lng, name);
-  delete _pollAnswers[parkingId];
-  window._pendingPoll = null;
-};
-
-// Patch addDoc — dodaj poll do zapisywanych danych
-const _origAddDoc = window._fbFns?.addDoc;
-if (_origAddDoc) {
-  window._patchedAddDoc = async function(collRef, data) {
-    if (data.parkingId && data.rating && window._pendingPoll) {
-      data.poll = window._pendingPoll;
-    }
-    return _origAddDoc(collRef, data);
-  };
-  // Podmień w _fbFns po załadowaniu Firebase
-  setTimeout(() => {
-    if (window._fbFns) window._fbFns._addDocOrig = window._fbFns.addDoc;
-  }, 1000);
-}
-
-// Wstrzyknij lajki do wyświetlanych opinii
-const _likedReviews = new Set(JSON.parse(localStorage.getItem('sp_liked') || '[]'));
-
-window.likeReview = async function(reviewId, parkingId) {
-  if (_likedReviews.has(reviewId)) {
-    showSmartToast('Już polubiono tę opinię', 'warn'); return;
-  }
-  try {
-    const { doc, updateDoc, increment } = window._fbFns;
-    await updateDoc(doc(window._fbDb, 'reviews', reviewId), { likes: increment(1) });
-    _likedReviews.add(reviewId);
-    localStorage.setItem('sp_liked', JSON.stringify([..._likedReviews]));
-    // Zaktualizuj przycisk
-    const btn = document.getElementById('like_' + reviewId);
-    if (btn) {
-      btn.classList.add('liked');
-      const cnt = btn.querySelector('.like-cnt');
-      if (cnt) cnt.textContent = parseInt(cnt.textContent || 0) + 1;
-    }
-  } catch(e) { console.warn('Like error:', e); }
-};
-
-// ══════════════════════════════════════════════════════
-// ULEPSZENIA UX — "Znajdź parking dla mnie" + Last Seen
-// ══════════════════════════════════════════════════════
-
-// Wstrzyknij pasek "Znajdź dla mnie" nad listą
-(function injectSmartSearch() {
-  const sbHead = document.querySelector('.sb-head');
-  if (!sbHead) return;
-
-  const bar = document.createElement('div');
-  bar.style.cssText = `padding:6px 8px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:5px`;
-  bar.innerHTML = `
-    <div style="display:flex;gap:5px">
-      <button onclick="smartFindParking()" style="flex:1;background:var(--accent);color:#000;border:none;border-radius:7px;
-        padding:6px 8px;font-size:.7rem;font-weight:800;cursor:pointer;font-family:inherit;
-        display:flex;align-items:center;justify-content:center;gap:5px;transition:opacity .15s"
-        onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
-        🎯 Znajdź dla mnie
-      </button>
-      <button onclick="findNearestFree()" style="flex:1;background:rgba(71,255,176,.12);color:var(--a5);
-        border:1px solid rgba(71,255,176,.28);border-radius:7px;padding:6px 8px;
-        font-size:.7rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s"
-        onmouseover="this.style.background='rgba(71,255,176,.22)'" onmouseout="this.style.background='rgba(71,255,176,.12)'">
-        💚 Najbliższy darmowy
-      </button>
-    </div>`;
-  sbHead.insertAdjacentElement('afterend', bar);
-})();
-
-// Znajdź najlepszy parking na podstawie lokalizacji użytkownika
-window.smartFindParking = function() {
-  if (!userLocation) {
-    showSmartToast('📍 Włącz lokalizację, aby znaleźć najbliższe parkingi', 'warn');
-    locateMe();
-    return;
-  }
-  const [uLat, uLng] = userLocation;
-  const now = new Date();
-  const scored = ALL.map((p, i) => {
-    const dist = haversineKm(uLat, uLng, p.lat, p.lng);
-    const occ = getOccupancy(p, p._docId || 'builtin_' + i);
-    const paidNow = isPaidNow(p);
-    // Scoring: bliżej + tańszy + wolniejszy + lepiej oceniany = wyższy wynik
-    let score = 0;
-    score -= dist * 30;           // odległość – ważna
-    score -= occ.pct * 0.5;       // zajętość
-    score += (p.r || 3) * 8;      // ocena
-    if (p.free || !paidNow) score += 15; // teraz bezpłatny
-    if (p.open) score += 5;
-    return { p, i, dist, score };
-  }).sort((a, b) => b.score - a.score).slice(0, 5);
-
-  // Podświetl top 5 na liście i mapie
-  document.querySelectorAll('.card').forEach(c => c.style.outline = '');
-  scored.forEach(({ p, i }, rank) => {
-    const card = document.querySelector(`.card[data-i="${i}"]`);
-    if (card) {
-      const colors = ['#e8ff47','#47ffb0','#47c8ff','#b47cff','#ff8c47'];
-      card.style.outline = `2px solid ${colors[rank]}`;
-      card.style.outlineOffset = '-2px';
-    }
-  });
-
-  const best = scored[0];
-  showSmartToast(`🏆 Najlepszy wybór: ${best.p.n} (${(best.dist * 1000).toFixed(0)}m)`, 'success');
-  setTimeout(() => activate(best.i), 400);
-
-  // Reset podświetleń po 8s
-  setTimeout(() => document.querySelectorAll('.card').forEach(c => { c.style.outline = ''; }), 8000);
-};
-
-window.findNearestFree = function() {
-  if (!userLocation) {
-    showSmartToast('📍 Włącz lokalizację', 'warn');
-    locateMe(); return;
-  }
-  const [uLat, uLng] = userLocation;
-  const freeParkings = ALL.map((p, i) => ({ p, i, dist: haversineKm(uLat, uLng, p.lat, p.lng) }))
-    .filter(({ p }) => p.free || !isPaidNow(p))
-    .sort((a, b) => a.dist - b.dist);
-
-  if (!freeParkings.length) { showSmartToast('Brak bezpłatnych parkingów w pobliżu', 'warn'); return; }
-  const { p, i, dist } = freeParkings[0];
-  showSmartToast(`💚 Najbliższy bezpłatny: ${p.n} (${(dist*1000).toFixed(0)}m)`, 'success');
-  setTimeout(() => activate(i), 300);
-};
-
-// "Ostatnio oglądane" — pasek pod filtrami
-const _recentlyViewed = JSON.parse(localStorage.getItem('sp_recent') || '[]');
-
-function _addRecentlyViewed(i) {
-  const p = ALL[i];
-  if (!p) return;
-  const id = p._docId || ('builtin_' + i);
-  const filtered = _recentlyViewed.filter(x => x.id !== id);
-  filtered.unshift({ id, name: p.n, type: p.t, i });
-  filtered.splice(5);
-  _recentlyViewed.length = 0;
-  filtered.forEach(x => _recentlyViewed.push(x));
-  localStorage.setItem('sp_recent', JSON.stringify(_recentlyViewed));
-  _renderRecentBar();
-}
-
-function _renderRecentBar() {
-  let bar = document.getElementById('sp-recent-bar');
-  if (!bar) {
-    bar = document.createElement('div');
-    bar.id = 'sp-recent-bar';
-    bar.style.cssText = `padding:4px 8px;border-bottom:1px solid var(--border);overflow-x:auto;
-      white-space:nowrap;scrollbar-width:none`;
-    const filters = document.querySelector('.filters');
-    if (filters) filters.insertAdjacentElement('afterend', bar);
-  }
-  if (!_recentlyViewed.length) { bar.style.display='none'; return; }
-  bar.style.display = 'block';
-  bar.innerHTML = `<span style="font-size:.56rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-right:5px">Ostatnio:</span>` +
-    _recentlyViewed.map(({ name, i }) =>
-      `<button onclick="activate(${i})" style="font-size:.6rem;padding:2px 7px;border-radius:20px;
-        border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;
-        font-family:inherit;margin-right:3px;transition:all .15s"
-        onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
-        onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">${name.substring(0,18)}</button>`
-    ).join('');
-}
-
-// Patch activate — dodaj do ostatnio oglądanych
-const _origActivate = activate;
-window.activate = function(i) {
-  _origActivate(i);
-  _addRecentlyViewed(i);
-};
-
-// Inicjalizacja paska ostatnio oglądanych
-setTimeout(_renderRecentBar, 500);
-
-// ══════════════════════════════════════════════════════
-// AKTUALIZACJA loadReviews — dodaj lajki do wyświetlania
-// ══════════════════════════════════════════════════════
-const _origLoadReviews = loadReviews;
-window.loadReviews = async function(parkingId) {
-  await _origLoadReviews(parkingId);
-  // Dodaj lajki do każdej opinii po załadowaniu
-  const listEl = document.getElementById('reviewList_' + parkingId);
-  if (!listEl) return;
-  listEl.querySelectorAll('.review-item').forEach((item, idx) => {
-    // Sprawdź czy lajk już jest
-    if (item.querySelector('.sp-like-btn')) return;
-    const reviewId = item.dataset.reviewId || ('r_' + parkingId + '_' + idx);
-    item.dataset.reviewId = reviewId;
-    const likeCount = parseInt(item.dataset.likes || '0');
-    const isLiked = _likedReviews.has(reviewId);
-    const likeBtn = document.createElement('div');
-    likeBtn.style.cssText = 'display:flex;justify-content:flex-end;margin-top:5px';
-    likeBtn.innerHTML = `<button id="like_${reviewId}" class="sp-like-btn ${isLiked?'liked':''}"
-      onclick="likeReview('${reviewId}','${parkingId}')">
-      👍 <span class="like-cnt">${likeCount}</span>
-    </button>`;
-    item.appendChild(likeBtn);
-  });
-};
-
-// ══════════════════════════════════════════════════════
-// MOBILE — sidebar toggle + popup fix
-// ══════════════════════════════════════════════════════
-function toggleMobileSidebar() {
-  const sb = document.getElementById('sidebar');
-  const bd = document.getElementById('sb-backdrop');
-  const isOpen = sb.classList.contains('mobile-open');
-  if (isOpen) {
-    closeMobileSidebar();
-  } else {
-    sb.classList.add('mobile-open');
-    bd.classList.add('show');
-    document.getElementById('sp-sb-toggle').innerHTML = '✕';
-  }
-}
-
-function closeMobileSidebar() {
-  document.getElementById('sidebar').classList.remove('mobile-open');
-  document.getElementById('sb-backdrop').classList.remove('show');
-  const btn = document.getElementById('sp-sb-toggle');
-  if (btn) btn.innerHTML = '🅿';
-}
-
-// Na mobile — zamknij sidebar gdy kliknięto parking na liście
-const _origActivateMobile = window.activate;
-window.activate = function(i) {
-  _origActivateMobile(i);
-  if (window.innerWidth <= 640) {
-    setTimeout(closeMobileSidebar, 100);
-  }
-};
-
-// Napraw popup na mobile — przypnij do dołu ekranu przez JS (Leaflet ignoruje CSS position:fixed)
-map.on('popupopen', function(e) {
-  if (window.innerWidth > 640) return;
-  const popup = e.popup;
-  setTimeout(() => {
-    const el = popup.getElement();
-    if (!el) return;
-    el.style.position = 'fixed';
-    el.style.left = '0';
-    el.style.right = '0';
-    el.style.bottom = '0';
-    el.style.top = 'auto';
-    el.style.width = '100vw';
-    el.style.transform = 'none';
-    el.style.margin = '0';
-    el.style.zIndex = '3000';
-    const wrapper = el.querySelector('.leaflet-popup-content-wrapper');
-    if (wrapper) {
-      wrapper.style.width = '100%';
-      wrapper.style.maxWidth = '100%';
-      wrapper.style.borderRadius = '18px 18px 0 0';
-      wrapper.style.maxHeight = '72vh';
-      wrapper.style.overflowY = 'auto';
-      wrapper.style.boxSizing = 'border-box';
-      wrapper.style.margin = '0';
-    }
-    const tip = el.querySelector('.leaflet-popup-tip-container');
-    if (tip) tip.style.display = 'none';
-  }, 10);
-});
-
-// Na telefonie — sprawdź orientację i dostosuj układ
-function _handleOrientation() {
-  const isLandscape = window.innerWidth > window.innerHeight;
-  const mapEl = document.getElementById('map');
-  if (!mapEl) return;
-  if (window.innerWidth <= 640 && isLandscape) {
-    // Landscape mobile — zmniejsz header
-    document.querySelector('header').style.height = '38px';
-  } else {
-    document.querySelector('header').style.height = '';
-  }
-}
-window.addEventListener('resize', _handleOrientation);
-window.addEventListener('orientationchange', _handleOrientation);
-_handleOrientation();
 </script>
 </body>
 </html>
